@@ -1,0 +1,21 @@
+{
+  "name": "sportskeeda-clone",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web,admin -c blue,green,magenta \"npm run dev -w @sports/api\" \"npm run dev -w @sports/web\" \"npm run dev -w @sports/admin\"",
+    "dev:api": "npm run dev -w @sports/api",
+    "dev:web": "npm run dev -w @sports/web",
+    "dev:admin": "npm run dev -w @sports/admin",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run prisma:migrate -w @sports/api",
+    "db:seed": "npm run prisma:seed -w @sports/api",
+    "build": "npm run build -w @sports/api && npm run build -w @sports/web && npm run build -w @sports/admin"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

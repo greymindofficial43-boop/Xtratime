@@ -1,0 +1,149 @@
+@import 'tailwindcss';
+
+:root {
+  --sk-bg: #f8f9fa;
+  --sk-surface: #ffffff;
+  --sk-surface-elevated: #f1f3f5;
+  --sk-border: #e5e7eb;
+  --sk-accent: #ff4d00;
+  --sk-accent-hover: #e64500;
+  --sk-category: #b8860b;
+  --sk-muted: #6b7280;
+  --sk-text: #111827;
+  --sk-heading: #0284c7;
+  --sk-prose: #374151;
+  --sk-hover: rgba(0, 0, 0, 0.05);
+  --sk-nav-hover: #111827;
+  --sk-header-bg: #1c1c1d;
+  --sk-header-border: #333336;
+  --sk-header-nav: #808080;
+}
+
+.dark {
+  --sk-bg: #0a0a0a;
+  --sk-surface: #141414;
+  --sk-surface-elevated: #1c1c1c;
+  --sk-border: #2a2a2a;
+  --sk-accent: #ff4d00;
+  --sk-accent-hover: #ff6a2b;
+  --sk-category: #f5c518;
+  --sk-muted: #9ca3af;
+  --sk-text: #f5f5f5;
+  --sk-heading: #5ec8ff;
+  --sk-prose: #d1d5db;
+  --sk-hover: rgba(255, 255, 255, 0.08);
+  --sk-nav-hover: #ffffff;
+  --sk-header-bg: #1c1c1d;
+  --sk-header-border: #333336;
+  --sk-header-nav: #808080;
+}
+
+body {
+  background: var(--sk-bg);
+  color: var(--sk-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sk-logo,
+.sk-header-logo {
+  font-family: var(--font-poppins), Poppins, sans-serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.375rem;
+  letter-spacing: -0.03em;
+  color: var(--sk-accent);
+  text-transform: lowercase;
+  line-height: 1;
+  text-decoration: none;
+}
+
+@media (min-width: 1024px) {
+  .sk-header-logo {
+    font-size: 1.5rem;
+  }
+}
+
+.sk-header {
+  background: var(--sk-header-bg);
+  border-bottom: 1px solid var(--sk-header-border);
+}
+
+.sk-header-bar {
+  /* Sportskeeda uses a full-width compact 49px bar */
+}
+
+.sk-nav-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sk-header-nav);
+  transition: color 0.15s ease;
+  padding: 2px 0;
+}
+
+.sk-nav-link:hover,
+.sk-nav-link.is-active {
+  color: #ffffff;
+}
+
+.sk-nav-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: #e63946;
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.sk-hamburger:hover span {
+  background: #fff;
+}
+
+.sk-more-btn:hover {
+  color: #fff;
+}
+
+.prose-article h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--sk-text);
+}
+
+.prose-article p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+  color: var(--sk-prose);
+}
+
+.prose-article ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.prose-article li {
+  margin-bottom: 0.5rem;
+  color: var(--sk-prose);
+}
+
+.prose-article a {
+  color: var(--sk-accent);
+  text-decoration: underline;
+}
+
+.sk-scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.sk-scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

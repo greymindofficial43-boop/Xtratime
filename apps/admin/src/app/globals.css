@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+
+:root {
+  --admin-bg: #f8fafc;
+  --admin-card: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-text: #0f172a;
+  --admin-muted: #64748b;
+  --admin-sidebar: #0f172a;
+  --admin-accent: #ff4d00;
+}
+
+.dark {
+  --admin-bg: #0f172a;
+  --admin-card: #1e293b;
+  --admin-border: #334155;
+  --admin-text: #f1f5f9;
+  --admin-muted: #94a3b8;
+}
+
+body {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+/* Theme-aware overrides for admin pages using Tailwind slate utilities */
+.dark main .bg-white,
+.dark .admin-surface {
+  background-color: var(--admin-card) !important;
+}
+
+.dark main .border-slate-200,
+.dark main .border-slate-300,
+.dark .admin-surface {
+  border-color: var(--admin-border) !important;
+}
+
+.dark main .text-slate-500,
+.dark main .text-slate-600,
+.dark main .text-slate-700 {
+  color: var(--admin-muted) !important;
+}
+
+.dark main input,
+.dark main select,
+.dark main textarea {
+  background-color: var(--admin-card);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.dark .admin-login-shell {
+  background-color: #020617 !important;
+}
+
+.dark .admin-login-card {
+  background-color: var(--admin-card) !important;
+  color: var(--admin-text);
+}
+
+.dark .admin-login-card .text-slate-500,
+.dark .admin-login-card .text-slate-700 {
+  color: var(--admin-muted) !important;
+}
