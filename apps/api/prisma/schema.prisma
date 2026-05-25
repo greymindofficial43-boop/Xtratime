@@ -82,3 +82,39 @@ model ArticleTag {
 
   @@id([articleId, tagId])
 }
+
+enum AdType {
+  GOOGLE
+  CUSTOM
+}
+
+model Match {
+  id            String   @id @default(cuid())
+  sport         String
+  title         String
+  homeTeamName  String
+  homeTeamLogo  String
+  homeTeamScore String?
+  awayTeamName  String
+  awayTeamLogo  String
+  awayTeamScore String?
+  status        String   // 'live' | 'upcoming' | 'result'
+  note          String?
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Advertisement {
+  id          String   @id @default(cuid())
+  title       String
+  type        AdType   @default(CUSTOM)
+  partnerName String?
+  imageUrl    String?
+  targetUrl   String?
+  googleCode  String?  @db.Text
+  slotId      String   // e.g. "sidebar", "header"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

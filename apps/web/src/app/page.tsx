@@ -1,3 +1,4 @@
+import { AdSlot } from '@/components/AdSlot';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategorySection } from '@/components/CategorySection';
 import { LiveScoresSection } from '@/components/LiveScoresSection';
@@ -67,6 +68,8 @@ export default async function HomePage() {
 
         <PromoBanner />
 
+        <AdSlot slotId="homepage-inline" className="mt-10" />
+
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_300px]">
           <div>
             {sectionData.map(({ category, articles, popular }) => (
@@ -80,15 +83,18 @@ export default async function HomePage() {
           </div>
 
           <aside className="hidden lg:block">
-            <div className="sticky top-24 rounded-lg border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-              <h2 className="mb-4 text-lg font-bold text-[var(--sk-text)]">Trending Now</h2>
-              {trending.items.length > 0 ? (
-                trending.items.map((article, i) => (
-                  <ArticleCard key={article.id} article={article} size="numbered" rank={i + 1} />
-                ))
-              ) : (
-                <p className="text-sm text-[var(--sk-muted)]">No trending stories yet.</p>
-              )}
+            <div className="sticky top-24 space-y-6">
+              <AdSlot slotId="homepage-sidebar" />
+              <div className="rounded-lg border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+                <h2 className="mb-4 text-lg font-bold text-[var(--sk-text)]">Trending Now</h2>
+                {trending.items.length > 0 ? (
+                  trending.items.map((article, i) => (
+                    <ArticleCard key={article.id} article={article} size="numbered" rank={i + 1} />
+                  ))
+                ) : (
+                  <p className="text-sm text-[var(--sk-muted)]">No trending stories yet.</p>
+                )}
+              </div>
             </div>
           </aside>
         </div>

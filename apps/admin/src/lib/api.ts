@@ -38,6 +38,41 @@ export type Article = {
   tags: Tag[];
 };
 
+export type MatchStatus = 'live' | 'upcoming' | 'result';
+
+export type Match = {
+  id: string;
+  sport: string;
+  title: string;
+  homeTeamName: string;
+  homeTeamLogo: string;
+  homeTeamScore?: string | null;
+  awayTeamName: string;
+  awayTeamLogo: string;
+  awayTeamScore?: string | null;
+  status: MatchStatus;
+  note?: string | null;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdType = 'GOOGLE' | 'CUSTOM';
+
+export type Advertisement = {
+  id: string;
+  title: string;
+  type: AdType;
+  partnerName?: string | null;
+  imageUrl?: string | null;
+  targetUrl?: string | null;
+  googleCode?: string | null;
+  slotId: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('token');
@@ -112,4 +147,20 @@ export const adminApi = {
 
   deleteArticle: (id: string) =>
     apiFetch(`/articles/${id}`, { method: 'DELETE' }),
+
+  getMatches: () => apiFetch<Match[]>('/matches'),
+  createMatch: (data: Partial<Match>) =>
+    apiFetch<Match>('/matches', { method: 'POST', body: JSON.stringify(data) }),
+  updateMatch: (id: string, data: Partial<Match>) =>
+    apiFetch<Match>(`/matches/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteMatch: (id: string) =>
+    apiFetch(`/matches/${id}`, { method: 'DELETE' }),
+
+  getAds: () => apiFetch<Advertisement[]>('/ads'),
+  createAd: (data: Partial<Advertisement>) =>
+    apiFetch<Advertisement>('/ads', { method: 'POST', body: JSON.stringify(data) }),
+  updateAd: (id: string, data: Partial<Advertisement>) =>
+    apiFetch<Advertisement>(`/ads/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteAd: (id: string) =>
+    apiFetch(`/ads/${id}`, { method: 'DELETE' }),
 };

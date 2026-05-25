@@ -72,9 +72,9 @@ function ScorecardCard({ card }: { card: Scorecard }) {
           <span className="flex-1 border-r border-[var(--sk-border)] px-2 py-1.5 text-center text-[var(--sk-muted)] hover:text-[var(--sk-text)]">
             Points Table ›
           </span>
-          <span className="flex-1 px-2 py-1.5 text-center text-[var(--sk-muted)] hover:text-[var(--sk-text)]">
+          <Link href="/schedule" className="flex-1 px-2 py-1.5 text-center text-[var(--sk-muted)] hover:text-[var(--sk-text)] transition block">
             Schedule ›
-          </span>
+          </Link>
         </div>
       )}
     </Link>

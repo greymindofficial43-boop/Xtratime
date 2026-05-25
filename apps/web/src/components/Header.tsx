@@ -3,6 +3,8 @@ import { api } from '@/lib/api';
 import { HeaderMoreMenu } from './HeaderMoreMenu';
 import { HeaderNav, type NavItem } from './HeaderNav';
 import { MobileNav } from './MobileNav';
+import { SearchBar } from './SearchBar';
+import { ThemeToggle } from './ThemeToggle';
 
 const TOP_NAV: { label: string; slug: string; badge?: 'NEW' }[] = [
   { label: 'Cricket', slug: 'cricket' },
@@ -46,7 +48,14 @@ export async function Header() {
 
         <HeaderNav items={navItems} />
 
-        <div className="ml-auto flex shrink-0 items-center">
+        <div className="ml-auto flex shrink-0 items-center gap-4">
+          <SearchBar />
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
+          <a href="#" className="hidden text-sm font-semibold text-[var(--sk-header-nav)] hover:text-white sm:block">
+            Writers Home
+          </a>
           <HeaderMoreMenu categories={categories} topNavSlugs={TOP_NAV_SLUGS} />
         </div>
       </div>

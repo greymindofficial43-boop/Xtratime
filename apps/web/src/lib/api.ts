@@ -48,6 +48,37 @@ export type PaginatedArticles = {
   totalPages: number;
 };
 
+export type MatchStatus = 'live' | 'upcoming' | 'result';
+
+export type Match = {
+  id: string;
+  sport: string;
+  title: string;
+  homeTeamName: string;
+  homeTeamLogo: string;
+  homeTeamScore?: string | null;
+  awayTeamName: string;
+  awayTeamLogo: string;
+  awayTeamScore?: string | null;
+  status: MatchStatus;
+  note?: string | null;
+  date: string;
+};
+
+export type AdType = 'GOOGLE' | 'CUSTOM';
+
+export type Advertisement = {
+  id: string;
+  title: string;
+  type: AdType;
+  partnerName?: string | null;
+  imageUrl?: string | null;
+  targetUrl?: string | null;
+  googleCode?: string | null;
+  slotId: string;
+  isActive: boolean;
+};
+
 async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
@@ -77,4 +108,9 @@ export const api = {
   getArticle: (slug: string) => fetchApi<Article>(`/articles/${slug}`),
   searchArticles: (q: string) =>
     fetchApi<PaginatedArticles>(`/articles?search=${encodeURIComponent(q)}&limit=20`),
+  getMatches: () => fetchApi<Match[]>('/matches', { cache: 'no-store' }),
+  getAds: (slotId?: string) =>
+    fetchApi<Advertisement[]>(`/ads${slotId ? `?slotId=${encodeURIComponent(slotId)}` : ''}`, {
+      cache: 'no-store',
+    }),
 };

@@ -10,7 +10,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      adminApi.getArticles({ limit: '100' }),
+      adminApi.getArticles({ limit: '50' }),
       adminApi.getCategories(),
       adminApi.getTags(),
     ]).then(([articles, categories, tags]) => {
@@ -56,6 +56,18 @@ export default function DashboardPage() {
             className="rounded-lg bg-[var(--admin-accent)] px-4 py-2 text-sm font-medium text-white"
           >
             + New Article
+          </Link>
+          <Link
+            href="/matches"
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium"
+          >
+            Manage Matches
+          </Link>
+          <Link
+            href="/ads"
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium"
+          >
+            Manage Ads
           </Link>
           <Link
             href="/categories"

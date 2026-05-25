@@ -6,6 +6,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
+import { MatchesModule } from './matches/matches.module';
+import { AdsModule } from './ads/ads.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { UsersModule } from './users/users.module';
     CategoriesModule,
     TagsModule,
     ArticlesModule,
+    MatchesModule,
+    AdsModule,
   ],
 })
 export class AppModule {}
