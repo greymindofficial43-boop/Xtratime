@@ -5,6 +5,7 @@ import './globals.css';
 import { BreakingTicker } from '@/components/BreakingTicker';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
+import { SubHeader } from '@/components/SubHeader';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
         <ThemeProvider>
           <Header />
+          <SubHeader />
           <BreakingTicker />
           <main>{children}</main>
           <Footer />

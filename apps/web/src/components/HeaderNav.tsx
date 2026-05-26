@@ -17,16 +17,22 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
       {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={`sk-nav-link relative shrink-0 whitespace-nowrap ${
-              active ? 'is-active' : ''
-            }`}
-          >
-            {item.label}
-            {item.badge && <span className="sk-nav-badge">{item.badge}</span>}
-          </Link>
+          <div key={item.label} className="relative flex h-full items-center">
+            <Link
+              href={item.href}
+              className={`sk-nav-link relative shrink-0 whitespace-nowrap py-[14px] ${
+                active ? 'text-[var(--sn-accent)]' : 'hover:text-white'
+              }`}
+            >
+              {item.label}
+              {item.badge && <span className="sk-nav-badge">{item.badge}</span>}
+            </Link>
+            {active && (
+              <div
+                className="absolute bottom-0 left-1/2 h-0 w-0 -translate-x-1/2 border-l-[6px] border-r-[6px] border-b-[6px] border-l-transparent border-r-transparent border-b-[var(--sn-accent)]"
+              />
+            )}
+          </div>
         );
       })}
     </nav>

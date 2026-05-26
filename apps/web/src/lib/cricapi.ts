@@ -182,7 +182,8 @@ export async function fetchCricketScorecards(limit = 10): Promise<Scorecard[]> {
       home: makeTeam(t1, s1),
       away: makeTeam(t2, s2),
       status: state,
-      href: '/category/cricket',
+      href: `/match/${m.id}`,
+      showPointsTable: true,
     };
 
     if (state === 'live') {

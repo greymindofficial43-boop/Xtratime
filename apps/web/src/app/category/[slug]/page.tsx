@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
-import { CricketMatchCard } from '@/components/CricketMatchCard';
+import { ScorecardCarousel } from '@/components/ScorecardCarousel';
 import { EspnNewsCard } from '@/components/EspnNewsCard';
-import { AD_SLOTS, GoogleAd } from '@/components/GoogleAd';
+import { AdSlot } from '@/components/AdSlot';
 import { api } from '@/lib/api';
-import { fetchCricketMatches } from '@/lib/cricapi';
-import { fetchCategoryNews } from '@/lib/espn';
+import { fetchCategoryNews, fetchCategoryScorecards } from '@/lib/espn';
+import { fetchCricketScorecards } from '@/lib/cricapi';
 import { notFound } from 'next/navigation';
+import { Fragment } from 'react';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,36 +23,80 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
-  const [category, articles, trending, espnNews, cricketMatches] = await Promise.all([
-    api.getCategory(slug).catch(() => null),
+  let category = await api.getCategory(slug).catch(() => null);
+
+  // If category is not in DB, create a fallback so ESPN data still loads
+  if (!category) {
+    category = {
+      id: slug,
+      name: slug.charAt(0).toUpperCase() + slug.slice(1).toLowerCase(),
+      slug: slug,
+      description: `Latest news, scores and updates for ${slug}`,
+      icon: '🏆',
+    };
+  }
+
+  const [articles, trending, espnNews, cricketMatches, espnMatches] = await Promise.all([
     api.getArticles({ category: slug, limit: 24 }).catch(() => ({ items: [] })),
     api.getArticles({ category: slug, trending: true, limit: 5 }).catch(() => ({ items: [] })),
     fetchCategoryNews(slug, 8),
-    slug === 'cricket' ? fetchCricketMatches(12) : Promise.resolve([]),
+    slug === 'cricket' ? fetchCricketScorecards(12) : Promise.resolve([]),
+    slug !== 'cricket' ? fetchCategoryScorecards(slug, 12) : Promise.resolve([]),
   ]);
 
-  if (!category) notFound();
-
   const [featured, ...rest] = articles.items;
+  const matches = slug === 'cricket' ? cricketMatches : espnMatches;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
-      {/* Category header */}
-      <header className="mb-6 flex items-center gap-3 border-b border-[var(--sk-border)] pb-5">
-        <span className="text-4xl leading-none">{category.icon ?? '🏆'}</span>
-        <div>
-          <h1 className="text-2xl font-black text-[var(--sk-text)] md:text-3xl">
-            {category.name}
-          </h1>
-          {category.description && (
-            <p className="mt-1 text-sm text-[var(--sk-muted)]">{category.description}</p>
+      {/* Breadcrumbs */}
+      <div className="mb-4 text-xs font-semibold text-[var(--sk-muted)]">
+        <Link href="/" className="hover:text-[var(--sk-text)]">
+          Home
+        </Link>
+        {' > '}
+        <span className="text-[var(--sk-text)]">{category.name} News</span>
+      </div>
+
+      {/* Matches Carousel for Category (Full Width) */}
+      <section className="mb-8 overflow-hidden rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface-elevated)] shadow-sm">
+        <div className="flex items-center justify-between border-b border-[var(--sk-border)] px-4 pt-3">
+          <div className="flex gap-4">
+            <span className="border-b-2 border-[var(--sk-accent)] pb-2 text-sm font-bold text-[var(--sk-text)]">
+              Featured
+            </span>
+          </div>
+          <Link href="/schedule" className="pb-2 text-xs font-bold text-sky-500 hover:text-sky-400">
+            All Fixtures ›
+          </Link>
+        </div>
+        <div className="p-4 bg-[#1e1e1e] dark:bg-transparent min-h-[150px] flex items-center justify-center">
+          {matches.length > 0 ? (
+            <ScorecardCarousel cards={matches} />
+          ) : (
+            <div className="text-center text-sm font-semibold text-white/50">
+              No live or recent matches available right now.
+            </div>
           )}
         </div>
+      </section>
+
+      {/* Category header */}
+      <header className="mb-6 flex items-center gap-3 pb-2">
+        <h1 className="text-3xl font-black text-[var(--sk-text)] md:text-4xl">
+          {category.name}
+        </h1>
+        {category.description && (
+          <span className="mt-2 text-sm text-[var(--sk-muted)] hidden md:inline-block">
+            — {category.description}
+          </span>
+        )}
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
         {/* Main content */}
         <div>
+
           {/* Featured (hero) article */}
           {featured && (
             <div className="mb-8">
@@ -59,11 +104,20 @@ export default async function CategoryPage({ params }: Props) {
             </div>
           )}
 
-          {/* Article list */}
+          {/* Article list with dynamic Ads injected every 3 items */}
           {rest.length > 0 && (
             <div className="divide-y divide-[var(--sk-border)] rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] px-3">
-              {rest.map((article) => (
-                <ArticleCard key={article.id} article={article} size="list" />
+              {rest.map((article, index) => (
+                <Fragment key={article.id}>
+                  <ArticleCard article={article} size="list" />
+                  
+                  {/* Inject ad every 3 articles */}
+                  {(index + 1) % 3 === 0 && (
+                    <div className="py-4">
+                      <AdSlot slotId="inContentMid" className="border-none shadow-none" />
+                    </div>
+                  )}
+                </Fragment>
               ))}
             </div>
           )}
@@ -74,33 +128,9 @@ export default async function CategoryPage({ params }: Props) {
             </p>
           )}
 
-          {/* In-article ad */}
-          <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-            <GoogleAd slot={AD_SLOTS.inContentTop} minHeight={250} />
-          </div>
-
-          {/* Cricket live scores — only on cricket category */}
-          {cricketMatches.length > 0 && (
-            <section className="mt-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
-                  🏏 Live &amp; Recent Matches
-                </h2>
-                <span className="rounded-full border border-[var(--sk-border)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--sk-muted)]">
-                  CricAPI
-                </span>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {cricketMatches.map((match) => (
-                  <CricketMatchCard key={match.id} match={match} />
-                ))}
-              </div>
-            </section>
-          )}
-
           {/* ESPN news for this sport category */}
           {espnNews.length > 0 && (
-            <section className="mt-4">
+            <section className="mt-8">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
                   Latest ESPN {category.name} News
@@ -142,7 +172,7 @@ export default async function CategoryPage({ params }: Props) {
 
             {/* Sidebar ad */}
             <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-              <GoogleAd slot={AD_SLOTS.sidebar} minHeight={250} />
+              <AdSlot slotId="sidebar" />
             </div>
 
             {/* ESPN news sidebar (compact) — if different from main */}

@@ -3,6 +3,7 @@
 import { adminApi, type Article, type Category, type Tag } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useState } from 'react';
+import { RichTextEditor } from './RichTextEditor';
 
 type Props = {
   article?: Article;
@@ -121,17 +122,11 @@ export function ArticleForm({ article }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Content (HTML) *</label>
-          <textarea
+          <label className="block text-sm font-medium mb-1">Content *</label>
+          <RichTextEditor
             value={form.content}
-            onChange={(e) => update('content', e.target.value)}
-            rows={12}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
-            required
+            onChange={(val) => update('content', val)}
           />
-          <p className="mt-1 text-xs text-slate-400">
-            Use HTML tags: &lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;, &lt;li&gt;, etc.
-          </p>
         </div>
       </div>
 

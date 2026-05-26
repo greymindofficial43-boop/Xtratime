@@ -13,71 +13,68 @@ function TeamRow({ team }: { team: Scorecard['home'] }) {
         </span>
         <span className="truncate text-sm font-semibold text-[var(--sk-text)]">{team.abbr}</span>
       </div>
-      {(team.score || team.overs) && (
-        <div className="shrink-0 text-right">
-          {team.score && <span className="text-sm font-bold text-[var(--sk-text)]">{team.score}</span>}
-          {team.overs && (
-            <span className="ml-1 text-xs text-[var(--sk-muted)]">{team.overs}</span>
-          )}
-        </div>
-      )}
+      <div className="shrink-0 text-right">
+        <span className="text-sm font-bold text-[var(--sk-text)]">{team.score ?? '0'}</span>
+        {team.overs && (
+          <span className="ml-1 text-xs text-[var(--sk-muted)]">{team.overs}</span>
+        )}
+      </div>
     </div>
   );
 }
 
 function ScorecardCard({ card }: { card: Scorecard }) {
   return (
-    <Link
-      href={card.href}
-      className="block min-w-[220px] shrink-0 rounded-lg border border-[var(--sk-border)] bg-[var(--sk-surface)] transition hover:border-[var(--sk-accent)]/50"
-    >
-      <div className="border-b border-[var(--sk-border)] px-3 py-2">
-        <p className="text-[11px] font-medium text-[var(--sk-muted)]">{card.meta}</p>
-      </div>
+    <div className="flex flex-col min-w-[220px] shrink-0 rounded-lg border border-[var(--sk-border)] bg-[var(--sk-surface)] transition hover:border-[var(--sk-accent)]/50">
+      <Link href={card.href} className="flex-1 block">
+        <div className="border-b border-[var(--sk-border)] px-3 py-2">
+          <p className="text-[11px] font-medium text-[var(--sk-muted)]">{card.meta}</p>
+        </div>
 
-      <div className="px-3 py-2">
-        <TeamRow team={card.home} />
-        <TeamRow team={card.away} />
-      </div>
+        <div className="px-3 py-2">
+          <TeamRow team={card.home} />
+          <TeamRow team={card.away} />
+        </div>
 
-      <div className="min-h-[40px] border-t border-[var(--sk-border)] px-3 py-2">
-        {card.status === 'completed' && card.result && (
-          <p className="text-xs font-semibold text-sky-400">{card.result}</p>
-        )}
-        {card.status === 'live' && (
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-            </span>
-            <span className="text-xs font-bold text-red-400">LIVE</span>
-            {card.liveMinute && (
-              <span className="text-xs text-[var(--sk-muted)]">{card.liveMinute}</span>
-            )}
-            {card.result && (
-              <span className="ml-auto text-xs text-sky-400">{card.result}</span>
-            )}
-          </div>
-        )}
-        {card.status === 'upcoming' && (
-          <div>
-            <p className="text-sm font-bold text-[var(--sk-text)]">{card.scheduledTime}</p>
-            <p className="text-xs text-[var(--sk-muted)]">{card.scheduledDay}</p>
-          </div>
-        )}
-      </div>
+        <div className="min-h-[40px] border-t border-[var(--sk-border)] px-3 py-2">
+          {card.status === 'completed' && card.result && (
+            <p className="text-xs font-semibold text-sky-400">{card.result}</p>
+          )}
+          {card.status === 'live' && (
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+              </span>
+              <span className="text-xs font-bold text-red-400">LIVE</span>
+              {card.liveMinute && (
+                <span className="text-xs text-[var(--sk-muted)]">{card.liveMinute}</span>
+              )}
+              {card.result && (
+                <span className="ml-auto text-xs text-sky-400">{card.result}</span>
+              )}
+            </div>
+          )}
+          {card.status === 'upcoming' && (
+            <div>
+              <p className="text-sm font-bold text-[var(--sk-text)]">{card.scheduledTime}</p>
+              <p className="text-xs text-[var(--sk-muted)]">{card.scheduledDay}</p>
+            </div>
+          )}
+        </div>
+      </Link>
 
       {card.showPointsTable && (
         <div className="flex border-t border-[var(--sk-border)] text-[11px]">
-          <span className="flex-1 border-r border-[var(--sk-border)] px-2 py-1.5 text-center text-[var(--sk-muted)] hover:text-[var(--sk-text)]">
+          <Link href="/standings" className="flex-1 border-r border-[var(--sk-border)] px-2 py-1.5 text-center text-[var(--sk-muted)] hover:text-[var(--sk-text)] transition block">
             Points Table ›
-          </span>
+          </Link>
           <Link href="/schedule" className="flex-1 px-2 py-1.5 text-center text-[var(--sk-muted)] hover:text-[var(--sk-text)] transition block">
             Schedule ›
           </Link>
         </div>
       )}
-    </Link>
+    </div>
   );
 }
 

@@ -204,7 +204,8 @@ function normalizeToScorecard(
     home: makeTeam(homeComp),
     away: makeTeam(awayComp),
     status,
-    href,
+    href: `/match/${event.id}`,
+    showPointsTable: true,
   };
 
   if (status === 'live') {
@@ -338,6 +339,21 @@ export async function fetchAllScoreboards(): Promise<SportCards> {
     .map((c) => ({ ...c, tabs: [...c.tabs, 'featured' as ScorecardTab] }));
 
   return { featured, cricket: [], nfl, nba, mlb, soccer, nhl };
+}
+
+export async function fetchCategoryScorecards(slug: string, limit = 12): Promise<Scorecard[]> {
+  const sport = CATEGORY_SPORT_MAP[slug];
+  if (!sport) return [];
+
+  const board = await fetchEspn<EspnScoreboard>(`${sport.path}/scoreboard`);
+  return boardToScorecards(
+    board,
+    sport.path.split('/')[1] || 'football',
+    sport.sportSlug,
+    sport.sportLabel,
+    `/category/${slug}`,
+    limit
+  );
 }
 
 // ─── Public: full schedule ────────────────────────────────────────────────────

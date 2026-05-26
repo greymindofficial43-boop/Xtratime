@@ -18,7 +18,7 @@ export default function ArticlesPage() {
   async function load() {
     setLoading(true);
     try {
-      const res = await adminApi.getArticles({ limit: '100' });
+      const res = await adminApi.getArticles({ limit: '50' });
       setArticles(res.items);
     } finally {
       setLoading(false);
