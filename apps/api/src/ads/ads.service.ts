@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAdDto } from './dto/create-ad.dto';
 import { UpdateAdDto } from './dto/update-ad.dto';
@@ -16,11 +16,15 @@ export class AdsService {
     return this.prisma.advertisement.create({ data });
   }
 
-  update(id: string, data: UpdateAdDto) {
+  async update(id: string, data: UpdateAdDto) {
+    const ad = await this.prisma.advertisement.findUnique({ where: { id } });
+    if (!ad) throw new NotFoundException('Advertisement not found');
     return this.prisma.advertisement.update({ where: { id }, data });
   }
 
-  remove(id: string) {
+  async remove(id: string) {
+    const ad = await this.prisma.advertisement.findUnique({ where: { id } });
+    if (!ad) throw new NotFoundException('Advertisement not found');
     return this.prisma.advertisement.delete({ where: { id } });
   }
 }

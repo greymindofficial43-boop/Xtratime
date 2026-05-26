@@ -13,19 +13,28 @@ export function CategorySection({ category, articles, popular }: Props) {
 
   return (
     <section className="border-t border-[var(--sk-border)] py-8">
-      <div className="mb-4 flex items-center gap-2">
-        <h2 className="text-2xl font-bold text-[var(--sk-text)]">{category.name}</h2>
+      {/* Section header */}
+      <div className="mb-5 flex items-center justify-between">
+        <div className="sk-section-heading flex items-center gap-2">
+          {category.icon && (
+            <span className="text-xl leading-none">{category.icon}</span>
+          )}
+          <h2 className="text-xl font-black uppercase tracking-tight text-[var(--sk-text)]">
+            {category.name}
+          </h2>
+        </div>
         <Link
           href={`/category/${category.slug}`}
-          className="text-2xl font-bold text-[var(--sk-heading)] hover:text-[var(--sk-accent)]"
+          className="sk-view-all-btn"
           aria-label={`View all ${category.name} news`}
         >
-          ›
+          View All <span aria-hidden>›</span>
         </Link>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
-        <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
+        {/* Main: hero + list articles */}
+        <div className="grid gap-5 sm:grid-cols-2">
           <div>
             {featured ? (
               <ArticleCard article={featured} size="hero" />
@@ -33,16 +42,17 @@ export function CategorySection({ category, articles, popular }: Props) {
               <p className="text-sm text-[var(--sk-muted)]">No stories yet.</p>
             )}
           </div>
-          <div>
+          <div className="divide-y divide-[var(--sk-border)]">
             {rest.slice(0, 4).map((article) => (
               <ArticleCard key={article.id} article={article} size="list" />
             ))}
           </div>
         </div>
 
-        <aside className="rounded-lg border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-          <div className="mb-3 inline-block rounded-full border border-[var(--sk-accent)] px-3 py-0.5 text-xs font-semibold text-[var(--sk-accent)]">
-            Latest News
+        {/* Sidebar: latest/popular */}
+        <aside className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="sk-cat-badge text-[9px]">Latest</span>
           </div>
           {popular.length > 0 ? (
             popular.slice(0, 5).map((article, i) => (
@@ -56,9 +66,9 @@ export function CategorySection({ category, articles, popular }: Props) {
 
       <Link
         href={`/category/${category.slug}`}
-        className="mt-6 flex w-full items-center justify-center rounded-full border border-[var(--sk-border)] px-6 py-2.5 text-sm font-medium text-[var(--sk-text)] transition hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]"
+        className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-full border border-[var(--sk-border)] bg-[var(--sk-surface)] px-6 py-2 text-xs font-bold uppercase tracking-wider text-[var(--sk-muted)] transition hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]"
       >
-        View all {category.name} News
+        More {category.name} News ›
       </Link>
     </section>
   );

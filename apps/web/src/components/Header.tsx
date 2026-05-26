@@ -6,18 +6,6 @@ import { MobileNav } from './MobileNav';
 import { SearchBar } from './SearchBar';
 import { ThemeToggle } from './ThemeToggle';
 
-const TOP_NAV: { label: string; slug: string; badge?: 'NEW' }[] = [
-  { label: 'Cricket', slug: 'cricket' },
-  { label: 'Tech SK', slug: 'gaming', badge: 'NEW' },
-  { label: 'Indian Sports', slug: 'indian-sports' },
-  { label: 'Football', slug: 'football' },
-  { label: 'Tennis', slug: 'tennis' },
-  { label: 'Golf', slug: 'golf' },
-  { label: 'F1', slug: 'f1' },
-];
-
-const TOP_NAV_SLUGS = TOP_NAV.map((n) => n.slug);
-
 export async function Header() {
   let categories: Awaited<ReturnType<typeof api.getCategories>> = [];
   try {
@@ -26,37 +14,48 @@ export async function Header() {
     categories = [];
   }
 
-  const categoryBySlug = Object.fromEntries(categories.map((c) => [c.slug, c]));
+  // Build nav from categories where showInNav === true, sorted by navOrder
+  const navCategories = categories
+    .filter((c) => c.showInNav)
+    .sort((a, b) => (a.navOrder ?? 99) - (b.navOrder ?? 99));
 
-  const navItems: NavItem[] = TOP_NAV.map((item) => {
-    const cat = categoryBySlug[item.slug];
-    return {
-      label: item.label,
-      href: cat ? `/category/${cat.slug}` : '/',
-      badge: item.badge,
-    };
-  });
+  // Fallback: if no nav categories configured yet, show a default set
+  const fallbackSlugs = ['cricket', 'football', 'nba', 'nfl', 'gaming', 'wwe'];
+  const navItems: NavItem[] =
+    navCategories.length > 0
+      ? navCategories.map((c) => ({ label: c.name, href: `/category/${c.slug}` }))
+      : fallbackSlugs
+          .map((slug) => categories.find((c) => c.slug === slug))
+          .filter(Boolean)
+          .map((c) => ({ label: c!.name, href: `/category/${c!.slug}` }));
+
+  const topNavSlugs = navItems.map((n) => n.href.split('/').pop() ?? '');
 
   return (
-    <header className="sk-header sticky top-0 z-50">
-      <div className="sk-header-bar mx-auto flex h-[49px] max-w-[1440px] items-center gap-3 px-3 sm:px-4">
+    <header className="sticky top-0 z-50 bg-[var(--sn-header-bg)] border-b border-[var(--sn-header-border)]">
+      {/* Top bar */}
+      <div className="mx-auto flex h-[52px] max-w-[1440px] items-center gap-3 px-3 sm:px-5">
         <MobileNav categories={categories} navItems={navItems} />
 
-        <Link href="/" className="sk-header-logo shrink-0" aria-label="Sportskeeda home">
-          sportskeeda
+        {/* Logo */}
+        <Link href="/" className="sn-logo shrink-0" aria-label="SportyNewz home">
+          sporty<span className="sn-logo-accent">newz</span>
         </Link>
 
         <HeaderNav items={navItems} />
 
-        <div className="ml-auto flex shrink-0 items-center gap-4">
+        <div className="ml-auto flex shrink-0 items-center gap-3">
           <SearchBar />
           <div className="hidden sm:block">
             <ThemeToggle />
           </div>
-          <a href="#" className="hidden text-sm font-semibold text-[var(--sk-header-nav)] hover:text-white sm:block">
-            Writers Home
-          </a>
-          <HeaderMoreMenu categories={categories} topNavSlugs={TOP_NAV_SLUGS} />
+          <Link
+            href="/schedule"
+            className="hidden rounded-full border border-[var(--sn-accent)] px-3 py-1 text-xs font-bold text-[var(--sn-accent)] transition hover:bg-[var(--sn-accent)] hover:text-white sm:block"
+          >
+            Live Scores
+          </Link>
+          <HeaderMoreMenu categories={categories} topNavSlugs={topNavSlugs} />
         </div>
       </div>
     </header>

@@ -43,9 +43,7 @@ export function ArticleForm({ article }: Props) {
     Promise.all([adminApi.getCategories(), adminApi.getTags()]).then(([cats, tgs]) => {
       setCategories(cats);
       setTags(tgs);
-      if (!form.categoryId && cats[0]) {
-        setForm((f) => ({ ...f, categoryId: cats[0].id }));
-      }
+      setForm((f) => (!f.categoryId && cats[0] ? { ...f, categoryId: cats[0].id } : f));
     });
   }, []);
 

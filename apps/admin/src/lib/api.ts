@@ -15,6 +15,8 @@ export type Category = {
   icon?: string | null;
   color?: string | null;
   sortOrder: number;
+  showInNav: boolean;
+  navOrder: number;
 };
 
 export type Tag = {
@@ -34,7 +36,7 @@ export type Article = {
   isFeatured: boolean;
   isTrending: boolean;
   categoryId: string;
-  category: { id: string; name: string; slug: string };
+  category: { id: string; name: string; slug: string; color?: string | null };
   tags: Tag[];
 };
 

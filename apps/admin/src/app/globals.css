@@ -1,37 +1,44 @@
 @import 'tailwindcss';
 
 :root {
-  --admin-bg: #f8fafc;
-  --admin-card: #ffffff;
-  --admin-border: #e2e8f0;
-  --admin-text: #0f172a;
-  --admin-muted: #64748b;
-  --admin-sidebar: #0f172a;
-  --admin-accent: #ff4d00;
+  --admin-bg:        #f0f2f6;
+  --admin-surface:   #ffffff;
+  --admin-border:    #e2e6ec;
+  --admin-text:      #0d1117;
+  --admin-muted:     #6b7280;
+  --admin-sidebar:   #0d1420;
+  --admin-sidebar-2: #111b2e;
+  --admin-accent:    #f04522;
+  --admin-accent-2:  #3b82f6;
+  --admin-success:   #16a34a;
+  --admin-warning:   #d97706;
+  --admin-shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --admin-shadow-md: 0 4px 16px rgba(0,0,0,0.10);
 }
 
 .dark {
-  --admin-bg: #0f172a;
-  --admin-card: #1e293b;
-  --admin-border: #334155;
-  --admin-text: #f1f5f9;
-  --admin-muted: #94a3b8;
+  --admin-bg:        #080b10;
+  --admin-surface:   #0f1520;
+  --admin-border:    #1e2535;
+  --admin-text:      #f1f5f9;
+  --admin-muted:     #9ca3af;
 }
 
 body {
   background: var(--admin-bg);
   color: var(--admin-text);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Theme-aware overrides for admin pages using Tailwind slate utilities */
-.dark main .bg-white,
-.dark .admin-surface {
-  background-color: var(--admin-card) !important;
+/* Dark-mode surface overrides for inline Tailwind classes */
+.dark .admin-card,
+.dark main .bg-white {
+  background-color: var(--admin-surface) !important;
 }
 
 .dark main .border-slate-200,
-.dark main .border-slate-300,
-.dark .admin-surface {
+.dark main .border-slate-300 {
   border-color: var(--admin-border) !important;
 }
 
@@ -44,21 +51,47 @@ body {
 .dark main input,
 .dark main select,
 .dark main textarea {
-  background-color: var(--admin-card);
+  background-color: var(--admin-surface);
   border-color: var(--admin-border);
   color: var(--admin-text);
 }
 
-.dark .admin-login-shell {
-  background-color: #020617 !important;
-}
-
-.dark .admin-login-card {
-  background-color: var(--admin-card) !important;
-  color: var(--admin-text);
-}
-
+.dark .admin-login-shell { background-color: #020617 !important; }
+.dark .admin-login-card  { background-color: var(--admin-surface) !important; color: var(--admin-text); }
 .dark .admin-login-card .text-slate-500,
-.dark .admin-login-card .text-slate-700 {
-  color: var(--admin-muted) !important;
+.dark .admin-login-card .text-slate-700 { color: var(--admin-muted) !important; }
+
+/* Table row hover */
+tbody tr:hover { background: rgba(0,0,0,0.02); }
+.dark tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+/* Toggle switch */
+.sn-toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
 }
+.sn-toggle input { opacity: 0; width: 0; height: 0; }
+.sn-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #d1d5db;
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sn-toggle-slider::before {
+  content: '';
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.sn-toggle input:checked + .sn-toggle-slider { background: var(--admin-accent); }
+.sn-toggle input:checked + .sn-toggle-slider::before { transform: translateX(16px); }

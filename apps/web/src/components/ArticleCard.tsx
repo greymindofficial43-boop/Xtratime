@@ -29,40 +29,53 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
   if (size === 'grid') {
     return (
       <Link href={href} className="group block min-w-[240px] flex-1 sm:min-w-0">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
           <Image
             src={image}
             alt={article.title}
             fill
             className="object-cover transition duration-300 group-hover:scale-105"
           />
+          <span className="absolute left-2.5 top-2.5 sk-cat-badge">
+            {article.category.name}
+          </span>
         </div>
-        <h3 className="mt-2 line-clamp-3 text-sm font-semibold leading-snug text-[var(--sk-text)] group-hover:text-[var(--sk-accent)]">
+        <h3 className="mt-2.5 line-clamp-3 text-sm font-bold leading-snug text-[var(--sk-text)] group-hover:text-[var(--sk-accent)]">
           {article.title}
         </h3>
-        <ArticleMeta article={article} />
+        <p className="mt-1 text-xs text-[var(--sk-muted)]">
+          {formatRelativeTime(article.publishedAt)}
+        </p>
       </Link>
     );
   }
 
   if (size === 'hero') {
     return (
-      <Link href={href} className="group relative block overflow-hidden rounded-lg">
+      <Link href={href} className="group relative block overflow-hidden rounded-xl">
         <div className="relative aspect-[16/10] w-full">
           <Image
             src={article.featuredImage ?? `${FALLBACK_IMAGE}&w=1200`}
             alt={article.title}
             fill
-            className="object-cover transition duration-300 group-hover:scale-105"
+            className="object-cover transition duration-500 group-hover:scale-105"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+          <span className="absolute left-3 top-3 sk-cat-badge">{article.category.name}</span>
+          {article.isTrending && (
+            <span className="absolute right-3 top-3 rounded-full bg-[var(--sk-accent)] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
+              🔥 Trending
+            </span>
+          )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-          <h2 className="text-lg font-bold leading-snug text-[var(--sk-text)] group-hover:text-[var(--sk-accent)] md:text-xl">
+          <h2 className="text-lg font-bold leading-snug text-white group-hover:text-[var(--sk-accent)] md:text-xl lg:text-2xl">
             {article.title}
           </h2>
-          <ArticleMeta article={article} />
+          <p className="mt-1.5 text-xs text-white/70">
+            {formatRelativeTime(article.publishedAt)}
+          </p>
         </div>
       </Link>
     );
@@ -70,8 +83,11 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
 
   if (size === 'list') {
     return (
-      <Link href={href} className="group flex gap-3 border-b border-[var(--sk-border)] py-3 last:border-0">
-        <div className="relative h-[72px] w-[108px] shrink-0 overflow-hidden rounded-md">
+      <Link
+        href={href}
+        className="group flex gap-3 py-3 last:pb-0 border-b border-[var(--sk-border)] last:border-0"
+      >
+        <div className="relative h-[72px] w-[108px] shrink-0 overflow-hidden rounded-lg">
           <Image src={image} alt="" fill className="object-cover" />
         </div>
         <div className="min-w-0 flex-1">
@@ -86,21 +102,27 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
 
   if (size === 'numbered' && rank !== undefined) {
     return (
-      <Link href={href} className="group flex gap-3 py-2.5">
-        <span className="w-6 shrink-0 text-2xl font-black leading-none text-[var(--sk-category)]">
-          {rank}
-        </span>
-        <p className="line-clamp-3 text-sm font-medium leading-snug text-[var(--sk-text)] group-hover:text-[var(--sk-accent)] group-hover:underline">
-          {article.title}
-        </p>
+      <Link href={href} className="group flex items-start gap-2.5 py-2.5 border-b border-[var(--sk-border)] last:border-0">
+        <span className="sk-rank-num">{rank}</span>
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-3 text-sm font-semibold leading-snug text-[var(--sk-text)] group-hover:text-[var(--sk-accent)]">
+            {article.title}
+          </p>
+          <p className="mt-0.5 text-xs text-[var(--sk-muted)]">
+            {formatRelativeTime(article.publishedAt)}
+          </p>
+        </div>
       </Link>
     );
   }
 
   if (size === 'compact') {
     return (
-      <Link href={href} className="group flex gap-3 border-b border-[var(--sk-border)] py-3 last:border-0">
-        <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-md">
+      <Link
+        href={href}
+        className="group flex gap-3 border-b border-[var(--sk-border)] py-3 last:border-0"
+      >
+        <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg">
           <Image src={image} alt="" fill className="object-cover" />
         </div>
         <div className="min-w-0 flex-1">
@@ -116,7 +138,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-lg border border-[var(--sk-border)] bg-[var(--sk-surface)]"
+      className="group sk-card-lift block overflow-hidden rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)]"
     >
       <div className="relative aspect-video w-full overflow-hidden">
         <Image
@@ -125,6 +147,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
           fill
           className="object-cover transition duration-300 group-hover:scale-105"
         />
+        <span className="absolute left-2.5 top-2.5 sk-cat-badge">{article.category.name}</span>
       </div>
       <div className="p-4">
         <h3 className="line-clamp-2 font-bold leading-snug group-hover:text-[var(--sk-accent)]">

@@ -4,101 +4,174 @@ import { adminApi, type Article } from '@/lib/api';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-const statusColors: Record<string, string> = {
-  PUBLISHED: 'bg-green-100 text-green-800',
-  DRAFT: 'bg-yellow-100 text-yellow-800',
-  ARCHIVED: 'bg-slate-100 text-slate-600',
+const statusStyles: Record<string, { bg: string; text: string; label: string }> = {
+  PUBLISHED: { bg: 'rgba(22,163,74,0.12)', text: '#16a34a', label: 'Published' },
+  DRAFT:     { bg: 'rgba(217,119,6,0.12)',  text: '#d97706', label: 'Draft' },
+  ARCHIVED:  { bg: 'rgba(107,114,128,0.12)',text: '#6b7280', label: 'Archived' },
 };
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [toggling, setToggling] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
     try {
-      const res = await adminApi.getArticles({ limit: '50' });
+      const res = await adminApi.getArticles({ limit: '100' });
       setArticles(res.items);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   async function handleDelete(id: string, title: string) {
     if (!confirm(`Delete "${title}"?`)) return;
-    await adminApi.deleteArticle(id);
-    load();
+    try {
+      await adminApi.deleteArticle(id);
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Delete failed');
+    }
   }
 
+  async function toggle(id: string, field: 'isFeatured' | 'isTrending', current: boolean) {
+    setToggling(`${id}-${field}`);
+    try {
+      await adminApi.updateArticle(id, { [field]: !current });
+      setArticles((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, [field]: !current } : a))
+      );
+    } finally {
+      setToggling(null);
+    }
+  }
+
+  const published = articles.filter((a) => a.status === 'PUBLISHED').length;
+  const featured  = articles.filter((a) => a.isFeatured).length;
+
   return (
-    <div>
-      <div className="flex items-center justify-between">
+    <div className="max-w-6xl">
+      {/* Header */}
+      <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Articles</h1>
-          <p className="text-slate-500">Create and manage news stories</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--admin-text)' }}>Articles</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--admin-muted)' }}>
+            {articles.length} total · {published} published · {featured} featured
+          </p>
         </div>
         <Link
           href="/articles/new"
-          className="rounded-lg bg-[var(--admin-accent)] px-4 py-2 text-sm font-medium text-white"
+          className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+          style={{ background: 'var(--admin-accent)' }}
         >
           + New Article
         </Link>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div
+        className="overflow-hidden rounded-xl border"
+        style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', boxShadow: 'var(--admin-shadow)' }}
+      >
         {loading ? (
-          <p className="p-8 text-slate-500">Loading...</p>
+          <div className="p-12 text-center text-sm" style={{ color: 'var(--admin-muted)' }}>
+            Loading articles…
+          </div>
         ) : articles.length === 0 ? (
-          <p className="p-8 text-slate-500">No articles yet.</p>
+          <div className="p-12 text-center">
+            <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>No articles yet.</p>
+            <Link
+              href="/articles/new"
+              className="mt-4 inline-block rounded-lg px-4 py-2 text-sm font-semibold text-white"
+              style={{ background: 'var(--admin-accent)' }}
+            >
+              Create your first article
+            </Link>
+          </div>
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="border-b bg-slate-50 text-slate-600">
+            <thead className="border-b" style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }}>
               <tr>
-                <th className="px-4 py-3 font-medium">Title</th>
-                <th className="px-4 py-3 font-medium">Category</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Flags</th>
-                <th className="px-4 py-3 font-medium">Actions</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Title</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Category</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Status</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Featured</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Trending</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {articles.map((article) => (
-                <tr key={article.id} className="border-b last:border-0">
-                  <td className="px-4 py-3 font-medium">{article.title}</td>
-                  <td className="px-4 py-3 text-slate-600">{article.category.name}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[article.status]}`}
-                    >
-                      {article.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-slate-500">
-                    {article.isFeatured && '★ Featured '}
-                    {article.isTrending && '🔥 Trending'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/articles/${article.id}/edit`}
-                        className="text-blue-600 hover:underline"
+              {articles.map((article) => {
+                const s = statusStyles[article.status] ?? statusStyles.DRAFT;
+                return (
+                  <tr key={article.id} className="border-b last:border-0 transition-colors" style={{ borderColor: 'var(--admin-border)' }}>
+                    <td className="px-5 py-3" style={{ maxWidth: 280 }}>
+                      <p
+                        className="line-clamp-2 text-sm font-medium leading-snug"
+                        style={{ color: 'var(--admin-text)' }}
                       >
-                        Edit
-                      </Link>
+                        {article.title}
+                      </p>
+                    </td>
+                    <td className="px-5 py-3">
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                        style={{ background: `${article.category.color ?? '#e10600'}22`, color: article.category.color ?? '#e10600' }}
+                      >
+                        {article.category.name}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3">
+                      <span
+                        className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                        style={{ background: s.bg, color: s.text }}
+                      >
+                        {s.label}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 text-center">
                       <button
-                        onClick={() => handleDelete(article.id, article.title)}
-                        className="text-red-600 hover:underline"
+                        onClick={() => toggle(article.id, 'isFeatured', article.isFeatured)}
+                        disabled={toggling === `${article.id}-isFeatured`}
+                        title={article.isFeatured ? 'Remove from Featured' : 'Mark as Featured'}
+                        className="text-xl leading-none transition disabled:opacity-40"
                       >
-                        Delete
+                        {article.isFeatured ? '★' : '☆'}
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-5 py-3 text-center">
+                      <button
+                        onClick={() => toggle(article.id, 'isTrending', article.isTrending)}
+                        disabled={toggling === `${article.id}-isTrending`}
+                        title={article.isTrending ? 'Remove Trending' : 'Mark Trending'}
+                        className="text-base leading-none transition disabled:opacity-40"
+                        style={{ filter: article.isTrending ? 'none' : 'grayscale(1)', opacity: article.isTrending ? 1 : 0.4 }}
+                      >
+                        🔥
+                      </button>
+                    </td>
+                    <td className="px-5 py-3">
+                      <div className="flex gap-3">
+                        <Link
+                          href={`/articles/${article.id}/edit`}
+                          className="text-sm font-medium transition hover:opacity-70"
+                          style={{ color: 'var(--admin-accent-2)' }}
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(article.id, article.title)}
+                          className="text-sm font-medium text-red-500 transition hover:text-red-700"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

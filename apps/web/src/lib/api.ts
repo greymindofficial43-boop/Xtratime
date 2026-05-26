@@ -7,6 +7,8 @@ export type Category = {
   description?: string | null;
   icon?: string | null;
   color?: string | null;
+  showInNav?: boolean;
+  navOrder?: number;
   _count?: { articles: number };
 };
 

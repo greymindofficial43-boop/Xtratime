@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 const FOOTER_LINKS = [
@@ -6,67 +8,119 @@ const FOOTER_LINKS = [
   { label: 'Privacy Policy', href: '#' },
   { label: 'Terms of Use', href: '#' },
   { label: 'Contact', href: '#' },
+  { label: 'Advertise', href: '#' },
 ];
 
 const SPORTS_LINKS = [
-  'WWE',
-  'NBA',
-  'NFL',
-  'Cricket',
-  'Football',
-  'Tennis',
-  'MMA',
-  'Gaming',
+  { label: '🏏 Cricket', slug: 'cricket' },
+  { label: '🏀 NBA', slug: 'nba' },
+  { label: '🏈 NFL', slug: 'nfl' },
+  { label: '⚽ Football', slug: 'football' },
+  { label: '🎮 Gaming', slug: 'gaming' },
+  { label: '🎾 Tennis', slug: 'tennis' },
+  { label: '🤼 WWE', slug: 'wwe' },
+  { label: '🏒 NHL', slug: 'nhl' },
+  { label: '⚾ MLB', slug: 'mlb' },
+  { label: '🏎️ F1', slug: 'f1' },
 ];
 
 export function Footer() {
   return (
-    <footer className="mt-12 border-t border-[var(--sk-border)] bg-[var(--sk-surface)]">
-      <div className="mx-auto max-w-7xl px-4 py-10">
-        <div className="grid gap-10 md:grid-cols-3">
-          <div>
-            <p className="sk-header-logo text-2xl">sportskeeda</p>
-            <p className="mt-2 text-sm text-[var(--sk-muted)]">
-              Sports, Gaming &amp; Entertainment News
+    <footer className="mt-14 border-t border-[var(--sn-header-border)] bg-[var(--sn-header-bg)]">
+      <div className="mx-auto max-w-7xl px-4 py-12">
+        <div className="grid gap-10 md:grid-cols-4">
+
+          {/* Brand */}
+          <div className="md:col-span-1">
+            <Link href="/" className="sn-logo text-xl">
+              sporty<span className="sn-logo-accent">newz</span>
+            </Link>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--sn-header-nav)]">
+              Your go-to destination for breaking sports news, live scores, and in-depth analysis across cricket, football, basketball, and more.
             </p>
-            <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-[var(--sk-muted)]">
-              Stay connected
-            </p>
+            <div className="mt-4 flex gap-3">
+              {['𝕏', 'f', 'in'].map((s) => (
+                <a
+                  key={s}
+                  href="#"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--sn-header-border)] text-sm font-bold text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-white"
+                >
+                  {s}
+                </a>
+              ))}
+            </div>
           </div>
 
+          {/* Explore */}
           <div>
-            <p className="mb-3 text-sm font-semibold text-[var(--sk-text)]">Explore</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
+            <p className="mb-4 text-xs font-black uppercase tracking-widest text-white">Explore</p>
+            <ul className="space-y-2.5">
               {FOOTER_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-[var(--sn-header-nav)] transition hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Sports */}
+          <div>
+            <p className="mb-4 text-xs font-black uppercase tracking-widest text-white">Sports</p>
+            <div className="flex flex-wrap gap-2">
+              {SPORTS_LINKS.map((sport) => (
                 <Link
-                  key={link.label}
-                  href={link.href}
-                  className="text-sm text-[var(--sk-muted)] hover:text-[var(--sk-accent)]"
+                  key={sport.slug}
+                  href={`/category/${sport.slug}`}
+                  className="rounded-lg border border-[var(--sn-header-border)] px-2.5 py-1 text-xs text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-white"
                 >
-                  {link.label}
+                  {sport.label}
                 </Link>
               ))}
             </div>
           </div>
 
+          {/* Newsletter */}
           <div>
-            <p className="mb-3 text-sm font-semibold text-[var(--sk-text)]">Popular Sports</p>
-            <div className="flex flex-wrap gap-2">
-              {SPORTS_LINKS.map((sport) => (
-                <span
-                  key={sport}
-                  className="rounded-full border border-[var(--sk-border)] px-3 py-1 text-xs text-[var(--sk-muted)]"
-                >
-                  {sport}
-                </span>
-              ))}
-            </div>
+            <p className="mb-4 text-xs font-black uppercase tracking-widest text-white">
+              Stay Updated
+            </p>
+            <p className="mb-3 text-sm text-[var(--sn-header-nav)]">
+              Get the latest sports news delivered to your inbox.
+            </p>
+            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder="Your email"
+                className="flex-1 rounded-lg border border-[var(--sn-header-border)] bg-[var(--sn-surface-2)] px-3 py-2 text-sm text-[var(--sn-text)] placeholder:text-[var(--sn-muted)] focus:border-[var(--sn-accent)] focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-lg bg-[var(--sn-accent)] px-4 py-2 text-xs font-bold text-white transition hover:bg-[var(--sn-accent-hover)]"
+              >
+                Join
+              </button>
+            </form>
           </div>
         </div>
+      </div>
 
-        <p className="mt-10 border-t border-[var(--sk-border)] pt-6 text-center text-xs text-[var(--sk-muted)]">
-          © {new Date().getFullYear()} Sportskeeda — For the hardcore sports fan
-        </p>
+      {/* Bottom bar */}
+      <div className="border-t border-[var(--sn-header-border)]">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 sm:flex-row">
+          <p className="text-xs text-[var(--sn-header-nav)]">
+            © {new Date().getFullYear()} SportyNewz — For the hardcore sports fan
+          </p>
+          <div className="flex gap-4 text-xs text-[var(--sn-header-nav)]">
+            <Link href="#" className="hover:text-white transition">Privacy</Link>
+            <Link href="#" className="hover:text-white transition">Terms</Link>
+            <Link href="#" className="hover:text-white transition">Sitemap</Link>
+          </div>
+        </div>
       </div>
     </footer>
   );
