@@ -32,4 +32,8 @@ export class CreateCategoryDto {
   @IsOptional()
   @IsInt()
   navOrder?: number;
+
+  @IsOptional()
+  @IsString()
+  parentId?: string;
 }

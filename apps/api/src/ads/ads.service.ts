@@ -27,4 +27,18 @@ export class AdsService {
     if (!ad) throw new NotFoundException('Advertisement not found');
     return this.prisma.advertisement.delete({ where: { id } });
   }
+
+  async recordView(id: string) {
+    return this.prisma.advertisement.update({
+      where: { id },
+      data: { views: { increment: 1 } },
+    });
+  }
+
+  async recordClick(id: string) {
+    return this.prisma.advertisement.update({
+      where: { id },
+      data: { clicks: { increment: 1 } },
+    });
+  }
 }

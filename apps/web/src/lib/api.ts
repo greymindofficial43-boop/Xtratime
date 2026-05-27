@@ -9,6 +9,8 @@ export type Category = {
   color?: string | null;
   showInNav?: boolean;
   navOrder?: number;
+  parentId?: string | null;
+  children?: Category[];
   _count?: { articles: number };
 };
 
@@ -79,6 +81,8 @@ export type Advertisement = {
   googleCode?: string | null;
   slotId: string;
   isActive: boolean;
+  views: number;
+  clicks: number;
 };
 
 async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
@@ -115,4 +119,8 @@ export const api = {
     fetchApi<Advertisement[]>(`/ads${slotId ? `?slotId=${encodeURIComponent(slotId)}` : ''}`, {
       cache: 'no-store',
     }),
+  recordAdView: (id: string) =>
+    fetch(`${API_URL}/ads/${id}/view`, { method: 'POST' }).catch(() => null),
+  recordAdClick: (id: string) =>
+    fetch(`${API_URL}/ads/${id}/click`, { method: 'POST' }).catch(() => null),
 };

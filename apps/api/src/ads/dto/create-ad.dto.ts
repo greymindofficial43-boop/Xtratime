@@ -16,11 +16,11 @@ export class CreateAdDto {
   partnerName?: string;
 
   @IsOptional()
-  @IsUrl({ require_tld: false })
+  @IsString()
   imageUrl?: string;
 
   @IsOptional()
-  @IsUrl({ require_tld: false })
+  @IsString()
   targetUrl?: string;
 
   @IsOptional()

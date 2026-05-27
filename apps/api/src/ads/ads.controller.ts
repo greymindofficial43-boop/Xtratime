@@ -30,4 +30,14 @@ export class AdsController {
   remove(@Param('id') id: string) {
     return this.adsService.remove(id);
   }
+
+  @Post(':id/view')
+  recordView(@Param('id') id: string) {
+    return this.adsService.recordView(id);
+  }
+
+  @Post(':id/click')
+  recordClick(@Param('id') id: string) {
+    return this.adsService.recordClick(id);
+  }
 }

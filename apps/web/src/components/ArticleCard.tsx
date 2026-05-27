@@ -70,7 +70,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
           )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-          <h2 className="text-lg font-bold leading-snug text-white group-hover:text-[var(--sk-accent)] md:text-xl lg:text-2xl">
+          <h2 className="text-base font-bold leading-snug text-white group-hover:text-[var(--sk-accent)] md:text-lg">
             {article.title}
           </h2>
           <p className="mt-1.5 text-xs text-white/70">

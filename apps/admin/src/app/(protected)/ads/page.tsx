@@ -10,15 +10,29 @@ const emptyForm = {
   imageUrl: '',
   targetUrl: '',
   googleCode: '',
-  slotId: 'homepage-sidebar',
+  slotId: 'inline',
   isActive: true,
 };
 
 const placements: { id: string; label: string }[] = [
-  { id: 'homepage-sidebar', label: 'Homepage Sidebar' },
-  { id: 'homepage-inline', label: 'Homepage Inline' },
-  { id: 'schedule-sidebar', label: 'Schedule Sidebar' },
+  { id: 'inline', label: 'Inline Banner (Wide)' },
+  { id: 'sidebar', label: 'Sidebar Ad (Square/Tall)' },
 ];
+
+function ctr(views: number, clicks: number): string {
+  if (!views) return '0.00%';
+  return ((clicks / views) * 100).toFixed(2) + '%';
+}
+
+function MetricCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="mt-1 text-3xl font-black text-slate-800">{value}</p>
+      {sub && <p className="mt-0.5 text-xs text-slate-400">{sub}</p>}
+    </div>
+  );
+}
 
 export default function AdsPage() {
   const [ads, setAds] = useState<Advertisement[]>([]);
@@ -38,6 +52,20 @@ export default function AdsPage() {
   function resetForm() {
     setForm(emptyForm);
     setEditingId(null);
+  }
+
+  function handleImageUrlChange(e: React.ChangeEvent<HTMLInputElement>) {
+    let url = e.target.value;
+    try {
+      if (url.includes('google.com/imgres')) {
+        const urlObj = new URL(url);
+        const imgurl = urlObj.searchParams.get('imgurl');
+        if (imgurl) url = decodeURIComponent(imgurl);
+      }
+    } catch {
+      // Ignore parsing errors
+    }
+    setForm((prev) => ({ ...prev, imageUrl: url }));
   }
 
   async function onSubmit(e: FormEvent) {
@@ -89,15 +117,68 @@ export default function AdsPage() {
     load();
   }
 
+  // Aggregate metrics
+  const totalViews = ads.reduce((s, a) => s + (a.views ?? 0), 0);
+  const totalClicks = ads.reduce((s, a) => s + (a.clicks ?? 0), 0);
+  const overallCtr = ctr(totalViews, totalClicks);
+
+  // Top 3 by CTR (must have at least 1 view)
+  const topAds = [...ads]
+    .filter((a) => (a.views ?? 0) > 0)
+    .sort((a, b) => {
+      const ctrA = (a.clicks ?? 0) / (a.views ?? 1);
+      const ctrB = (b.clicks ?? 0) / (b.views ?? 1);
+      return ctrB - ctrA;
+    })
+    .slice(0, 3);
+
   return (
     <div>
       <h1 className="text-2xl font-bold">Ads</h1>
       <p className="mt-1 text-slate-500">Manage partner banners and Google ad slots for the site.</p>
 
+      {/* ── Metrics Overview ── */}
+      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <MetricCard label="Total Views" value={totalViews.toLocaleString()} sub="All active ads" />
+        <MetricCard label="Total Clicks" value={totalClicks.toLocaleString()} sub="All active ads" />
+        <MetricCard label="Overall CTR" value={overallCtr} sub="clicks / views" />
+        <MetricCard label="Active Ads" value={ads.filter((a) => a.isActive).length} sub={`of ${ads.length} total`} />
+      </div>
+
+      {/* ── Top Performing Ads ── */}
+      {topAds.length > 0 && (
+        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5">
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-amber-700">
+            <span>🏆</span> Top Performing Ads (by CTR)
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {topAds.map((ad, i) => (
+              <div
+                key={ad.id}
+                className="flex items-center gap-3 rounded-lg border border-amber-100 bg-white p-3 shadow-sm"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-black text-amber-600">
+                  {i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-slate-800">{ad.title}</p>
+                  <p className="text-xs text-slate-500">
+                    CTR: <span className="font-bold text-amber-600">{ctr(ad.views ?? 0, ad.clicks ?? 0)}</span>
+                    {' · '}{(ad.views ?? 0).toLocaleString()} views · {(ad.clicks ?? 0).toLocaleString()} clicks
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Create / Edit Form ── */}
       <form
         onSubmit={onSubmit}
         className="mt-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
       >
+        <h2 className="mb-4 text-sm font-semibold text-slate-700">{editingId ? 'Edit Ad' : 'Create New Ad'}</h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div>
             <label className="block text-xs font-medium text-slate-500">Title</label>
@@ -151,7 +232,7 @@ export default function AdsPage() {
               <label className="block text-xs font-medium text-slate-500">Image URL</label>
               <input
                 value={form.imageUrl}
-                onChange={(e) => setForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
+                onChange={handleImageUrlChange}
                 className="mt-1 w-full rounded-lg border px-3 py-2"
                 placeholder="https://..."
               />
@@ -207,6 +288,7 @@ export default function AdsPage() {
         </div>
       </form>
 
+      {/* ── Ads Table ── */}
       <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white">
         {ads.length === 0 ? (
           <p className="p-8 text-slate-500">No ads created yet.</p>
@@ -217,43 +299,65 @@ export default function AdsPage() {
                 <th className="px-4 py-3 font-medium">Title</th>
                 <th className="px-4 py-3 font-medium">Type</th>
                 <th className="px-4 py-3 font-medium">Slot</th>
+                <th className="px-4 py-3 font-medium text-right">Views</th>
+                <th className="px-4 py-3 font-medium text-right">Clicks</th>
+                <th className="px-4 py-3 font-medium text-right">CTR</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {ads.map((ad) => (
-                <tr key={ad.id} className="border-b last:border-0">
-                  <td className="px-4 py-3">
-                    <p className="font-medium">{ad.title}</p>
-                    <p className="text-xs text-slate-500">{ad.partnerName ?? 'No partner name'}</p>
-                  </td>
-                  <td className="px-4 py-3 text-slate-600">{ad.type}</td>
-                  <td className="px-4 py-3 text-slate-600">{ad.slotId}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        ad.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      {ad.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-3">
-                      <button onClick={() => startEdit(ad)} className="text-blue-600 hover:underline">
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(ad)}
-                        className="text-red-600 hover:underline"
+              {ads.map((ad) => {
+                const adCtr = ctr(ad.views ?? 0, ad.clicks ?? 0);
+                const ctrNum = (ad.views ?? 0) > 0 ? ((ad.clicks ?? 0) / (ad.views ?? 1)) * 100 : 0;
+                return (
+                  <tr key={ad.id} className="border-b last:border-0 hover:bg-slate-50">
+                    <td className="px-4 py-3">
+                      <p className="font-medium">{ad.title}</p>
+                      <p className="text-xs text-slate-500">{ad.partnerName ?? 'No partner name'}</p>
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">{ad.type}</td>
+                    <td className="px-4 py-3 text-slate-600">{ad.slotId}</td>
+                    <td className="px-4 py-3 text-right font-mono text-slate-700">
+                      {(ad.views ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-slate-700">
+                      {(ad.clicks ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span
+                        className={`font-semibold ${
+                          ctrNum >= 2 ? 'text-green-600' : ctrNum >= 0.5 ? 'text-amber-600' : 'text-slate-500'
+                        }`}
                       >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {adCtr}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          ad.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        {ad.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-3">
+                        <button onClick={() => startEdit(ad)} className="text-blue-600 hover:underline">
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(ad)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

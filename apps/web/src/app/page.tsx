@@ -1,4 +1,4 @@
-import { AD_SLOTS, GoogleAd } from '@/components/GoogleAd';
+import { AdSlot } from '@/components/AdSlot';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategorySection } from '@/components/CategorySection';
 import { EspnNewsCard } from '@/components/EspnNewsCard';
@@ -42,12 +42,9 @@ export default async function HomePage() {
 
       {/* Leaderboard ad below live scores */}
       <div className="border-b border-[var(--sk-border)] bg-[var(--sk-surface)] px-4 py-3">
-        <GoogleAd
-          slot={AD_SLOTS.leaderboard}
-          format="horizontal"
-          minHeight={90}
-          className="mx-auto max-w-[970px]"
-        />
+        <div className="mx-auto max-w-[970px]">
+          <AdSlot zone="inline" />
+        </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
@@ -75,7 +72,7 @@ export default async function HomePage() {
 
         {/* In-content ad */}
         <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-          <GoogleAd slot={AD_SLOTS.inContentTop} minHeight={280} />
+          <AdSlot zone="inline" />
         </div>
 
         {/* More Stories (admin articles) */}
@@ -111,7 +108,7 @@ export default async function HomePage() {
                 />
                 {(idx + 1) % 2 === 0 && idx < sectionData.length - 1 && (
                   <div className="my-4 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-                    <GoogleAd slot={AD_SLOTS.inContentMid} minHeight={250} />
+                    <AdSlot zone="inline" />
                   </div>
                 )}
               </div>
@@ -122,7 +119,7 @@ export default async function HomePage() {
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-6">
               <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-                <GoogleAd slot={AD_SLOTS.sidebar} minHeight={250} />
+                <AdSlot zone="sidebar" />
               </div>
               <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-5">
                 <h2 className="sk-section-heading mb-4 text-sm font-black uppercase tracking-wide text-[var(--sk-text)]">
@@ -139,7 +136,7 @@ export default async function HomePage() {
                 )}
               </div>
               <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-                <GoogleAd slot={AD_SLOTS.inContentMid} minHeight={600} />
+                <AdSlot zone="sidebar" />
               </div>
             </div>
           </aside>
@@ -178,7 +175,7 @@ export default async function HomePage() {
 
         {/* Footer banner ad */}
         <div className="mt-10 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-          <GoogleAd slot={AD_SLOTS.footerBanner} format="horizontal" minHeight={90} />
+          <AdSlot zone="inline" />
         </div>
       </div>
     </>

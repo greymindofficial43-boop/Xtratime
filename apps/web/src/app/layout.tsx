@@ -1,9 +1,10 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { BreakingTicker } from '@/components/BreakingTicker';
 import { Footer } from '@/components/Footer';
+import { TrendingFooter } from '@/components/TrendingFooter';
 import { Header } from '@/components/Header';
 import { SubHeader } from '@/components/SubHeader';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -21,6 +22,16 @@ export const metadata: Metadata = {
   title: 'SportyNewz — Live Scores, Sports News & Updates',
   description:
     'SportyNewz covers cricket, football, NBA, NFL, NHL and more. Live scores, breaking news, trending stories and deep analysis — all in one place.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'SportyNewz',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#ff4d00',
 };
 
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
@@ -39,11 +50,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             strategy="afterInteractive"
           />
         )}
+        <Script id="sw-registration" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(
+                  function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                  },
+                  function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                  }
+                );
+              });
+            }
+          `}
+        </Script>
         <ThemeProvider>
           <Header />
           <SubHeader />
           <BreakingTicker />
           <main>{children}</main>
+          <TrendingFooter />
           <Footer />
         </ThemeProvider>
       </body>

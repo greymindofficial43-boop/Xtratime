@@ -11,14 +11,14 @@ export class CategoriesService {
   findAll() {
     return this.prisma.category.findMany({
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-      include: { _count: { select: { articles: true } } },
+      include: { _count: { select: { articles: true } }, children: true },
     });
   }
 
   findBySlug(slug: string) {
     return this.prisma.category.findUnique({
       where: { slug },
-      include: { _count: { select: { articles: true } } },
+      include: { _count: { select: { articles: true } }, children: true },
     });
   }
 

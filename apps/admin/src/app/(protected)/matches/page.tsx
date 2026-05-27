@@ -1,6 +1,6 @@
 'use client';
 
-import { adminApi, type Match, type MatchStatus } from '@/lib/api';
+import { adminApi, type Match, type MatchStatus, type Category } from '@/lib/api';
 import { FormEvent, useEffect, useState } from 'react';
 
 const emptyForm = {
@@ -14,22 +14,32 @@ const emptyForm = {
   awayTeamScore: '',
   status: 'upcoming' as MatchStatus,
   note: '',
-  date: '',
+  matchDate: '',
+  matchTime: '',
 };
 
 function formatDateInput(value: string) {
-  return new Date(value).toISOString().slice(0, 16);
+  const d = new Date(value);
+  return {
+    date: d.toISOString().split('T')[0],
+    time: d.toTimeString().slice(0, 5),
+  };
 }
 
 export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function load() {
-    const data = await adminApi.getMatches();
-    setMatches(data);
+    const [matchesData, categoriesData] = await Promise.all([
+      adminApi.getMatches(),
+      adminApi.getCategories()
+    ]);
+    setMatches(matchesData);
+    setCategories(categoriesData);
   }
 
   useEffect(() => {
@@ -56,7 +66,7 @@ export default function MatchesPage() {
       awayTeamScore: form.awayTeamScore || undefined,
       status: form.status,
       note: form.note || undefined,
-      date: form.date ? new Date(form.date).toISOString() : undefined,
+      date: form.matchDate ? new Date(`${form.matchDate}T${form.matchTime || '00:00'}`).toISOString() : undefined,
     };
 
     try {
@@ -85,7 +95,8 @@ export default function MatchesPage() {
       awayTeamScore: match.awayTeamScore ?? '',
       status: match.status,
       note: match.note ?? '',
-      date: formatDateInput(match.date),
+      matchDate: formatDateInput(match.date).date,
+      matchTime: formatDateInput(match.date).time,
     });
   }
 
@@ -112,12 +123,19 @@ export default function MatchesPage() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div>
             <label className="block text-xs font-medium text-slate-500">Sport</label>
-            <input
+            <select
               value={form.sport}
               onChange={(e) => setForm((prev) => ({ ...prev, sport: e.target.value }))}
               className="mt-1 w-full rounded-lg border px-3 py-2"
               required
-            />
+            >
+              <option value="" disabled>Select Sport</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="xl:col-span-2">
             <label className="block text-xs font-medium text-slate-500">Title</label>
@@ -200,9 +218,18 @@ export default function MatchesPage() {
           <div>
             <label className="block text-xs font-medium text-slate-500">Match Date</label>
             <input
-              type="datetime-local"
-              value={form.date}
-              onChange={(e) => setForm((prev) => ({ ...prev, date: e.target.value }))}
+              type="date"
+              value={form.matchDate}
+              onChange={(e) => setForm((prev) => ({ ...prev, matchDate: e.target.value }))}
+              className="mt-1 w-full rounded-lg border px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500">Match Time</label>
+            <input
+              type="time"
+              value={form.matchTime}
+              onChange={(e) => setForm((prev) => ({ ...prev, matchTime: e.target.value }))}
               className="mt-1 w-full rounded-lg border px-3 py-2"
             />
           </div>

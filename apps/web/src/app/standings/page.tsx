@@ -1,4 +1,4 @@
-import { AD_SLOTS, GoogleAd } from '@/components/GoogleAd';
+import { AdSlot } from '@/components/AdSlot';
 
 export const metadata = {
   title: 'Points Table & Standings | Sportskeeda',
@@ -26,10 +26,10 @@ export default function StandingsPage() {
       <aside className="hidden lg:block">
         <div className="sticky top-24 space-y-6">
           <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-            <GoogleAd slot={AD_SLOTS.sidebar} minHeight={250} />
+            <AdSlot zone="sidebar" />
           </div>
           <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-            <GoogleAd slot={AD_SLOTS.inContentMid} minHeight={600} />
+            <AdSlot zone="sidebar" />
           </div>
         </div>
       </aside>

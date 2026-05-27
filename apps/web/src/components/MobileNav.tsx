@@ -19,17 +19,16 @@ export function MobileNav({ categories, navItems }: Props) {
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [open]);
 
   return (
     <>
+      {/* Hamburger — always visible, top-left */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="sk-hamburger flex h-9 w-9 shrink-0 items-center justify-center lg:hidden"
+        className="sk-hamburger flex h-9 w-9 shrink-0 items-center justify-center"
         aria-label="Open menu"
       >
         <span className="flex flex-col gap-[5px]" aria-hidden>
@@ -40,17 +39,20 @@ export function MobileNav({ categories, navItems }: Props) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[100] lg:hidden">
+        <div className="fixed inset-0 z-[100]">
+          {/* Backdrop */}
           <button
             type="button"
             className="absolute inset-0 bg-black/75"
             onClick={() => setOpen(false)}
             aria-label="Close menu overlay"
           />
+
+          {/* Drawer */}
           <aside className="sk-sidebar relative flex h-full w-[min(300px,88vw)] flex-col bg-[#1c1c1d] shadow-2xl">
             <div className="flex h-[49px] items-center justify-between border-b border-[#333] px-4">
-              <Link href="/" onClick={() => setOpen(false)} className="sk-header-logo text-xl">
-                sportskeeda
+              <Link href="/" onClick={() => setOpen(false)} className="sn-logo text-xl">
+                sporty<span className="sn-logo-accent">newz</span>
               </Link>
               <button
                 type="button"
@@ -64,52 +66,34 @@ export function MobileNav({ categories, navItems }: Props) {
 
             <div className="flex-1 overflow-y-auto px-2 py-3">
               <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#666]">
-                Top Sports
+                All Categories
               </p>
-              {navItems.map((item) => {
-                const active = pathname === item.href;
+              {categories.map((cat) => {
+                const href = `/category/${cat.slug}`;
+                const active = pathname === href;
                 return (
                   <Link
-                    key={item.label}
-                    href={item.href}
+                    key={cat.id}
+                    href={href}
                     onClick={() => setOpen(false)}
-                    className={`relative block rounded-md px-3 py-2.5 text-sm font-semibold ${
+                    className={`block rounded-md px-3 py-2.5 text-sm font-semibold transition ${
                       active
                         ? 'bg-[#2a2a2b] text-[var(--sk-accent)]'
                         : 'text-[#c8c8c8] hover:bg-[#2a2a2b] hover:text-white'
                     }`}
                   >
-                    {item.label}
-                    {item.badge && (
-                      <span className="ml-2 rounded bg-red-600 px-1 py-px text-[9px] font-bold text-white">
-                        {item.badge}
-                      </span>
-                    )}
+                    {cat.icon} {cat.name}
                   </Link>
                 );
               })}
 
-              <p className="mt-4 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#666]">
-                All Categories
-              </p>
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/category/${cat.slug}`}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-2 text-sm font-medium text-[#808080] hover:bg-[#2a2a2b] hover:text-white"
-                >
-                  {cat.icon} {cat.name}
-                </Link>
-              ))}
-
               <div className="mt-4 border-t border-[#333] pt-3">
                 <Link
-                  href="/search"
+                  href="/schedule"
                   onClick={() => setOpen(false)}
                   className="block rounded-md px-3 py-2.5 text-sm text-[#c8c8c8] hover:bg-[#2a2a2b] hover:text-white"
                 >
-                  Search
+                  🔴 Live Scores
                 </Link>
                 <Link
                   href={site.adminUrl}

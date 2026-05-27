@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
-import { AD_SLOTS, GoogleAd } from '@/components/GoogleAd';
+import { AdSlot } from '@/components/AdSlot';
 import { api } from '@/lib/api';
 import { formatRelativeTime } from '@/lib/format';
 import { sanitizeArticleHtml } from '@/lib/sanitize';
@@ -84,7 +84,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* In-article ad — below image, before content */}
         <div className="my-6 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3">
-          <GoogleAd slot={AD_SLOTS.inArticleTop} minHeight={250} />
+          <AdSlot zone="inline" />
         </div>
 
         <div
@@ -94,7 +94,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* In-article ad — after content */}
         <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3">
-          <GoogleAd slot={AD_SLOTS.inArticleBottom} minHeight={250} />
+          <AdSlot zone="inline" />
         </div>
 
         {article.tags.length > 0 && (
@@ -128,10 +128,10 @@ export default async function ArticlePage({ params }: Props) {
       <aside className="hidden lg:block">
         <div className="sticky top-24 space-y-6">
           <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-            <GoogleAd slot={AD_SLOTS.sidebar} minHeight={250} />
+            <AdSlot zone="sidebar" />
           </div>
           <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-            <GoogleAd slot={AD_SLOTS.inContentMid} minHeight={600} />
+            <AdSlot zone="sidebar" />
           </div>
         </div>
       </aside>

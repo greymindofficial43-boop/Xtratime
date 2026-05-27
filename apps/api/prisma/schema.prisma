@@ -41,6 +41,9 @@ model Category {
   navOrder    Int       @default(99)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
   articles    Article[]
 }
 
@@ -117,6 +120,8 @@ model Advertisement {
   googleCode  String?  @db.Text
   slotId      String   // e.g. "sidebar", "header"
   isActive    Boolean  @default(true)
+  views       Int      @default(0)
+  clicks      Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

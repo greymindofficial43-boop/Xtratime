@@ -17,6 +17,8 @@ export type Category = {
   sortOrder: number;
   showInNav: boolean;
   navOrder: number;
+  parentId?: string | null;
+  children?: Category[];
 };
 
 export type Tag = {
@@ -71,6 +73,8 @@ export type Advertisement = {
   googleCode?: string | null;
   slotId: string;
   isActive: boolean;
+  views: number;
+  clicks: number;
   createdAt: string;
   updatedAt: string;
 };
