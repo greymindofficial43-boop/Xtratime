@@ -28,7 +28,7 @@ function ScorecardCard({ card }: { card: Scorecard }) {
     <div className="flex flex-col min-w-[220px] shrink-0 rounded-lg border border-[var(--sk-border)] bg-[var(--sk-surface)] transition hover:border-[var(--sk-accent)]/50">
       <Link href={card.href} className="flex-1 block">
         <div className="border-b border-[var(--sk-border)] px-3 py-2">
-          <p className="text-[11px] font-medium text-[var(--sk-muted)]">{card.meta}</p>
+          <p className="text-[11px] font-medium text-[var(--sk-muted)] truncate">{card.meta}</p>
         </div>
 
         <div className="px-3 py-2">

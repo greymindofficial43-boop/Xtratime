@@ -11,14 +11,24 @@ export class CategoriesService {
   findAll() {
     return this.prisma.category.findMany({
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
-      include: { _count: { select: { articles: true } }, children: true },
+      include: {
+        _count: { select: { articles: true } },
+        children: {
+          orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+        },
+      },
     });
   }
 
   findBySlug(slug: string) {
     return this.prisma.category.findUnique({
       where: { slug },
-      include: { _count: { select: { articles: true } }, children: true },
+      include: {
+        _count: { select: { articles: true } },
+        children: {
+          orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+        },
+      },
     });
   }
 
@@ -39,6 +49,20 @@ export class CategoriesService {
       data.slug = slugify(dto.name);
     }
     return this.prisma.category.update({ where: { id }, data });
+  }
+
+  async reorder(updates: { id: string; sortOrder?: number; navOrder?: number }[]) {
+    // Run all updates in a transaction
+    const transactions = updates.map((u) => 
+      this.prisma.category.update({
+        where: { id: u.id },
+        data: { 
+          ...(u.sortOrder !== undefined && { sortOrder: u.sortOrder }),
+          ...(u.navOrder !== undefined && { navOrder: u.navOrder }),
+        }
+      })
+    );
+    return this.prisma.$transaction(transactions);
   }
 
   async remove(id: string) {

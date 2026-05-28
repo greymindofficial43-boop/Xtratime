@@ -13,6 +13,12 @@ export class MatchesController {
     return this.matchesService.findAll();
   }
 
+  @Post('sync')
+  @UseGuards(JwtAuthGuard)
+  syncLiveMatches() {
+    return this.matchesService.syncLiveMatches();
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Body() dto: CreateMatchDto) {

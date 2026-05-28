@@ -14,10 +14,10 @@ export async function Header() {
     categories = [];
   }
 
-  // Build nav from top-level categories where showInNav === true, sorted by navOrder
+  // Build nav from top-level categories where showInNav === true, sorted by sortOrder
   const navCategories = categories
     .filter((c) => c.showInNav && !c.parentId)
-    .sort((a, b) => (a.navOrder ?? 99) - (b.navOrder ?? 99));
+    .sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
 
   // Fallback: if no nav categories configured yet, show a default set
   const fallbackSlugs = ['cricket', 'football', 'nba', 'nfl', 'gaming', 'wwe'];
@@ -33,9 +33,15 @@ export async function Header() {
         }))
       : fallbackSlugs
           .map((slug) => categories.find((c) => c.slug === slug && !c.parentId))
-          .filter(Boolean)
+          .filter((c) => c !== undefined)
           .map((c) => ({ label: c!.name, href: `/category/${c!.slug}` }));
 
+  // Always show Players link under Cricket
+  const cricketNav = navItems.find((item) => item.label.toLowerCase() === 'cricket');
+  if (cricketNav) {
+    if (!cricketNav.children) cricketNav.children = [];
+    cricketNav.children.push({ label: 'Player Stats', href: '/players' });
+  }
   return (
     <header className="sticky top-0 z-50 bg-[var(--sn-header-bg)] border-b border-[var(--sn-header-border)]">
       {/* Top bar */}

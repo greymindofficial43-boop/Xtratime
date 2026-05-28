@@ -62,6 +62,7 @@ model Article {
   excerpt       String?
   content       String        @db.Text
   featuredImage String?
+  videoUrl      String?
   status        ArticleStatus @default(DRAFT)
   isFeatured    Boolean       @default(false)
   isTrending    Boolean       @default(false)
@@ -91,6 +92,7 @@ model ArticleTag {
 enum AdType {
   GOOGLE
   CUSTOM
+  THIRD_PARTY
 }
 
 model Match {

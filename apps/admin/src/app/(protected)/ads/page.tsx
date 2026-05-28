@@ -78,7 +78,7 @@ export default function AdsPage() {
       partnerName: form.partnerName || undefined,
       imageUrl: form.type === 'CUSTOM' ? form.imageUrl || undefined : undefined,
       targetUrl: form.type === 'CUSTOM' ? form.targetUrl || undefined : undefined,
-      googleCode: form.type === 'GOOGLE' ? form.googleCode || undefined : undefined,
+      googleCode: (form.type === 'GOOGLE' || form.type === 'THIRD_PARTY') ? form.googleCode || undefined : undefined,
       slotId: form.slotId,
       isActive: form.isActive,
     };
@@ -199,6 +199,7 @@ export default function AdsPage() {
             >
               <option value="CUSTOM">Custom Banner</option>
               <option value="GOOGLE">Google Ad</option>
+              <option value="THIRD_PARTY">3rd Party Ad</option>
             </select>
           </div>
           <div>
@@ -249,12 +250,12 @@ export default function AdsPage() {
           </div>
         ) : (
           <div className="mt-4">
-            <label className="block text-xs font-medium text-slate-500">Google Ad Code</label>
+            <label className="block text-xs font-medium text-slate-500">Ad Script / HTML Code</label>
             <textarea
               value={form.googleCode}
               onChange={(e) => setForm((prev) => ({ ...prev, googleCode: e.target.value }))}
               className="mt-1 min-h-32 w-full rounded-lg border px-3 py-2 font-mono text-sm"
-              placeholder="<script>...</script>"
+              placeholder="<script>...</script> or <div>...</div>"
             />
           </div>
         )}

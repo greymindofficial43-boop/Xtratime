@@ -32,6 +32,7 @@ export default function MatchesPage() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   async function load() {
     const [matchesData, categoriesData] = await Promise.all([
@@ -45,6 +46,23 @@ export default function MatchesPage() {
   useEffect(() => {
     load();
   }, []);
+
+  async function handleSync() {
+    try {
+      setSyncing(true);
+      const res = await adminApi.syncMatches();
+      if (res.success) {
+        alert(`Synced ${res.synced} matches from Highlightly API.`);
+        await load();
+      } else {
+        alert(`Sync failed: ${res.message}`);
+      }
+    } catch (err: any) {
+      alert(`Error syncing: ${err.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   function resetForm() {
     setForm(emptyForm);
@@ -114,6 +132,13 @@ export default function MatchesPage() {
           <h1 className="text-2xl font-bold">Matches</h1>
           <p className="mt-1 text-slate-500">Add fixtures, update live scores, and publish results manually.</p>
         </div>
+        <button
+          onClick={handleSync}
+          disabled={syncing}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-70"
+        >
+          {syncing ? 'Syncing...' : 'Sync from Highlightly'}
+        </button>
       </div>
 
       <form

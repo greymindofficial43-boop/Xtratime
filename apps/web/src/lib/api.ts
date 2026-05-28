@@ -33,6 +33,7 @@ export type Article = {
   excerpt?: string | null;
   content: string;
   featuredImage?: string | null;
+  videoUrl?: string | null;
   status: string;
   isFeatured: boolean;
   isTrending: boolean;
@@ -99,7 +100,7 @@ async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getCategories: () => fetchApi<Category[]>('/categories'),
+  getCategories: () => fetchApi<Category[]>('/categories', { cache: 'no-store' }),
   getCategory: (slug: string) => fetchApi<Category>(`/categories/${slug}`),
   getArticles: (params?: Record<string, string | number | boolean>) => {
     const search = new URLSearchParams();

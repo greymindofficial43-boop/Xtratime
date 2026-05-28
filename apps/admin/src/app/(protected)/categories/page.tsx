@@ -2,11 +2,102 @@
 
 import { adminApi, type Category } from '@/lib/api';
 import React, { FormEvent, useEffect, useState } from 'react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+function SortableCategoryRow({
+  cat,
+  childrenCats,
+  saving,
+  toggleNav,
+  onDelete
+}: {
+  cat: Category;
+  childrenCats: Category[];
+  saving: string | null;
+  toggleNav: (c: Category) => void;
+  onDelete: (id: string, name: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cat.id });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative' as const,
+    zIndex: isDragging ? 1 : 0,
+  };
+
+  return (
+    <React.Fragment>
+      <tr ref={setNodeRef} style={{ ...style, borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }} className="border-b last:border-0 group">
+        <td className="px-5 py-3 font-bold">
+          <div className="flex items-center gap-3">
+            <button {...attributes} {...listeners} className="cursor-grab text-slate-400 hover:text-slate-600 active:cursor-grabbing">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </button>
+            <span style={{ color: 'var(--admin-text)' }}>{cat.name}</span>
+          </div>
+        </td>
+        <td className="px-5 py-3">
+          <code className="rounded px-2 py-0.5 text-xs" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }}>
+            /{cat.slug}
+          </code>
+        </td>
+        <td className="px-5 py-3 text-center">
+          <label className="sn-toggle mx-auto">
+            <input
+              type="checkbox"
+              checked={cat.showInNav}
+              disabled={saving === cat.id}
+              onChange={() => toggleNav(cat)}
+            />
+            <span className="sn-toggle-slider" />
+          </label>
+        </td>
+        <td className="px-5 py-3">
+          <button
+            onClick={() => onDelete(cat.id, cat.name)}
+            className="text-sm text-red-500 transition hover:text-red-700 font-semibold"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+      {childrenCats.map(child => (
+        <tr key={child.id} className="border-b last:border-0" style={{ borderColor: 'var(--admin-border)' }}>
+          <td className="px-5 py-2 pl-12">
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400">↳</span>
+              <span style={{ color: 'var(--admin-text)' }}>{child.name}</span>
+            </div>
+          </td>
+          <td className="px-5 py-2">
+            <code className="rounded px-2 py-0.5 text-xs opacity-70" style={{ background: 'var(--admin-bg)', color: 'var(--admin-muted)' }}>
+              /{child.slug}
+            </code>
+          </td>
+          <td className="px-5 py-2 text-center text-xs opacity-50" style={{ color: 'var(--admin-muted)' }}>
+            Shown in Menu
+          </td>
+          <td className="px-5 py-2">
+            <button
+              onClick={() => onDelete(child.id, child.name)}
+              className="text-sm text-red-500 transition hover:text-red-700"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </React.Fragment>
+  );
+}
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState('');
-  const [icon, setIcon] = useState('🏆');
   const [color, setColor] = useState('#e10600');
   const [parentId, setParentId] = useState<string>('');
   const [saving, setSaving] = useState<string | null>(null);
@@ -24,7 +115,6 @@ export default function CategoriesPage() {
     e.preventDefault();
     await adminApi.createCategory({
       name,
-      icon,
       color,
       sortOrder: categories.length,
       parentId: parentId || undefined
@@ -62,9 +152,45 @@ export default function CategoriesPage() {
   }
 
   // Build tree for table display
-  const rootCats = categories.filter(c => !c.parentId);
-  const getChildren = (parentId: string) => categories.filter(c => c.parentId === parentId);
-  const navCats = categories.filter((c) => c.showInNav && !c.parentId).sort((a, b) => a.navOrder - b.navOrder);
+  const rootCats = categories.filter(c => !c.parentId).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const getChildren = (parentId: string) => categories.filter(c => c.parentId === parentId).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const navCats = categories.filter((c) => c.showInNav && !c.parentId).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = rootCats.findIndex(c => c.id === active.id);
+      const newIndex = rootCats.findIndex(c => c.id === over.id);
+      
+      const newCats = [...rootCats];
+      const [moved] = newCats.splice(oldIndex, 1);
+      newCats.splice(newIndex, 0, moved);
+      
+      // Optimistic update
+      const updatedCategories = categories.map(c => {
+        if (!c.parentId) {
+          const idx = newCats.findIndex(nc => nc.id === c.id);
+          return { ...c, sortOrder: idx };
+        }
+        return c;
+      });
+      setCategories(updatedCategories);
+
+      // Save to backend
+      const updates = newCats.map((c, index) => ({ id: c.id, sortOrder: index }));
+      try {
+        await adminApi.reorderCategories(updates);
+      } catch (err) {
+        // Revert on error
+        load();
+      }
+    }
+  }
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -147,15 +273,6 @@ export default function CategoriesPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--admin-muted)' }}>Icon</label>
-            <input
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              className="w-16 rounded-lg border px-3 py-2 text-center text-sm"
-              style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
-            />
-          </div>
-          <div>
             <label className="block text-xs font-medium mb-1" style={{ color: 'var(--admin-muted)' }}>Color</label>
             <input
               type="color"
@@ -198,91 +315,25 @@ export default function CategoriesPage() {
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Category</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Slug</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Show in Nav</th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Nav Order</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {rootCats.map((cat) => {
-                const children = getChildren(cat.id);
-                return (
-                  <React.Fragment key={cat.id}>
-                    <tr className="border-b last:border-0" style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }}>
-                      <td className="px-5 py-3 font-bold">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">{cat.icon}</span>
-                          <span style={{ color: 'var(--admin-text)' }}>{cat.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3">
-                        <code className="rounded px-2 py-0.5 text-xs" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }}>
-                          /{cat.slug}
-                        </code>
-                      </td>
-                      <td className="px-5 py-3 text-center">
-                        <label className="sn-toggle mx-auto">
-                          <input
-                            type="checkbox"
-                            checked={cat.showInNav}
-                            disabled={saving === cat.id}
-                            onChange={() => toggleNav(cat)}
-                          />
-                          <span className="sn-toggle-slider" />
-                        </label>
-                      </td>
-                      <td className="px-5 py-3 text-center">
-                        <input
-                          type="number"
-                          defaultValue={cat.navOrder}
-                          disabled={!cat.showInNav || saving === cat.id}
-                          onBlur={(e) => updateNavOrder(cat, e.target.value)}
-                          className="w-16 rounded-lg border px-2 py-1 text-center text-sm disabled:opacity-40"
-                          style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-surface)', color: 'var(--admin-text)' }}
-                        />
-                      </td>
-                      <td className="px-5 py-3">
-                        <button
-                          onClick={() => onDelete(cat.id, cat.name)}
-                          className="text-sm text-red-500 transition hover:text-red-700 font-semibold"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                    {children.map(child => (
-                      <tr key={child.id} className="border-b last:border-0" style={{ borderColor: 'var(--admin-border)' }}>
-                        <td className="px-5 py-2 pl-12">
-                          <div className="flex items-center gap-3">
-                            <span className="text-slate-400">↳</span>
-                            <span className="text-lg opacity-70">{child.icon}</span>
-                            <span style={{ color: 'var(--admin-text)' }}>{child.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-2">
-                          <code className="rounded px-2 py-0.5 text-xs opacity-70" style={{ background: 'var(--admin-bg)', color: 'var(--admin-muted)' }}>
-                            /{child.slug}
-                          </code>
-                        </td>
-                        <td className="px-5 py-2 text-center text-xs opacity-50" style={{ color: 'var(--admin-muted)' }}>
-                          Shown in Menu
-                        </td>
-                        <td className="px-5 py-2 text-center text-xs opacity-50" style={{ color: 'var(--admin-muted)' }}>
-                          -
-                        </td>
-                        <td className="px-5 py-2">
-                          <button
-                            onClick={() => onDelete(child.id, child.name)}
-                            className="text-sm text-red-500 transition hover:text-red-700"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={rootCats.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                <tbody>
+                  {rootCats.map((cat) => (
+                    <SortableCategoryRow
+                        key={cat.id}
+                        cat={cat}
+                        childrenCats={getChildren(cat.id)}
+                        saving={saving}
+                        toggleNav={toggleNav}
+                        onDelete={onDelete}
+                      />
+                  ))}
+                </tbody>
+              </SortableContext>
+            </DndContext>
           </table>
         )}
       </div>

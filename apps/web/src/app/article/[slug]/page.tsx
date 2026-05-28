@@ -7,6 +7,14 @@ import { formatRelativeTime } from '@/lib/format';
 import { sanitizeArticleHtml } from '@/lib/sanitize';
 import { notFound } from 'next/navigation';
 
+/** Convert any YouTube URL to an embed URL */
+function getYouTubeEmbedUrl(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+  return match ? `https://www.youtube.com/embed/${match[1]}?rel=0&modestbranding=1` : null;
+}
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
@@ -70,7 +78,8 @@ export default async function ArticlePage({ params }: Props) {
           {article.viewCount.toLocaleString()} views
         </p>
 
-        {article.featuredImage && (
+        {/* Featured image — only show if there's no video (video takes priority) */}
+        {article.featuredImage && !article.videoUrl && (
           <div className="relative mt-5 aspect-video overflow-hidden rounded-xl">
             <Image
               src={article.featuredImage}
@@ -82,8 +91,26 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         )}
 
-        {/* In-article ad — below image, before content */}
-        <div className="my-6 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3">
+        {/* ── YouTube Video Embed (inline, plays in place) ── */}
+        {(() => {
+          const videoUrl = article.videoUrl;
+          const embedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : null;
+          if (!embedUrl) return null;
+          return (
+            <div className="mt-5 overflow-hidden rounded-xl border border-[var(--sk-border)] bg-black shadow-lg" style={{ aspectRatio: '16/9' }}>
+              <iframe
+                src={embedUrl}
+                title={article.title}
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          );
+        })()}
+
+        {/* In-article ad — below image/video, before content */}
+        <div className="my-6 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3 sk-random-ad">
           <AdSlot zone="inline" />
         </div>
 
@@ -93,7 +120,7 @@ export default async function ArticlePage({ params }: Props) {
         />
 
         {/* In-article ad — after content */}
-        <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3">
+        <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3 sk-random-ad">
           <AdSlot zone="inline" />
         </div>
 

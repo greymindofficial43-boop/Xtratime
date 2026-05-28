@@ -310,7 +310,7 @@ export async function fetchPlayerInfo(id: string): Promise<PlayerInfo | null> {
   if (!CRIC_KEY) return null;
   try {
     const url = `${CRIC_BASE}/players_info?apikey=${CRIC_KEY}&id=${id}`;
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { cache: 'no-store' }); // Ensure fresh fetch on search
     if (!res.ok) return null;
     const data: PlayerInfoApiResponse = await res.json();
     if (data.status !== 'success' || !data.data) return null;

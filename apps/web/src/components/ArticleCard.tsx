@@ -12,6 +12,24 @@ type Props = {
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800';
 
+function getYouTubeThumbnail(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+  return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
+}
+
+const PlayIcon = ({ small }: { small?: boolean }) => (
+  <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition duration-300 z-10 pointer-events-none">
+    <div className={`flex items-center justify-center rounded-full bg-white/90 shadow backdrop-blur-sm group-hover:scale-110 transition duration-300 ${small ? 'h-8 w-8' : 'h-12 w-12'}`}>
+      <svg width={small ? "16" : "24"} height={small ? "16" : "24"} viewBox="0 0 24 24" fill="currentColor" className={`text-[var(--sk-accent)] ${small ? 'ml-0.5' : 'ml-1'}`}>
+        <path d="M8 5v14l11-7z" />
+      </svg>
+    </div>
+  </div>
+);
+
 function ArticleMeta({ article }: { article: Article }) {
   return (
     <p className="mt-1.5 text-xs">
@@ -24,7 +42,8 @@ function ArticleMeta({ article }: { article: Article }) {
 
 export function ArticleCard({ article, size = 'default', rank }: Props) {
   const href = `/article/${article.slug}`;
-  const image = article.featuredImage ?? FALLBACK_IMAGE;
+  const image = article.featuredImage || getYouTubeThumbnail(article.videoUrl) || FALLBACK_IMAGE;
+  const hasVideo = !!article.videoUrl;
 
   if (size === 'grid') {
     return (
@@ -36,6 +55,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
             fill
             className="object-cover transition duration-300 group-hover:scale-105"
           />
+          {hasVideo && <PlayIcon />}
           <span className="absolute left-2.5 top-2.5 sk-cat-badge">
             {article.category.name}
           </span>
@@ -55,13 +75,14 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
       <Link href={href} className="group relative block overflow-hidden rounded-xl">
         <div className="relative aspect-[16/10] w-full">
           <Image
-            src={article.featuredImage ?? `${FALLBACK_IMAGE}&w=1200`}
+            src={article.featuredImage || getYouTubeThumbnail(article.videoUrl) || `${FALLBACK_IMAGE}&w=1200`}
             alt={article.title}
             fill
             className="object-cover transition duration-500 group-hover:scale-105"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+          {hasVideo && <PlayIcon />}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
           <span className="absolute left-3 top-3 sk-cat-badge">{article.category.name}</span>
           {article.isTrending && (
             <span className="absolute right-3 top-3 rounded-full bg-[var(--sk-accent)] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
@@ -89,6 +110,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
       >
         <div className="relative h-[72px] w-[108px] shrink-0 overflow-hidden rounded-lg">
           <Image src={image} alt="" fill className="object-cover" />
+          {hasVideo && <PlayIcon small />}
         </div>
         <div className="min-w-0 flex-1">
           <p className="line-clamp-3 text-sm font-semibold leading-snug text-[var(--sk-text)] group-hover:text-[var(--sk-accent)]">
@@ -124,6 +146,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
       >
         <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg">
           <Image src={image} alt="" fill className="object-cover" />
+          {hasVideo && <PlayIcon small />}
         </div>
         <div className="min-w-0 flex-1">
           <p className="line-clamp-2 text-sm font-semibold group-hover:text-[var(--sk-accent)]">
@@ -147,6 +170,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
           fill
           className="object-cover transition duration-300 group-hover:scale-105"
         />
+        {hasVideo && <PlayIcon />}
         <span className="absolute left-2.5 top-2.5 sk-cat-badge">{article.category.name}</span>
       </div>
       <div className="p-4">

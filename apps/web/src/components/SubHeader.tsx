@@ -37,6 +37,7 @@ export function SubHeader() {
     tabs = [
       { label: 'Cricket', href: `/category/cricket` },
       { label: 'Schedule', href: `/schedule` },
+      { label: 'Player Stats', href: `/players` },
       { label: 'Videos', href: `/category/cricket` },
       { label: 'IPL 2026', href: `/category/cricket` },
       { label: 'NZ-W vs ENG-W', href: `/category/cricket` },

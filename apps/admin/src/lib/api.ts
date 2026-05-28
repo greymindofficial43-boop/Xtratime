@@ -1,4 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+const API_BASE = API_URL.replace(/\/api$/, '');
 
 export type AuthUser = {
   id: string;
@@ -34,6 +35,7 @@ export type Article = {
   excerpt?: string | null;
   content: string;
   featuredImage?: string | null;
+  videoUrl?: string | null;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   isFeatured: boolean;
   isTrending: boolean;
@@ -61,7 +63,7 @@ export type Match = {
   updatedAt: string;
 };
 
-export type AdType = 'GOOGLE' | 'CUSTOM';
+export type AdType = 'GOOGLE' | 'CUSTOM' | 'THIRD_PARTY';
 
 export type Advertisement = {
   id: string;
@@ -127,6 +129,8 @@ export const adminApi = {
     apiFetch<Category>('/categories', { method: 'POST', body: JSON.stringify(data) }),
   updateCategory: (id: string, data: Partial<Category>) =>
     apiFetch<Category>(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  reorderCategories: (updates: { id: string; sortOrder?: number; navOrder?: number }[]) =>
+    apiFetch('/categories/reorder', { method: 'POST', body: JSON.stringify({ updates }) }),
   deleteCategory: (id: string) =>
     apiFetch(`/categories/${id}`, { method: 'DELETE' }),
 
@@ -161,6 +165,27 @@ export const adminApi = {
     apiFetch<Match>(`/matches/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteMatch: (id: string) =>
     apiFetch(`/matches/${id}`, { method: 'DELETE' }),
+  syncMatches: () => apiFetch<{ success: boolean; synced: number; message?: string }>('/matches/sync', { method: 'POST' }),
+
+  uploadFile: async (file: File) => {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE}/api/uploads`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw new Error(err.message ?? 'Upload failed');
+    }
+
+    const data = (await res.json()) as { url: string };
+    return { ...data, absoluteUrl: `${API_BASE}${data.url}` };
+  },
 
   getAds: () => apiFetch<Advertisement[]>('/ads'),
   createAd: (data: Partial<Advertisement>) =>

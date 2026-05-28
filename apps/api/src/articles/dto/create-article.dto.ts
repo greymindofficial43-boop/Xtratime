@@ -30,6 +30,10 @@ export class CreateArticleDto {
   featuredImage?: string;
 
   @IsOptional()
+  @IsString()
+  videoUrl?: string;
+
+  @IsOptional()
   @IsEnum(ArticleStatus)
   status?: ArticleStatus;
 

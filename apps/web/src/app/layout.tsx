@@ -8,6 +8,7 @@ import { TrendingFooter } from '@/components/TrendingFooter';
 import { Header } from '@/components/Header';
 import { SubHeader } from '@/components/SubHeader';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { RandomAdInjector } from '@/components/RandomAdInjector';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SubHeader />
           <BreakingTicker />
           <main>{children}</main>
+          <RandomAdInjector />
           <TrendingFooter />
           <Footer />
         </ThemeProvider>

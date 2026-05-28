@@ -100,8 +100,9 @@ const FORMAT_CONFIG = [
   { key: 'ipl' as const, label: 'IPL', color: '#f97316' },
 ];
 
-export default async function PlayerPage({ params }: { params: { id: string } }) {
-  const player = await fetchPlayerInfo(params.id);
+export default async function PlayerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const player = await fetchPlayerInfo(id);
 
   if (!player) notFound();
 

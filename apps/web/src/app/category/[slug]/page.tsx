@@ -142,7 +142,7 @@ export default async function CategoryPage({ params }: Props) {
               {rest.map((article, index) => (
                 <Fragment key={article.id}>
                   <ArticleCard article={article} size="list" />
-                  
+
                   {/* Inject ad every 3 articles */}
                   {(index + 1) % 3 === 0 && (
                     <div className="py-4">
@@ -214,7 +214,7 @@ export default async function CategoryPage({ params }: Props) {
                   style={{ background: 'linear-gradient(135deg, rgba(220,38,38,0.15), rgba(126,34,206,0.1))' }}
                 >
                   <h3 className="text-sm font-black uppercase tracking-wide text-[var(--sk-text)]">
-                    🏏 Player Stats
+                    Player Stats
                   </h3>
                   <Link href="/players" className="text-xs font-bold text-[var(--sk-accent)] hover:opacity-80">
                     View All →
@@ -238,7 +238,7 @@ export default async function CategoryPage({ params }: Props) {
                         <p className="text-xs font-bold text-[var(--sk-text)] group-hover:text-[var(--sk-accent)] transition truncate">{p.name}</p>
                         <p className="text-[10px] text-[var(--sk-muted)]">{p.country}</p>
                       </div>
-                      <svg className="text-[var(--sk-muted)] opacity-0 group-hover:opacity-100 transition shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
+                      <svg className="text-[var(--sk-muted)] opacity-0 group-hover:opacity-100 transition shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
                     </Link>
                   ))}
                 </div>
