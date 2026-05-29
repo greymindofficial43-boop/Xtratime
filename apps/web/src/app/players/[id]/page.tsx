@@ -33,8 +33,8 @@ function StatTable({ rows, labelMap }: { rows: PlayerStatRow[]; labelMap: Record
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <tbody>
-          {display.map((row) => (
-            <tr key={row.stat} className="border-b border-[var(--sn-border)] last:border-0">
+          {display.map((row, idx) => (
+            <tr key={`${row.stat}-${idx}`} className="border-b border-[var(--sn-border)] last:border-0">
               <td className="py-2.5 pr-4 text-[var(--sn-muted)] font-medium capitalize text-xs">
                 {labelMap[row.stat] ?? row.stat.toUpperCase()}
               </td>

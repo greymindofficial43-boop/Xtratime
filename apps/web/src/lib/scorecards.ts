@@ -5,8 +5,9 @@ export type ScorecardTab = 'featured' | 'nfl' | 'nba' | 'mlb' | 'soccer' | 'nhl'
 export type MatchStatus = 'completed' | 'live' | 'upcoming';
 
 export type TeamLine = {
-  abbr: string;
+  abbr: string;   // Short abbreviation (2-3 chars)
   name: string;
+  logo?: string;  // Full image URL if available
   score?: string;
   overs?: string;
   color: string;

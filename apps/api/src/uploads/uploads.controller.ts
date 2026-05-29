@@ -33,14 +33,15 @@ export class UploadsController {
         },
       }),
       fileFilter: (_req, file, cb) => {
-        if (!file.mimetype.match(/^image\/(jpeg|png|gif|webp|svg\+xml)$/)) {
+        if (!file.mimetype.match(/^(image\/(jpeg|png|gif|webp|svg\+xml)|video\/(mp4|webm|ogg))$/)) {
           return cb(
-            new BadRequestException('Only image files are allowed'),
+            new BadRequestException('Only image and video files are allowed'),
             false,
           );
         }
         cb(null, true);
       },
+
       limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
     }),
   )

@@ -193,6 +193,7 @@ function normalizeToScorecard(
   const makeTeam = (c: EspnCompetitor): TeamLine => ({
     abbr: c.team.abbreviation,
     name: c.team.shortDisplayName,
+    logo: c.team.logo,
     score: status !== 'upcoming' ? (c.score ?? undefined) : undefined,
     color: teamColor(c.team.color),
   });

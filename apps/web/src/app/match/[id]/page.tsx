@@ -3,17 +3,41 @@ import { fetchAllScoreboards } from '@/lib/espn';
 import { fetchCricketScorecards } from '@/lib/cricapi';
 import { MatchDetailsClient } from '@/components/MatchDetailsClient';
 import type { Scorecard } from '@/lib/scorecards';
+import { api } from '@/lib/api';
 
 export default async function MatchDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
-  // Fetch all possible matches to find this one
-  const [espn, cricket] = await Promise.all([
+  const [espn, cricket, adminMatchesRaw] = await Promise.all([
     fetchAllScoreboards(),
     fetchCricketScorecards(20),
+    api.getMatches().catch(() => []),
   ]);
 
+  const adminMatches: Scorecard[] = adminMatchesRaw.map((m: any) => {
+    const d = new Date(m.date);
+    const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
+    const abbr = (name: string) => name.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
+    return {
+      id: `admin-${m.id}`,
+      tabs: ['featured', m.sport.toLowerCase().trim() as any],
+      meta: m.title,
+      home: { abbr: abbr(m.homeTeamName), name: m.homeTeamName, logo: m.homeTeamLogo || undefined, score: m.homeTeamScore || undefined, color: 'var(--sk-accent)' },
+      away: { abbr: abbr(m.awayTeamName), name: m.awayTeamName, logo: m.awayTeamLogo || undefined, score: m.awayTeamScore || undefined, color: 'var(--sk-text)' },
+      status: (m.status === 'result' ? 'completed' : m.status) as Scorecard['status'],
+      result: m.note || undefined,
+      scheduledTime: hasTime
+        ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : d.toLocaleDateString([], { month: 'short', day: 'numeric' }),
+      scheduledDay: hasTime
+        ? d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
+        : undefined,
+      href: `/match/admin-${m.id}`,
+    };
+  });
+
   const allMatches: Scorecard[] = [
+    ...adminMatches,
     ...cricket,
     ...espn.nfl,
     ...espn.nba,
@@ -40,12 +64,17 @@ export default async function MatchDetailsPage({ params }: { params: Promise<{ i
         
         <div className="flex items-center justify-between">
           <div className="flex flex-1 flex-col items-center gap-3 text-center">
-            <div
-              className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-black text-white shadow-lg"
-              style={{ backgroundColor: match.home.color }}
-            >
-              {match.home.abbr.slice(0, 2)}
-            </div>
+            {match.home.logo && (match.home.logo.startsWith('http') || match.home.logo.startsWith('/')) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={match.home.logo} alt={match.home.name} className="h-20 w-20 rounded-full object-contain bg-[var(--sk-surface)] shadow-lg" />
+            ) : (
+              <div
+                className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-black text-white shadow-lg"
+                style={{ backgroundColor: match.home.color }}
+              >
+                {match.home.abbr.replace(/^https?:\/\/.*/, '').slice(0, 3).toUpperCase() || '?'}
+              </div>
+            )}
             <h2 className="text-xl font-bold text-[var(--sk-text)]">{match.home.name}</h2>
           </div>
           
@@ -83,12 +112,17 @@ export default async function MatchDetailsPage({ params }: { params: Promise<{ i
           </div>
 
           <div className="flex flex-1 flex-col items-center gap-3 text-center">
-            <div
-              className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-black text-white shadow-lg"
-              style={{ backgroundColor: match.away.color }}
-            >
-              {match.away.abbr.slice(0, 2)}
-            </div>
+            {match.away.logo && (match.away.logo.startsWith('http') || match.away.logo.startsWith('/')) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={match.away.logo} alt={match.away.name} className="h-20 w-20 rounded-full object-contain bg-[var(--sk-surface)] shadow-lg" />
+            ) : (
+              <div
+                className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-black text-white shadow-lg"
+                style={{ backgroundColor: match.away.color }}
+              >
+                {match.away.abbr.replace(/^https?:\/\/.*/, '').slice(0, 3).toUpperCase() || '?'}
+              </div>
+            )}
             <h2 className="text-xl font-bold text-[var(--sk-text)]">{match.away.name}</h2>
           </div>
         </div>

@@ -40,59 +40,92 @@ export class MatchesService {
       // Example implementation for cross-sport Highlightly API
       // Since the exact format depends on the specific Highlightly endpoint,
       // we'll fetch from a generic endpoint or multiple endpoints.
-      const sports = ['football', 'basketball', 'cricket']; // Add more as needed
-      const baseUrl = 'https://sports.highlightly.net'; // Generic base URL
+      const today = new Date().toISOString().split('T')[0];
       
+      const endpoints = [
+        { key: 'football', sport: 'soccer', url: `https://sports.highlightly.net/football/matches?date=${today}` },
+        { key: 'basketball', sport: 'basketball', url: `https://basketball.highlightly.net/matches?date=${today}` },
+        { key: 'cricket', sport: 'cricket', url: `https://cricket.highlightly.net/matches?date=${today}` },
+        { key: 'volleyball', sport: 'volleyball', url: `https://volleyball.highlightly.net/matches?date=${today}` },
+        { key: 'nba', sport: 'basketball', url: `https://nba.highlightly.net/matches?date=${today}` },
+        { key: 'nhl', sport: 'hockey', url: `https://nhl.highlightly.net/matches?date=${today}` },
+      ];
+
       let totalSynced = 0;
 
-      for (const sport of sports) {
-        // Just an example, update the endpoint to the exact Highlightly matches endpoint
-        const response = await fetch(`${baseUrl}/${sport}/matches`, {
+      for (const { key, sport, url } of endpoints) {
+        const response = await fetch(url, {
           headers: {
             'x-rapidapi-key': apiKey,
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+          },
         });
 
         if (!response.ok) {
-          this.logger.error(`Failed to fetch ${sport} matches: ${response.statusText}`);
+          this.logger.warn(`Highlightly ${key}: ${response.status} ${response.statusText}`);
           continue;
         }
 
         const data = await response.json();
-        const matches = data?.data || [];
+        const matches = Array.isArray(data) ? data : (data.data || []);
 
         for (const item of matches) {
-          // Map Highlightly API data to our Prisma Match model
+          const homeTeam = item.homeTeam || item.home_team || {};
+          const awayTeam = item.awayTeam || item.away_team || {};
+
+          // Cricket uses innings array; football uses state.score.current
+          let homeScore: string | null = null;
+          let awayScore: string | null = null;
+
+          if (key === 'cricket' && item.innings && item.innings.length > 0) {
+            // Each innings has team, score, wickets, overs
+            const homeInnings = item.innings.filter((inn: any) =>
+              inn.team === homeTeam.name || inn.battingTeam === homeTeam.name
+            );
+            const awayInnings = item.innings.filter((inn: any) =>
+              inn.team === awayTeam.name || inn.battingTeam === awayTeam.name
+            );
+            if (homeInnings.length > 0) {
+              const inn = homeInnings[homeInnings.length - 1];
+              homeScore = `${inn.score ?? inn.runs ?? ''}/${inn.wickets ?? ''}`;
+            }
+            if (awayInnings.length > 0) {
+              const inn = awayInnings[awayInnings.length - 1];
+              awayScore = `${inn.score ?? inn.runs ?? ''}/${inn.wickets ?? ''}`;
+            }
+          } else {
+            const scoreCurrent = item.state?.score?.current || item.score || {};
+            homeScore = scoreCurrent.home?.toString() || null;
+            awayScore = scoreCurrent.away?.toString() || null;
+          }
+
+          const statusDesc = (item.state?.description || item.status || 'not started').toLowerCase();
+          let matchStatus = 'upcoming';
+          if (statusDesc.includes('progress') || statusDesc.includes('live') || statusDesc.includes('inprogress')) matchStatus = 'live';
+          else if (statusDesc.includes('finished') || statusDesc.includes('ended') || statusDesc.includes('complete')) matchStatus = 'result';
+
           const mappedMatch = {
-            sport: sport,
-            title: `${item.home_team?.name || 'Unknown'} vs ${item.away_team?.name || 'Unknown'}`,
-            homeTeamName: item.home_team?.name || 'Unknown',
-            homeTeamLogo: item.home_team?.logo || '',
-            homeTeamScore: item.score?.home?.toString() || null,
-            awayTeamName: item.away_team?.name || 'Unknown',
-            awayTeamLogo: item.away_team?.logo || '',
-            awayTeamScore: item.score?.away?.toString() || null,
-            status: item.status === 'IN_PROGRESS' ? 'live' : item.status === 'FINISHED' ? 'result' : 'upcoming',
-            date: item.start_time ? new Date(item.start_time) : new Date(),
+            sport,
+            title: `${homeTeam.name || 'Unknown'} vs ${awayTeam.name || 'Unknown'}`,
+            homeTeamName: homeTeam.name || 'Unknown',
+            homeTeamLogo: homeTeam.logo || homeTeam.image || '',
+            homeTeamScore: homeScore,
+            awayTeamName: awayTeam.name || 'Unknown',
+            awayTeamLogo: awayTeam.logo || awayTeam.image || '',
+            awayTeamScore: awayScore,
+            status: matchStatus,
+            note: item.state?.description || item.note || null,
+            date: item.date ? new Date(item.date) : new Date(),
           };
 
-          // Upsert based on external ID if we had one, or simply create/update
-          // For now, we'll try to find by title and date (approximate) or just insert
-          // In a real scenario, use an externalId field
           const existing = await this.prisma.match.findFirst({
-            where: { title: mappedMatch.title, sport: mappedMatch.sport }
+            where: { title: mappedMatch.title, sport: mappedMatch.sport },
           });
 
           if (existing) {
-            await this.prisma.match.update({
-              where: { id: existing.id },
-              data: mappedMatch
-            });
+            await this.prisma.match.update({ where: { id: existing.id }, data: mappedMatch });
           } else {
-            await this.prisma.match.create({
-              data: mappedMatch
-            });
+            await this.prisma.match.create({ data: mappedMatch });
           }
           totalSynced++;
         }

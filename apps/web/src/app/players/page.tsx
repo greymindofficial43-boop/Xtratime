@@ -1,19 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import type { PlayerSearchResult } from '@/lib/cricapi';
 
-const FEATURED_PLAYERS = [
-  { id: 'c61d247d-7f77-452c-b495-2813a9cd0ac4', name: 'Virat Kohli', country: 'India' },
-  { id: '6da70c66-7cf5-4c8c-aba8-54b2a87f51d3', name: 'Rohit Sharma', country: 'India' },
-  { id: '22e8f6f8-be4e-4c55-bc66-50b73aba4d7e', name: 'MS Dhoni', country: 'India' },
-  { id: '612c0606-76dc-4f61-9416-41a7d0bee9f0', name: 'Babar Azam', country: 'Pakistan' },
-  { id: '9f75a33f-a4c2-4d19-a88b-f43b56cc0cce', name: 'Steve Smith', country: 'Australia' },
-  { id: '5d44e406-30b9-41bf-9b2f-22da8bdcf699', name: 'Ben Stokes', country: 'England' },
-  { id: 'c2c57db1-a1e8-4c9c-9ff4-2d7380f1aa74', name: 'Kane Williamson', country: 'New Zealand' },
-  { id: '9d30a2e5-f19e-4cd1-b5d4-ea4c0e0f6213', name: 'Joe Root', country: 'England' },
-];
+
 
 const FLAG_MAP: Record<string, string> = {
   India: '🇮🇳', Pakistan: '🇵🇰', Australia: '🇦🇺', England: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
@@ -32,8 +23,23 @@ export default function PlayersPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
+  // Restore last search from sessionStorage on mount
+  useEffect(() => {
+    const savedQuery = sessionStorage.getItem('playerSearchQuery');
+    const savedResults = sessionStorage.getItem('playerSearchResults');
+    if (savedQuery && savedResults) {
+      try {
+        setQuery(savedQuery);
+        setResults(JSON.parse(savedResults));
+        setSearched(true);
+      } catch {
+        // ignore parse errors
+      }
+    }
+  }, []);
+
   const search = useCallback(async (q: string) => {
-    if (!q.trim()) { setResults([]); setSearched(false); return; }
+    if (!q.trim()) { setResults([]); setSearched(false); sessionStorage.removeItem('playerSearchQuery'); sessionStorage.removeItem('playerSearchResults'); return; }
     setLoading(true);
     setSearched(true);
     try {
@@ -41,11 +47,15 @@ export default function PlayersPage() {
       if (res.ok) {
         const data = await res.json();
         setResults(data);
+        // Persist search for back navigation
+        sessionStorage.setItem('playerSearchQuery', q);
+        sessionStorage.setItem('playerSearchResults', JSON.stringify(data));
       }
     } finally {
       setLoading(false);
     }
   }, []);
+
 
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') search(query);
@@ -131,30 +141,10 @@ export default function PlayersPage() {
         </div>
       )}
 
-      {/* Featured players */}
+      {/* Empty state before search */}
       {!searched && (
-        <div>
-          <p className="mb-4 text-xs font-bold uppercase tracking-wide text-[var(--sn-muted)]">
-            Featured Players
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {FEATURED_PLAYERS.map((p) => (
-              <Link
-                key={p.id}
-                href={`/players/${p.id}`}
-                className="group flex flex-col gap-1.5 rounded-xl border border-[var(--sn-border)] bg-[var(--sn-surface)] p-4 transition hover:border-[var(--sn-accent)] hover:shadow-lg hover:-translate-y-0.5"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl">{getFlag(p.country)}</span>
-                  <svg className="text-[var(--sn-muted)] opacity-0 group-hover:opacity-100 transition" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="m9 18 6-6-6-6"/>
-                  </svg>
-                </div>
-                <span className="font-bold text-[var(--sn-text)] group-hover:text-[var(--sn-accent)] transition text-sm leading-tight">{p.name}</span>
-                <span className="text-xs text-[var(--sn-muted)]">{p.country}</span>
-              </Link>
-            ))}
-          </div>
+        <div className="rounded-xl border border-dashed border-[var(--sn-border)] p-12 text-center text-[var(--sn-muted)]">
+          Type a player's name above (e.g. Kohli, Stokes, Starc) to fetch live statistics from CricAPI.
         </div>
       )}
     </div>

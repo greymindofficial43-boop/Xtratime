@@ -39,6 +39,7 @@ export default function AdsPage() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   async function load() {
     const data = await adminApi.getAds();
@@ -66,6 +67,19 @@ export default function AdsPage() {
       // Ignore parsing errors
     }
     setForm((prev) => ({ ...prev, imageUrl: url }));
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files?.[0]) return;
+    setUploading(true);
+    try {
+      const res = await adminApi.uploadFile(e.target.files[0]);
+      setForm((prev) => ({ ...prev, imageUrl: res.absoluteUrl }));
+    } catch (err: any) {
+      alert(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -230,13 +244,19 @@ export default function AdsPage() {
         {form.type === 'CUSTOM' ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-slate-500">Image URL</label>
-              <input
-                value={form.imageUrl}
-                onChange={handleImageUrlChange}
-                className="mt-1 w-full rounded-lg border px-3 py-2"
-                placeholder="https://..."
-              />
+              <label className="block text-xs font-medium text-slate-500">Media URL (Image / Video)</label>
+              <div className="mt-1 flex gap-2">
+                <input
+                  value={form.imageUrl}
+                  onChange={handleImageUrlChange}
+                  className="w-full rounded-lg border px-3 py-2"
+                  placeholder="https://..."
+                />
+                <label className="flex shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-300 bg-slate-50 px-3 hover:bg-slate-100">
+                  <span className="text-xs font-semibold text-slate-600">{uploading ? '...' : 'Upload'}</span>
+                  <input type="file" className="hidden" accept="image/*,video/*" onChange={handleFileUpload} disabled={uploading} />
+                </label>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500">Target URL</label>

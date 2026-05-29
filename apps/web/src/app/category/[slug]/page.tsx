@@ -54,12 +54,13 @@ export default async function CategoryPage({ params }: Props) {
     .map((m) => {
       const d = new Date(m.date);
       const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
+      const abbr = (name: string) => name.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
       return {
         id: `admin-${m.id}`,
         tabs: ['featured' as const],
         meta: m.title,
-        home: { abbr: m.homeTeamLogo, name: m.homeTeamName, score: m.homeTeamScore || undefined, color: 'var(--sk-text)' },
-        away: { abbr: m.awayTeamLogo, name: m.awayTeamName, score: m.awayTeamScore || undefined, color: 'var(--sk-text)' },
+        home: { abbr: abbr(m.homeTeamName), name: m.homeTeamName, logo: m.homeTeamLogo || undefined, score: m.homeTeamScore || undefined, color: 'var(--sk-accent)' },
+        away: { abbr: abbr(m.awayTeamName), name: m.awayTeamName, logo: m.awayTeamLogo || undefined, score: m.awayTeamScore || undefined, color: 'var(--sk-text)' },
         status: (m.status === 'result' ? 'completed' : m.status) as Scorecard['status'],
         result: m.note || undefined,
         scheduledTime: hasTime

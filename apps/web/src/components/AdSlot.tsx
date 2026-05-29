@@ -75,6 +75,7 @@ export function AdSlot({ zone, className = '', adOverride }: Props) {
 
   const ad = ads[index] ?? null;
   const isCompactInlineCustom = zone !== 'sidebar' && ad?.type === 'CUSTOM';
+  const isVideo = ad?.imageUrl?.match(/\.(mp4|webm|ogg)$/i);
 
   useEffect(() => {
     if ((ad?.type !== 'GOOGLE' && ad?.type !== 'THIRD_PARTY') || !ad.googleCode || !googleContainerRef.current) return;
@@ -118,12 +119,24 @@ export function AdSlot({ zone, className = '', adOverride }: Props) {
           onClick={handleClick}
         >
           {ad.imageUrl ? (
-            <img
-              src={ad.imageUrl}
-              alt={ad.title}
-              className="mx-auto max-h-[250px] max-w-full w-auto object-contain"
-              style={{ display: 'block' }}
-            />
+            isVideo ? (
+              <video
+                src={ad.imageUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="mx-auto max-h-[150px] max-w-full w-auto object-contain"
+                style={{ display: 'block' }}
+              />
+            ) : (
+              <img
+                src={ad.imageUrl}
+                alt={ad.title}
+                className="mx-auto max-h-[150px] max-w-full w-auto object-contain"
+                style={{ display: 'block' }}
+              />
+            )
           ) : (
             <div className="flex min-h-[80px] items-center justify-center px-4 text-sm font-semibold text-[var(--sk-text)]">
               {ad.partnerName ?? ad.title}

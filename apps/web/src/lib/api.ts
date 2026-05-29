@@ -9,6 +9,7 @@ export type Category = {
   color?: string | null;
   showInNav?: boolean;
   navOrder?: number;
+  sortOrder?: number;
   parentId?: string | null;
   children?: Category[];
   _count?: { articles: number };
@@ -70,7 +71,7 @@ export type Match = {
   date: string;
 };
 
-export type AdType = 'GOOGLE' | 'CUSTOM';
+export type AdType = 'GOOGLE' | 'CUSTOM' | 'THIRD_PARTY';
 
 export type Advertisement = {
   id: string;

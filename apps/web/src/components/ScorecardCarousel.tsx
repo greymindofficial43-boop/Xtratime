@@ -1,18 +1,44 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import type { Scorecard } from '@/lib/scorecards';
+
+function TeamLogo({ team }: { team: Scorecard['home'] }) {
+  const [error, setError] = useState(false);
+  const isLogoUrl = team.logo && (team.logo.startsWith('http') || team.logo.startsWith('/'));
+  const initials = team.abbr.replace(/^https?:\/\/.*/, '').slice(0, 3).toUpperCase() || '?';
+
+  if (isLogoUrl && !error) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={team.logo}
+        alt={team.name}
+        className="h-6 w-6 shrink-0 rounded-full object-contain bg-white/10"
+        onError={() => setError(true)}
+      />
+    );
+  }
+
+  return (
+    <span
+      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
+      style={{ backgroundColor: team.color }}
+    >
+      {initials}
+    </span>
+  );
+}
 
 function TeamRow({ team }: { team: Scorecard['home'] }) {
   return (
     <div className="flex items-center justify-between gap-2 py-1">
       <div className="flex min-w-0 items-center gap-2">
-        <span
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-          style={{ backgroundColor: team.color }}
-        >
-          {team.abbr.slice(0, 2)}
-        </span>
-        <span className="truncate text-sm font-semibold text-[var(--sk-text)]">{team.abbr}</span>
+        <TeamLogo team={team} />
+        <span className="truncate text-sm font-semibold text-[var(--sk-text)]">{team.name}</span>
       </div>
+
       <div className="shrink-0 text-right">
         <span className="text-sm font-bold text-[var(--sk-text)]">{team.score ?? '0'}</span>
         {team.overs && (
