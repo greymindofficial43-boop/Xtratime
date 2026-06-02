@@ -310,7 +310,7 @@ export default function AdsPage() {
       </form>
 
       {/* ── Ads Table ── */}
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white">
         {ads.length === 0 ? (
           <p className="p-8 text-slate-500">No ads created yet.</p>
         ) : (

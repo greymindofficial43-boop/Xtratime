@@ -110,7 +110,7 @@ export default function ArticlesPage() {
       </div>
 
       <div
-        className="overflow-hidden rounded-xl border"
+        className="overflow-x-auto rounded-xl border"
         style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', boxShadow: 'var(--admin-shadow)' }}
       >
         {loading ? (

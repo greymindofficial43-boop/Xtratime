@@ -140,7 +140,7 @@ export function ArticleForm({ article }: Props) {
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium">Title *</label>
           <input
@@ -265,7 +265,7 @@ export function ArticleForm({ article }: Props) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium">Category *</label>
