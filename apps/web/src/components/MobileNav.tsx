@@ -12,7 +12,10 @@ type Props = {
 
 export function MobileNav({ navItems }: Props) {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const pathname = usePathname();
+
+  useEffect(() => { setOpen(false); }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -21,11 +24,11 @@ export function MobileNav({ navItems }: Props) {
 
   return (
     <>
-      {/* Hamburger — always visible, top-left */}
+      {/* Hamburger — mobile only */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="sk-hamburger flex h-9 w-9 shrink-0 items-center justify-center"
+        className="lg:hidden flex h-9 w-9 shrink-0 items-center justify-center"
         aria-label="Open menu"
       >
         <span className="flex flex-col gap-[5px]" aria-hidden>
@@ -36,61 +39,77 @@ export function MobileNav({ navItems }: Props) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[100]">
+        <div className="fixed inset-0 z-[150]">
           {/* Backdrop */}
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/75"
+          <div
+            className="absolute inset-0 bg-black/70"
             onClick={() => setOpen(false)}
-            aria-label="Close menu overlay"
           />
 
-          {/* Drawer */}
-          <aside className="sk-sidebar relative flex h-full w-[min(300px,88vw)] flex-col bg-[#1c1c1d] shadow-2xl">
-            <div className="flex h-[49px] items-center justify-between border-b border-[#333] px-4">
-              <Link href="/" onClick={() => setOpen(false)} className="sn-logo text-xl">
+          {/* Drawer — slides in from LEFT on mobile */}
+          <aside
+            className="absolute left-0 top-0 flex h-full flex-col bg-[#0d0f14] shadow-2xl"
+            style={{ width: 'min(300px, 88vw)', animation: 'slideInLeft 0.22s ease-out' }}
+          >
+            <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#1e2028] px-4">
+              <Link href="/" onClick={() => setOpen(false)} className="sn-logo text-lg">
                 Xtra<span className="sn-logo-accent"> Time</span>
               </Link>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center text-2xl text-[#808080] hover:text-white"
-                aria-label="Close menu"
+                className="flex h-8 w-8 items-center justify-center text-2xl text-[#666] hover:text-white"
+                aria-label="Close"
               >
                 ×
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-2 py-3">
-              <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#666]">
-                Main Menu
-              </p>
+            <div className="flex-1 overflow-y-auto px-3 py-3">
               {navItems.map((item) => {
-                const href = item.href;
-                const active = pathname === href;
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const hasChildren = (item.children?.length ?? 0) > 0;
+                const isExpanded = expanded === item.label;
+
                 return (
-                  <div key={item.label} className="mb-2 rounded-lg border border-[#2b2d31] bg-[#202124]/80">
-                    <Link
-                      href={href}
-                      onClick={() => setOpen(false)}
-                      className={`block rounded-md px-3 py-2.5 text-sm font-semibold transition ${
-                        active
-                          ? 'bg-[#2a2a2b] text-[var(--sk-accent)]'
-                          : 'text-[#c8c8c8] hover:bg-[#2a2a2b] hover:text-white'
-                      }`}
-                    >
-                      {item.icon ? `${item.icon} ` : ''}{item.label}
-                    </Link>
-                    {(item.children?.length ?? 0) > 0 && (
-                      <div className="border-t border-[#2b2d31] px-2 py-2">
+                  <div key={item.label} className="mb-1">
+                    <div className="flex items-center">
+                      <Link
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className={`flex flex-1 items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
+                          active
+                            ? 'bg-[#1a0e0a] text-[var(--sn-accent)]'
+                            : 'text-[#c8c8c8] hover:bg-[#1a1c23] hover:text-white'
+                        }`}
+                      >
+                        {item.icon && <span>{item.icon}</span>}
+                        {item.label}
+                      </Link>
+                      {hasChildren && (
+                        <button
+                          type="button"
+                          onClick={() => setExpanded(isExpanded ? null : item.label)}
+                          className="flex h-9 w-9 items-center justify-center text-[#666] hover:text-white"
+                        >
+                          <svg width="10" height="6" viewBox="0 0 10 6" className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                            <path d="M1 1.5 5 5 9 1.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+
+                    {hasChildren && isExpanded && (
+                      <div className="ml-3 mt-1 border-l border-[#1e2028] pl-3">
                         {item.children!.map((child) => (
                           <Link
                             key={`${item.label}-${child.label}`}
                             href={child.href}
                             onClick={() => setOpen(false)}
-                            className="block rounded-md px-3 py-2 text-sm text-[#a8acb7] transition hover:bg-[#2a2a2b] hover:text-white"
+                            className="block rounded-lg px-3 py-2 text-sm text-[#9ca3af] transition hover:bg-[#1a1c23] hover:text-white"
                           >
-                            {child.icon ? `${child.icon} ` : ''}{child.label}
+                            {child.icon && <span className="mr-1.5">{child.icon}</span>}
+                            {child.label}
                           </Link>
                         ))}
                       </div>
@@ -98,15 +117,31 @@ export function MobileNav({ navItems }: Props) {
                   </div>
                 );
               })}
+
+              <div className="mt-3 border-t border-[#1e2028] pt-3">
+                <Link href="/schedule" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-[var(--sn-accent)]">
+                  🔴 Live Scores
+                </Link>
+                <Link href="/standings" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-[#9ca3af] hover:text-white">
+                  📊 Standings
+                </Link>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-[#333] px-4 py-3">
-              <span className="text-xs text-[#808080]">Theme</span>
+            <div className="flex shrink-0 items-center justify-between border-t border-[#1e2028] px-4 py-3">
+              <span className="text-xs text-[#666]">Theme</span>
               <ThemeToggle />
             </div>
           </aside>
         </div>
       )}
+
+      <style>{`
+        @keyframes slideInLeft {
+          from { transform: translateX(-100%); }
+          to   { transform: translateX(0); }
+        }
+      `}</style>
     </>
   );
 }

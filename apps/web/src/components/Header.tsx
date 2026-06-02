@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { api, type Category, type MenuItem as ApiMenuItem } from '@/lib/api';
 import { HeaderNav, type NavItem } from './HeaderNav';
 import { MobileNav } from './MobileNav';
+import { AllSportsPanel } from './AllSportsPanel';
 import { SearchBar } from './SearchBar';
 import { ThemeToggle } from './ThemeToggle';
 
 function fallbackNav(categories: Category[]): NavItem[] {
-  const bySlug = (slug: string) => categories.find((category) => category.slug === slug);
+  const bySlug = (slug: string) => categories.find((c) => c.slug === slug);
 
   return [
     {
@@ -15,10 +16,10 @@ function fallbackNav(categories: Category[]): NavItem[] {
       icon: '📰',
       children: [
         { label: 'Top Stories', href: '/', group: 'Editorial', description: 'Homepage lead package and editor picks.' },
-        { label: 'Breaking News', href: '/search?q=breaking', group: 'Editorial', description: 'Fastest developing stories and urgent updates.' },
+        { label: 'Breaking News', href: '/search?q=breaking', group: 'Editorial', description: 'Fastest developing stories.' },
         { label: 'Trending Now', href: '/search?q=trending', group: 'Newsroom', description: 'Most-read stories across every sport.' },
-        { label: 'Transfer Rumors', href: '/search?q=rumors', group: 'Newsroom', description: 'Rumors, insider chatter and movement watch.' },
-        { label: 'Analysis', href: '/search?q=analysis', group: 'Features', description: 'Deep dives, explainers and tactical reads.' },
+        { label: 'Transfer Rumors', href: '/search?q=rumors', group: 'Newsroom', description: 'Rumors, chatter and movement watch.' },
+        { label: 'Analysis', href: '/search?q=analysis', group: 'Features', description: 'Deep dives and tactical reads.' },
       ],
     },
     {
@@ -26,28 +27,30 @@ function fallbackNav(categories: Category[]): NavItem[] {
       href: '/schedule',
       icon: '📊',
       children: [
-        { label: 'All Fixtures', href: '/schedule', group: 'Scores', description: 'Daily match list across all tracked sports.' },
-        { label: 'Standings', href: '/standings', group: 'Scores', description: 'Tables, records and qualification picture.' },
+        { label: 'All Fixtures', href: '/schedule', group: 'Scores', description: 'Daily match list across all sports.' },
+        { label: 'Standings', href: '/standings', group: 'Scores', description: 'Tables and qualification picture.' },
+        { label: 'Cricket Scores', href: '/category/cricket', group: 'Sports', description: 'Live scorecards and cricket matches.' },
+        { label: 'Football Scores', href: '/category/football', group: 'Sports', description: 'Football fixtures and results.' },
       ],
     },
     ...['cricket', 'football', 'nba', 'nfl']
       .map((slug) => bySlug(slug))
-      .filter((category): category is Category => Boolean(category))
-      .map((category) => ({
-        label: category.name,
-        href: `/category/${category.slug}`,
-        icon: category.icon ?? undefined,
+      .filter((c): c is Category => Boolean(c))
+      .map((c) => ({
+        label: c.name,
+        href: `/category/${c.slug}`,
+        icon: c.icon ?? undefined,
         children: [
-          { label: `All ${category.name}`, href: `/category/${category.slug}`, group: 'Coverage', description: `All stories from the ${category.name.toLowerCase()} desk.` },
-          { label: 'Fixtures & Results', href: '/schedule', group: 'Coverage', description: 'Schedules, live trackers and final scores.' },
-          ...(category.slug === 'cricket'
-            ? [{ label: 'Player Stats', href: '/players', group: 'Resources', description: 'Player search, batting and bowling profiles.' }]
+          { label: `All ${c.name}`, href: `/category/${c.slug}`, group: 'Coverage', description: `All ${c.name.toLowerCase()} stories.` },
+          { label: 'Fixtures & Results', href: '/schedule', group: 'Coverage', description: 'Schedules, live trackers and scores.' },
+          ...(c.slug === 'cricket'
+            ? [{ label: 'Player Stats', href: '/players', group: 'Resources', description: 'Player search and profiles.' }]
             : []),
-          ...((category.children ?? []).slice(0, 4).map((child) => ({
+          ...((c.children ?? []).slice(0, 4).map((child) => ({
             label: child.name,
             href: `/category/${child.slug}`,
             group: 'Subcategories',
-            description: `Go straight to ${child.name.toLowerCase()} coverage.`,
+            description: `${child.name} coverage.`,
           }))),
         ],
       })),
@@ -61,7 +64,7 @@ function mapMenuItems(menuItems: ApiMenuItem[]): NavItem[] {
     .map((item) => ({
       label: item.title,
       href: item.href || '#',
-      badge: (item.badge === 'NEW' ? 'NEW' : undefined) as "NEW" | undefined,
+      badge: (item.badge === 'NEW' ? 'NEW' : undefined) as 'NEW' | undefined,
       icon: item.icon ?? undefined,
       description: item.description ?? undefined,
       children: (item.children ?? [])
@@ -70,7 +73,7 @@ function mapMenuItems(menuItems: ApiMenuItem[]): NavItem[] {
         .map((child) => ({
           label: child.title,
           href: child.href || '#',
-          badge: (child.badge === 'NEW' ? 'NEW' : undefined) as "NEW" | undefined,
+          badge: (child.badge === 'NEW' ? 'NEW' : undefined) as 'NEW' | undefined,
           icon: child.icon ?? undefined,
           description: child.description ?? undefined,
           group: child.groupName ?? undefined,
@@ -94,22 +97,21 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--sn-header-bg)] border-b border-[var(--sn-header-border)]">
-      {/* Top bar */}
-      <div className="mx-auto flex h-[52px] max-w-[1440px] items-center gap-3 px-3 sm:px-5">
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-2 px-3 sm:px-5">
 
-        {/* Left: Hamburger (always visible) + Logo */}
+        {/* Hamburger (mobile only) */}
         <MobileNav navItems={navItems} />
 
         {/* Logo */}
-        <Link href="/" className="sn-logo shrink-0" aria-label="Xtra Time home">
+        <Link href="/" className="sn-logo shrink-0 text-lg sm:text-xl" aria-label="Xtra Time home">
           Xtra<span className="sn-logo-accent"> Time</span>
         </Link>
 
-        {/* Desktop category nav */}
+        {/* Desktop nav */}
         <HeaderNav items={navItems} />
 
-        {/* Right: Search, Theme, Live Scores, Login */}
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        {/* Right controls */}
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
           <SearchBar />
           <div className="hidden sm:block">
             <ThemeToggle />
@@ -118,8 +120,10 @@ export async function Header() {
             href="/schedule"
             className="hidden rounded-full border border-[var(--sn-accent)] px-3 py-1 text-xs font-bold text-[var(--sn-accent)] transition hover:bg-[var(--sn-accent)] hover:text-white sm:block"
           >
-            Live Scores
+            Live
           </Link>
+          {/* All Sports panel trigger — visible on all screen sizes */}
+          <AllSportsPanel categories={categories} />
         </div>
       </div>
     </header>

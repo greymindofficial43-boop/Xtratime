@@ -433,3 +433,38 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
+/* ─── Global responsive fixes ───────────────────────────────────────────────── */
+
+/* All images scale to container width */
+img { max-width: 100%; height: auto; }
+
+/* Prevent content from overflowing on small screens */
+* { min-width: 0; }
+
+/* Smooth tap highlight removal on mobile */
+a, button { -webkit-tap-highlight-color: transparent; }
+
+/* Touch-friendly minimum tap targets */
+@media (max-width: 640px) {
+  button, a { min-height: 36px; }
+  .sn-logo { font-size: 1.25rem; }
+  .prose-article h2 { font-size: 1.25rem; }
+  .prose-article h3 { font-size: 1.05rem; }
+  .prose-article p  { font-size: 0.95rem; line-height: 1.75; }
+}
+
+/* Horizontal scroll prevention */
+@media (max-width: 768px) {
+  .sk-scrollbar-hide { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+/* Full-width cards on xs screens */
+@media (max-width: 480px) {
+  .sk-card-lift, .sn-card { border-radius: 10px; }
+}
+
+/* Safe bottom padding for mobile browsers with home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  footer { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+}
