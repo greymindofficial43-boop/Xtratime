@@ -20,14 +20,14 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'SportyNewz — Live Scores, Sports News & Updates',
+  title: 'Xtra Time — Live Scores, Sports News & Updates',
   description:
-    'SportyNewz covers cricket, football, NBA, NFL, NHL and more. Live scores, breaking news, trending stories and deep analysis — all in one place.',
+    'Xtra Time covers cricket, football, NBA, NFL, NHL and more. Live scores, breaking news, trending stories and deep analysis — all in one place.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'SportyNewz',
+    title: 'Xtra Time',
   },
 };
 

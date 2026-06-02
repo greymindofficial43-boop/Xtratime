@@ -1,6 +1,6 @@
 {
-  "name": "SportyNewz",
-  "short_name": "SportyNewz",
+  "name": "Xtra Time",
+  "short_name": "Xtra Time",
   "description": "Live scores, sports news and updates.",
   "start_url": "/",
   "display": "standalone",

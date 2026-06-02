@@ -6,8 +6,8 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SportyNewz Admin',
-  description: 'SportyNewz content management panel',
+  title: 'Xtra Time Admin',
+  description: 'Xtra Time content management panel',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

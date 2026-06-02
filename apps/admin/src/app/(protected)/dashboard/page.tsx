@@ -45,7 +45,7 @@ export default function DashboardPage() {
           Welcome back 👋
         </h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--admin-muted)' }}>
-          Here&apos;s an overview of your SportyNewz content.
+          Here&apos;s an overview of your Xtra Time content.
         </p>
       </div>
 

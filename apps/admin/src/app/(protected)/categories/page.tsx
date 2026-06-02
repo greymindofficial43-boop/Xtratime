@@ -218,7 +218,7 @@ export default function CategoriesPage() {
             style={{ background: '#0a0c10', border: '1px solid #1e2028' }}
           >
             <span className="mr-3 text-sm font-black italic text-white">
-              sporty<span style={{ color: 'var(--admin-accent)' }}>newz</span>
+              Xtra<span style={{ color: 'var(--admin-accent)' }}> Time</span>
             </span>
             {navCats.map((c) => {
               const children = getChildren(c.id);

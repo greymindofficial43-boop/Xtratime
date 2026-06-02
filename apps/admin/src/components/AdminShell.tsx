@@ -23,6 +23,12 @@ const NAV_SECTIONS = [
     ],
   },
   {
+    label: 'Navigation',
+    items: [
+      { href: '/navigation', label: 'Menus', icon: '☰' },
+    ],
+  },
+  {
     label: 'Monetisation',
     items: [
       { href: '/ads', label: 'Ad Slots', icon: '◻' },
@@ -60,7 +66,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 color: '#fff',
               }}
             >
-              sporty
+              Xtra
             </span>
             <span
               style={{
@@ -71,7 +77,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 color: 'var(--admin-accent)',
               }}
             >
-              newz
+              {' '}Time
             </span>
           </div>
           <span className="ml-1 rounded bg-[#1e2535] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">

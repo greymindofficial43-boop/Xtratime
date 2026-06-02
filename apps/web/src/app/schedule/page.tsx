@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import type { ScorecardTab } from '@/lib/scorecards';
 
 export const metadata = {
-  title: 'Sports Schedule & Live Scores | SportyNewz',
+  title: 'Sports Schedule & Live Scores | Xtra Time',
   description: 'Live scores, today\'s fixtures and results across Cricket, NFL, NBA, MLB, Soccer and NHL.',
 };
 

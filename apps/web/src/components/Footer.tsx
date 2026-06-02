@@ -33,7 +33,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link href="/" className="sn-logo text-xl">
-              sporty<span className="sn-logo-accent">newz</span>
+              Xtra<span className="sn-logo-accent"> Time</span>
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-[var(--sn-header-nav)]">
               Your go-to destination for breaking sports news, live scores, and in-depth analysis across cricket, football, basketball, and more.
@@ -113,7 +113,7 @@ export function Footer() {
       <div className="border-t border-[var(--sn-header-border)]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 sm:flex-row">
           <p className="text-xs text-[var(--sn-header-nav)]">
-            © {new Date().getFullYear()} SportyNewz — For the hardcore sports fan
+            © {new Date().getFullYear()} Xtra Time — For the hardcore sports fan
           </p>
           <div className="flex gap-4 text-xs text-[var(--sn-header-nav)]">
             <Link href="#" className="hover:text-white transition">Privacy</Link>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sportynewz-cache-v1';
+const CACHE_NAME = 'xtratime-cache-v1';
 const OFFLINE_URL = '/';
 
 self.addEventListener('install', (event) => {

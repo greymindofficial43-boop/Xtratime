@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props) {
   const category = await api.getCategory(slug).catch(() => null);
   if (!category) return { title: 'Category Not Found' };
   return {
-    title: `${category.name} News | Sportskeeda`,
+    title: `${category.name} News | Xtra Time`,
     description: `Latest ${category.name} news, rumors, scores and analysis.`,
   };
 }

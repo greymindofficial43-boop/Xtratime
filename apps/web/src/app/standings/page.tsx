@@ -1,7 +1,7 @@
 import { AdSlot } from '@/components/AdSlot';
 
 export const metadata = {
-  title: 'Points Table & Standings | Sportskeeda',
+  title: 'Points Table & Standings | Xtra Time',
   description: 'Latest points table and standings for live tournaments.',
 };
 

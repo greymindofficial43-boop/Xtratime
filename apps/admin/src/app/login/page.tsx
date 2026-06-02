@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -21,56 +22,85 @@ export default function LoginPage() {
       localStorage.setItem('token', res.accessToken);
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="admin-login-shell relative flex min-h-screen items-center justify-center bg-slate-900 px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-900 px-4">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <div className="admin-login-card w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-        <h1 className="text-2xl font-bold">
-          Sports<span className="text-[var(--admin-accent)]">keeda</span> Admin
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">Sign in to manage content</p>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-[var(--admin-accent)] focus:outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-[var(--admin-accent)] focus:outline-none"
-              required
-            />
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-[var(--admin-accent)] py-2.5 font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
+      <div className="w-full max-w-sm">
+        {/* Brand */}
+        <div className="mb-8 text-center">
+          <span className="text-3xl font-black italic tracking-tight text-white">
+            Xtra<span className="text-[var(--admin-accent)]"> Time</span>
+          </span>
+          <p className="mt-1 text-sm text-slate-500">Admin Portal</p>
+        </div>
 
-        <p className="mt-6 text-center text-xs text-slate-400">
-          Contact your administrator for credentials.
+        <div className="rounded-2xl bg-white p-8 shadow-2xl">
+          <h1 className="mb-1 text-xl font-bold text-slate-800">Sign in</h1>
+          <p className="mb-6 text-sm text-slate-500">Enter your administrator credentials to continue.</p>
+
+          <form onSubmit={onSubmit} autoComplete="off" className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Email address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="new-email"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-[var(--admin-accent)] focus:outline-none"
+                placeholder="admin@example.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Password</label>
+              <div className="relative mt-1">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2.5 pr-10 text-sm focus:border-[var(--admin-accent)] focus:outline-none"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-[var(--admin-accent)] py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+            >
+              {loading ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-5 text-center text-xs text-slate-600">
+          Contact your system administrator if you need access.
         </p>
       </div>
     </div>

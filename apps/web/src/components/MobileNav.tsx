@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { Category } from '@/lib/api';
-import { site } from '@/lib/site';
 import type { NavItem } from './HeaderNav';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -52,7 +51,7 @@ export function MobileNav({ categories, navItems }: Props) {
           <aside className="sk-sidebar relative flex h-full w-[min(300px,88vw)] flex-col bg-[#1c1c1d] shadow-2xl">
             <div className="flex h-[49px] items-center justify-between border-b border-[#333] px-4">
               <Link href="/" onClick={() => setOpen(false)} className="sn-logo text-xl">
-                sporty<span className="sn-logo-accent">newz</span>
+                Xtra<span className="sn-logo-accent"> Time</span>
               </Link>
               <button
                 type="button"
@@ -94,13 +93,6 @@ export function MobileNav({ categories, navItems }: Props) {
                   className="block rounded-md px-3 py-2.5 text-sm text-[#c8c8c8] hover:bg-[#2a2a2b] hover:text-white"
                 >
                   🔴 Live Scores
-                </Link>
-                <Link
-                  href={site.adminUrl}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-2.5 text-sm font-semibold text-[var(--sk-accent)]"
-                >
-                  Log in
                 </Link>
               </div>
             </div>

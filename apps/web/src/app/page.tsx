@@ -48,7 +48,7 @@ export default async function HomePage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
-        <h1 className="sr-only">Sportskeeda — Sports, Entertainment, Gaming News</h1>
+        <h1 className="sr-only">Xtra Time — Sports, Entertainment, Gaming News</h1>
 
         {/* Top Stories */}
         {topStories.length > 0 ? (

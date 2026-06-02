@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props) {
   const article = await api.getArticle(slug).catch(() => null);
   if (!article) return { title: 'Article Not Found' };
   return {
-    title: `${article.title} | Sportskeeda`,
+    title: `${article.title} | Xtra Time`,
     description: article.excerpt ?? undefined,
   };
 }
