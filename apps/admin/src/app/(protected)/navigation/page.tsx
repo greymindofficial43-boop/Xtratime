@@ -1,81 +1,190 @@
 'use client';
 
-import { adminApi, type Category } from '@/lib/api';
-import { useEffect, useState, useCallback } from 'react';
+import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
+import { adminApi, type Category, type MenuItem, type MenuItemType } from '@/lib/api';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-type Tab = 'main' | 'mega';
-
-function Badge({ children, color = 'slate' }: { children: React.ReactNode; color?: string }) {
-  const cls = color === 'red'
-    ? 'bg-red-100 text-red-700'
-    : 'bg-slate-100 text-slate-600';
-  return <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${cls}`}>{children}</span>;
-}
-
-export default function NavigationPage() {
-  const [tab, setTab] = useState<Tab>('main');
+export default function NavigationBuilderPage() {
+  const [menus, setMenus] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
-  const [selectedNav, setSelectedNav] = useState<Category | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Left sidebar states
+  const [expandedSection, setExpandedSection] = useState<'categories' | 'custom'>('categories');
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(new Set());
+  const [customLink, setCustomLink] = useState({ title: '', href: '' });
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const cats = await adminApi.getCategories();
+      const [menuItems, cats] = await Promise.all([
+        adminApi.getMenus(),
+        adminApi.getCategories(),
+      ]);
+      setMenus(menuItems);
       setCategories(cats);
-      const navCats = cats.filter((c) => c.showInNav && !c.parentId).sort((a, b) => a.navOrder - b.navOrder);
-      if (navCats.length > 0 && !selectedNav) setSelectedNav(navCats[0]);
     } finally {
       setLoading(false);
     }
-  }, [selectedNav]);
+  }, []);
 
-  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setIsMounted(true);
+    load();
+  }, [load]);
 
-  const topLevel = categories.filter((c) => !c.parentId).sort((a, b) => a.sortOrder - b.sortOrder);
-  const navItems = categories.filter((c) => c.showInNav && !c.parentId).sort((a, b) => a.navOrder - b.navOrder);
+  const mainItems = useMemo(
+    () => menus.slice().sort((a, b) => a.sortOrder - b.sortOrder),
+    [menus],
+  );
 
-  async function toggleNav(cat: Category) {
-    setSaving(cat.id);
+  async function handleAddCategories() {
+    if (selectedCategoryIds.size === 0) return;
+    setSaving('add-cats');
     try {
-      const newNavOrder = cat.showInNav ? cat.navOrder : navItems.length + 1;
-      await adminApi.updateCategory(cat.id, { showInNav: !cat.showInNav, navOrder: newNavOrder });
+      const selectedCats = categories.filter(c => selectedCategoryIds.has(c.id));
+      for (const cat of selectedCats) {
+        // If it's a child category, try to find its parent in the menu to nest it automatically
+        let parentMenuId: string | undefined = undefined;
+        if (cat.parentId) {
+          const parentMenu = mainItems.find(m => m.categoryId === cat.parentId);
+          if (parentMenu) {
+            parentMenuId = parentMenu.id;
+          }
+        }
+
+        await adminApi.createMenu({
+          title: cat.name,
+          type: 'CATEGORY',
+          categoryId: cat.id,
+          placement: parentMenuId ? 'MEGA' : 'MAIN',
+          parentId: parentMenuId,
+        });
+      }
+      setSelectedCategoryIds(new Set());
       await load();
     } finally {
       setSaving(null);
     }
   }
 
-  async function moveNav(cat: Category, dir: -1 | 1) {
-    const sorted = [...navItems];
-    const idx = sorted.findIndex((c) => c.id === cat.id);
-    const newIdx = idx + dir;
-    if (newIdx < 0 || newIdx >= sorted.length) return;
-    const other = sorted[newIdx];
-    setSaving(cat.id);
+  async function handleAddCustomLink() {
+    if (!customLink.title || !customLink.href) return;
+    setSaving('add-custom');
     try {
-      await adminApi.reorderCategories([
-        { id: cat.id, navOrder: other.navOrder },
-        { id: other.id, navOrder: cat.navOrder },
-      ]);
+      await adminApi.createMenu({
+        title: customLink.title,
+        href: customLink.href,
+        type: 'INTERNAL',
+        placement: 'MAIN',
+      });
+      setCustomLink({ title: '', href: '' });
       await load();
     } finally {
       setSaving(null);
     }
   }
 
-  async function toggleSubNav(sub: Category) {
-    setSaving(sub.id);
+  async function removeItem(id: string) {
+    if (!confirm('Remove this item from the menu?')) return;
+    setSaving(id);
     try {
-      await adminApi.updateCategory(sub.id, { showInNav: !sub.showInNav });
+      await adminApi.deleteMenu(id);
       await load();
     } finally {
       setSaving(null);
     }
   }
 
-  if (loading) {
+  async function updateItemVisibility(id: string, isVisible: boolean) {
+    setSaving(id);
+    try {
+      await adminApi.updateMenu(id, { isVisible });
+      await load();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function makeSubItem(item: MenuItem, previousSibling: MenuItem) {
+    setSaving(item.id);
+    try {
+      await adminApi.updateMenu(item.id, { parentId: previousSibling.id, placement: 'MEGA' });
+      await load();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function makeMainItem(item: MenuItem) {
+    setSaving(item.id);
+    try {
+      await adminApi.updateMenu(item.id, { parentId: null, placement: 'MAIN' });
+      await load();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function onDragEnd(result: DropResult) {
+    const { source, destination, type } = result;
+    if (!destination) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+
+    setSaving('drag');
+    try {
+      if (type === 'MAIN') {
+        const newMainItems = Array.from(mainItems);
+        const [removed] = newMainItems.splice(source.index, 1);
+        newMainItems.splice(destination.index, 0, removed);
+        
+        await adminApi.reorderMenus(
+          newMainItems.map((item, idx) => ({ id: item.id, sortOrder: idx }))
+        );
+      } else if (type === 'MEGA') {
+        // Dragging a sub-item
+        const sourceParentId = source.droppableId;
+        const destParentId = destination.droppableId;
+        
+        const sourceParent = mainItems.find(m => m.id === sourceParentId);
+        const destParent = mainItems.find(m => m.id === destParentId);
+        if (!sourceParent || !destParent) return;
+
+        if (sourceParentId === destParentId) {
+          // Reorder within the same parent
+          const children = Array.from(sourceParent.children || []);
+          const [removed] = children.splice(source.index, 1);
+          children.splice(destination.index, 0, removed);
+          
+          await adminApi.reorderMenus(
+            children.map((item, idx) => ({ id: item.id, sortOrder: idx }))
+          );
+        } else {
+          // Move to a different parent
+          const sourceChildren = Array.from(sourceParent.children || []);
+          const destChildren = Array.from(destParent.children || []);
+          
+          const [removed] = sourceChildren.splice(source.index, 1);
+          destChildren.splice(destination.index, 0, removed);
+          
+          // 1. Update the parent ID of the moved item
+          await adminApi.updateMenu(removed.id, { parentId: destParentId });
+          
+          // 2. Update sort orders for the destination list
+          await adminApi.reorderMenus(
+            destChildren.map((item, idx) => ({ id: item.id, sortOrder: idx }))
+          );
+        }
+      }
+      await load();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  if (!isMounted || loading) {
     return (
       <div className="flex items-center justify-center py-24">
         <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[var(--admin-accent)]" />
@@ -84,234 +193,258 @@ export default function NavigationPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      {/* Header */}
+    <div className="max-w-6xl space-y-6 pb-20">
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--admin-text)' }}>Navigation Manager</h1>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--admin-text)' }}>Menu Builder</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--admin-muted)' }}>
-          Configure which categories appear in the main navigation and what shows inside the mega menu dropdowns.
+          Add categories or custom links from the left column, then drag and drop them to arrange your site's navigation.
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 rounded-xl p-1" style={{ background: 'var(--admin-surface)', border: '1px solid var(--admin-border)' }}>
-        {(['main', 'mega'] as Tab[]).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
-              tab === t
-                ? 'bg-[var(--admin-accent)] text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {t === 'main' ? '☰ Main Menu' : '⊟ Mega Menu'}
-          </button>
-        ))}
-      </div>
-
-      {/* ── MAIN MENU TAB ── */}
-      {tab === 'main' && (
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[300px_1fr]">
+        {/* Left Column: Add Items */}
         <div className="space-y-4">
-          <div className="rounded-xl p-1" style={{ background: 'var(--admin-surface)', border: '1px solid var(--admin-border)' }}>
-            {/* Current Nav Order */}
-            <div className="mb-4 rounded-lg p-4" style={{ background: 'var(--admin-bg)' }}>
-              <p className="mb-3 text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--admin-muted)' }}>
-                Current Nav Order (visible on website header)
-              </p>
-              {navItems.length === 0 ? (
-                <p className="text-sm text-slate-500">No categories in navigation yet. Enable some below.</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {navItems.map((cat, idx) => (
-                    <div key={cat.id} className="flex items-center gap-1 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-1.5">
-                      <span className="text-xs font-bold text-slate-500">{idx + 1}.</span>
-                      <span className="text-sm font-semibold" style={{ color: 'var(--admin-text)' }}>{cat.icon} {cat.name}</span>
-                      <div className="ml-2 flex gap-0.5">
-                        <button
-                          type="button"
-                          onClick={() => moveNav(cat, -1)}
-                          disabled={idx === 0 || saving === cat.id}
-                          className="rounded px-1 text-xs text-slate-400 hover:text-white disabled:opacity-30"
-                        >←</button>
-                        <button
-                          type="button"
-                          onClick={() => moveNav(cat, 1)}
-                          disabled={idx === navItems.length - 1 || saving === cat.id}
-                          className="rounded px-1 text-xs text-slate-400 hover:text-white disabled:opacity-30"
-                        >→</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+          <div className="rounded-xl border" style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}>
+            <div className="p-3 border-b" style={{ borderColor: 'var(--admin-border)' }}>
+              <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--admin-text)' }}>Add menu items</h2>
             </div>
-
-            {/* All categories toggle */}
-            <p className="mb-3 px-1 text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--admin-muted)' }}>
-              All Categories — Toggle Nav Visibility
-            </p>
-            <div className="divide-y" style={{ borderColor: 'var(--admin-border)' }}>
-              {topLevel.map((cat) => {
-                const inNav = cat.showInNav;
-                const isSaving = saving === cat.id;
-                const childCount = categories.filter((c) => c.parentId === cat.id).length;
-                return (
-                  <div key={cat.id} className="flex items-center gap-3 px-4 py-3">
-                    <span className="text-xl">{cat.icon || '📁'}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--admin-text)' }}>{cat.name}</p>
-                      <p className="text-xs" style={{ color: 'var(--admin-muted)' }}>
-                        /{cat.slug} · {childCount} sub-categories
-                      </p>
-                    </div>
-                    {inNav && <Badge color="red">In Nav</Badge>}
+            
+            {/* Categories Accordion */}
+            <div className="border-b" style={{ borderColor: 'var(--admin-border)' }}>
+              <button 
+                onClick={() => setExpandedSection(expandedSection === 'categories' ? '' as any : 'categories')}
+                className="flex w-full items-center justify-between p-4 text-sm font-semibold"
+                style={{ color: 'var(--admin-text)' }}
+              >
+                Categories
+                <span>{expandedSection === 'categories' ? '▲' : '▼'}</span>
+              </button>
+              {expandedSection === 'categories' && (
+                <div className="p-4 pt-0">
+                  <div className="max-h-48 overflow-y-auto rounded border p-2 mb-3 space-y-1" style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }}>
+                    {categories.filter(c => !c.parentId).map(cat => (
+                      <div key={cat.id}>
+                        <label className="flex items-center gap-2 text-sm p-1 hover:bg-white/5 rounded cursor-pointer font-bold">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedCategoryIds.has(cat.id)}
+                            onChange={(e) => {
+                              const newSet = new Set(selectedCategoryIds);
+                              if (e.target.checked) newSet.add(cat.id);
+                              else newSet.delete(cat.id);
+                              setSelectedCategoryIds(newSet);
+                            }}
+                            className="rounded border-slate-600 bg-transparent text-[var(--admin-accent)] focus:ring-[var(--admin-accent)]"
+                          />
+                          <span style={{ color: 'var(--admin-text)' }}>{cat.name}</span>
+                        </label>
+                        {/* Sub-categories */}
+                        {categories.filter(sub => sub.parentId === cat.id).map(sub => (
+                          <label key={sub.id} className="flex items-center gap-2 text-sm p-1 hover:bg-white/5 rounded cursor-pointer ml-6">
+                            <input 
+                              type="checkbox" 
+                              checked={selectedCategoryIds.has(sub.id)}
+                              onChange={(e) => {
+                                const newSet = new Set(selectedCategoryIds);
+                                if (e.target.checked) newSet.add(sub.id);
+                                else newSet.delete(sub.id);
+                                setSelectedCategoryIds(newSet);
+                              }}
+                              className="rounded border-slate-600 bg-transparent text-[var(--admin-accent)] focus:ring-[var(--admin-accent)]"
+                            />
+                            <span style={{ color: 'var(--admin-text)' }}>{sub.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ))}
+                    {categories.length === 0 && <p className="text-xs text-slate-500">No categories found.</p>}
+                  </div>
+                  <div className="flex justify-end">
                     <button
-                      type="button"
-                      disabled={isSaving}
-                      onClick={() => toggleNav(cat)}
-                      className={`relative h-6 w-11 rounded-full transition-colors ${inNav ? 'bg-[var(--admin-accent)]' : 'bg-slate-300'} disabled:opacity-50`}
+                      onClick={handleAddCategories}
+                      disabled={selectedCategoryIds.size === 0 || saving === 'add-cats'}
+                      className="rounded-lg px-4 py-2 text-xs font-bold text-white transition disabled:opacity-50"
+                      style={{ background: 'var(--admin-accent)' }}
                     >
-                      <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${inNav ? 'translate-x-5' : ''}`} />
+                      Add to Menu
                     </button>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Info box */}
-          <div className="rounded-xl px-4 py-3 text-sm" style={{ background: 'var(--admin-surface)', border: '1px solid var(--admin-border)', color: 'var(--admin-muted)' }}>
-            <strong style={{ color: 'var(--admin-text)' }}>Tip:</strong> The first 5 nav items show directly in the header. Additional items appear under a <em>More</em> dropdown. Use the arrows above to reorder.
-          </div>
-        </div>
-      )}
-
-      {/* ── MEGA MENU TAB ── */}
-      {tab === 'mega' && (
-        <div className="space-y-4">
-          <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>
-            Select a main menu item to configure what sub-categories appear in its mega dropdown.
-          </p>
-
-          <div className="grid grid-cols-[240px_1fr] gap-4">
-            {/* Left: nav item selector */}
-            <div className="rounded-xl overflow-hidden" style={{ background: 'var(--admin-surface)', border: '1px solid var(--admin-border)' }}>
-              <p className="px-4 py-2.5 text-[10px] font-black uppercase tracking-widest" style={{ borderBottom: '1px solid var(--admin-border)', color: 'var(--admin-muted)' }}>
-                Nav Items
-              </p>
-              {navItems.length === 0 ? (
-                <p className="p-4 text-xs text-slate-500">No nav items. Add some in Main Menu tab.</p>
-              ) : (
-                navItems.map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setSelectedNav(cat)}
-                    className={`flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold transition ${
-                      selectedNav?.id === cat.id
-                        ? 'bg-[var(--admin-accent)] text-white'
-                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span>{cat.icon}</span>
-                    <span>{cat.name}</span>
-                    <span className="ml-auto text-[10px] opacity-60">
-                      {categories.filter((c) => c.parentId === cat.id).length} sub
-                    </span>
-                  </button>
-                ))
+                </div>
               )}
             </div>
 
-            {/* Right: mega menu preview + sub-category config */}
-            <div className="space-y-4">
-              {selectedNav ? (
-                <>
-                  {/* Live preview */}
-                  <div className="rounded-xl p-4" style={{ background: '#13151c', border: '1px solid #2a2c35' }}>
-                    <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">Mega Menu Preview</p>
-                    <div className="rounded-lg p-4" style={{ background: '#1a1c23', border: '1px solid #2a2c35' }}>
-                      <div className="mb-2 text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--admin-accent)' }}>
-                        All {selectedNav.name}
-                      </div>
-                      <div className="h-px mb-3" style={{ background: '#2a2c35' }} />
-                      <div className="grid grid-cols-3 gap-2">
-                        {categories
-                          .filter((c) => c.parentId === selectedNav.id && c.showInNav)
-                          .map((sub) => (
-                            <div key={sub.id} className="rounded-lg px-3 py-2 text-sm font-semibold text-[#a0a5b1]">
-                              {sub.icon} {sub.name}
-                            </div>
-                          ))}
-                        {categories.filter((c) => c.parentId === selectedNav.id && c.showInNav).length === 0 && (
-                          <p className="col-span-3 text-xs text-slate-600 italic">No sub-categories enabled for this menu item.</p>
-                        )}
-                      </div>
-                    </div>
+            {/* Custom Links Accordion */}
+            <div>
+              <button 
+                onClick={() => setExpandedSection(expandedSection === 'custom' ? '' as any : 'custom')}
+                className="flex w-full items-center justify-between p-4 text-sm font-semibold"
+                style={{ color: 'var(--admin-text)' }}
+              >
+                Custom Links
+                <span>{expandedSection === 'custom' ? '▲' : '▼'}</span>
+              </button>
+              {expandedSection === 'custom' && (
+                <div className="p-4 pt-0 space-y-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--admin-muted)' }}>URL</label>
+                    <input
+                      value={customLink.href}
+                      onChange={(e) => setCustomLink(prev => ({ ...prev, href: e.target.value }))}
+                      placeholder="https://"
+                      className="w-full rounded-lg border px-3 py-2 text-sm"
+                      style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+                    />
                   </div>
-
-                  {/* Sub-category toggles */}
-                  <div className="rounded-xl overflow-hidden" style={{ background: 'var(--admin-surface)', border: '1px solid var(--admin-border)' }}>
-                    <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--admin-border)' }}>
-                      <p className="text-sm font-bold" style={{ color: 'var(--admin-text)' }}>
-                        {selectedNav.icon} {selectedNav.name} — Sub-categories
-                      </p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--admin-muted)' }}>
-                        Toggle which sub-categories appear in the dropdown
-                      </p>
-                    </div>
-
-                    {categories.filter((c) => c.parentId === selectedNav.id).length === 0 ? (
-                      <div className="px-4 py-6 text-center">
-                        <p className="text-sm text-slate-500">No sub-categories under <strong>{selectedNav.name}</strong>.</p>
-                        <p className="text-xs text-slate-400 mt-1">Go to Categories to add sub-categories.</p>
-                      </div>
-                    ) : (
-                      <div className="divide-y" style={{ borderColor: 'var(--admin-border)' }}>
-                        {categories
-                          .filter((c) => c.parentId === selectedNav.id)
-                          .sort((a, b) => a.sortOrder - b.sortOrder)
-                          .map((sub) => {
-                            const isSaving = saving === sub.id;
-                            return (
-                              <div key={sub.id} className="flex items-center gap-3 px-4 py-3">
-                                <span className="text-lg">{sub.icon || '▸'}</span>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold" style={{ color: 'var(--admin-text)' }}>{sub.name}</p>
-                                  <p className="text-xs" style={{ color: 'var(--admin-muted)' }}>/{sub.slug}</p>
-                                </div>
-                                {sub.showInNav && <Badge color="red">Visible</Badge>}
-                                <button
-                                  type="button"
-                                  disabled={isSaving}
-                                  onClick={() => toggleSubNav(sub)}
-                                  className={`relative h-6 w-11 rounded-full transition-colors ${sub.showInNav ? 'bg-[var(--admin-accent)]' : 'bg-slate-300'} disabled:opacity-50`}
-                                >
-                                  <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${sub.showInNav ? 'translate-x-5' : ''}`} />
-                                </button>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    )}
+                  <div>
+                    <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--admin-muted)' }}>Link Text</label>
+                    <input
+                      value={customLink.title}
+                      onChange={(e) => setCustomLink(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Menu Item"
+                      className="w-full rounded-lg border px-3 py-2 text-sm"
+                      style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+                    />
                   </div>
-                </>
-              ) : (
-                <div className="flex h-48 items-center justify-center rounded-xl text-slate-500" style={{ border: '1px dashed var(--admin-border)' }}>
-                  Select a nav item on the left to configure its mega menu
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleAddCustomLink}
+                      disabled={!customLink.title || !customLink.href || saving === 'add-custom'}
+                      className="rounded-lg px-4 py-2 text-xs font-bold text-white transition disabled:opacity-50"
+                      style={{ background: 'var(--admin-accent)' }}
+                    >
+                      Add to Menu
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           </div>
-
-          {/* Info */}
-          <div className="rounded-xl px-4 py-3 text-sm" style={{ background: 'var(--admin-surface)', border: '1px solid var(--admin-border)', color: 'var(--admin-muted)' }}>
-            <strong style={{ color: 'var(--admin-text)' }}>How it works:</strong> When a visitor hovers over a main nav item that has sub-categories enabled, a mega dropdown appears showing those sub-categories as links. Sub-categories are managed in the <em>Categories</em> section.
-          </div>
         </div>
-      )}
+
+        {/* Right Column: Menu Structure */}
+        <div className="rounded-xl border p-5" style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--admin-text)' }}>Menu Structure</h2>
+          </div>
+
+          {mainItems.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-8 text-center" style={{ borderColor: 'var(--admin-border)' }}>
+              <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>Your menu is empty. Add items from the left column.</p>
+            </div>
+          ) : (
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="MAIN_MENU" type="MAIN">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2 min-h-[50px]">
+                    {mainItems.map((mainItem, mainIndex) => (
+                      <Draggable key={mainItem.id} draggableId={mainItem.id} index={mainIndex}>
+                        {(provided) => (
+                          <div 
+                            ref={provided.innerRef} 
+                            {...provided.draggableProps} 
+                            className="rounded-lg border bg-[var(--admin-bg)]"
+                            style={{ borderColor: 'var(--admin-border)', ...provided.draggableProps.style }}
+                          >
+                            {/* Main Item Header */}
+                            <div className="flex items-center p-3 gap-3">
+                              <div {...provided.dragHandleProps} className="cursor-grab text-slate-500 hover:text-white px-1">
+                                ☰
+                              </div>
+                              <div className="flex-1 font-semibold text-sm" style={{ color: 'var(--admin-text)' }}>
+                                {mainItem.title} <span className="ml-2 text-xs font-normal" style={{ color: 'var(--admin-muted)' }}>{mainItem.type}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {mainIndex > 0 && (
+                                  <button 
+                                    onClick={() => makeSubItem(mainItem, mainItems[mainIndex - 1])}
+                                    title="Make sub-item"
+                                    className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-white/5"
+                                  >
+                                    → Indent
+                                  </button>
+                                )}
+                                <button 
+                                  onClick={() => updateItemVisibility(mainItem.id, !mainItem.isVisible)}
+                                  className={`text-xs px-2 py-1 rounded ${mainItem.isVisible ? 'text-emerald-500 bg-emerald-500/10' : 'text-slate-400 bg-white/5'}`}
+                                >
+                                  {mainItem.isVisible ? 'Visible' : 'Hidden'}
+                                </button>
+                                <button 
+                                  onClick={() => removeItem(mainItem.id)}
+                                  className="text-xs text-red-500 hover:text-red-400 px-2 py-1 rounded bg-red-500/10"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Sub Items Droppable */}
+                            <Droppable droppableId={mainItem.id} type="MEGA">
+                              {(provided, snapshot) => (
+                                <div 
+                                  ref={provided.innerRef} 
+                                  {...provided.droppableProps}
+                                  className={`ml-8 mr-3 mb-3 p-2 rounded border border-dashed transition-colors ${
+                                    snapshot.isDraggingOver ? 'bg-[var(--admin-accent)]/10 border-[var(--admin-accent)]' : 'border-transparent'
+                                  }`}
+                                  style={{ minHeight: (mainItem.children?.length ?? 0) > 0 ? 'auto' : '10px' }}
+                                >
+                                  {(mainItem.children ?? []).map((subItem, subIndex) => (
+                                    <Draggable key={subItem.id} draggableId={subItem.id} index={subIndex}>
+                                      {(provided) => (
+                                        <div 
+                                          ref={provided.innerRef} 
+                                          {...provided.draggableProps}
+                                          className="flex items-center p-2 mb-2 last:mb-0 rounded border bg-[var(--admin-surface)] gap-3"
+                                          style={{ borderColor: 'var(--admin-border)', ...provided.draggableProps.style }}
+                                        >
+                                          <div {...provided.dragHandleProps} className="cursor-grab text-slate-500 hover:text-white px-1">
+                                            ☰
+                                          </div>
+                                          <div className="flex-1 text-sm font-medium" style={{ color: 'var(--admin-text)' }}>
+                                            {subItem.title}
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <button 
+                                              onClick={() => makeMainItem(subItem)}
+                                              title="Make main item"
+                                              className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-white/5"
+                                            >
+                                              ← Outdent
+                                            </button>
+                                            <button 
+                                              onClick={() => updateItemVisibility(subItem.id, !subItem.isVisible)}
+                                              className={`text-xs px-2 py-1 rounded ${subItem.isVisible ? 'text-emerald-500 bg-emerald-500/10' : 'text-slate-400 bg-white/5'}`}
+                                            >
+                                              {subItem.isVisible ? 'Vis' : 'Hid'}
+                                            </button>
+                                            <button 
+                                              onClick={() => removeItem(subItem.id)}
+                                              className="text-xs text-red-500 hover:text-red-400 px-2 py-1 rounded bg-red-500/10"
+                                            >
+                                              ×
+                                            </button>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -18,6 +18,17 @@ enum UserRole {
   EDITOR
 }
 
+enum MenuItemType {
+  INTERNAL
+  CATEGORY
+  EXTERNAL
+}
+
+enum MenuItemPlacement {
+  MAIN
+  MEGA
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -45,6 +56,7 @@ model Category {
   parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children    Category[] @relation("CategoryHierarchy")
   articles    Article[]
+  menuItems   MenuItem[]
 }
 
 model Tag {
@@ -97,7 +109,10 @@ enum AdType {
 
 model Match {
   id            String   @id @default(cuid())
+  source        String   @default("manual")
+  externalId    String?
   sport         String
+  league        String?
   title         String
   homeTeamName  String
   homeTeamLogo  String
@@ -107,9 +122,14 @@ model Match {
   awayTeamScore String?
   status        String   // 'live' | 'upcoming' | 'result'
   note          String?
+  statusDetail  String?
+  venue         String?
+  details       Json?
   date          DateTime @default(now())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([source, externalId])
 }
 
 model Advertisement {
@@ -126,4 +146,29 @@ model Advertisement {
   clicks      Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model MenuItem {
+  id             String            @id @default(cuid())
+  title          String
+  href           String?
+  type           MenuItemType      @default(INTERNAL)
+  placement      MenuItemPlacement @default(MAIN)
+  description    String?
+  badge          String?
+  icon           String?
+  groupName      String?
+  isVisible      Boolean           @default(true)
+  opensInNewTab  Boolean           @default(false)
+  sortOrder      Int               @default(0)
+  categoryId     String?
+  category       Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  parentId       String?
+  parent         MenuItem?         @relation("MenuItemHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children       MenuItem[]        @relation("MenuItemHierarchy")
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([placement, sortOrder])
+  @@index([parentId, sortOrder])
 }

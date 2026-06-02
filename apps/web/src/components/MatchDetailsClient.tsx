@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Scorecard } from '@/lib/scorecards';
 
-export function MatchDetailsClient({ match }: { match: Scorecard }) {
+export function MatchDetailsClient({ match, details }: { match: Scorecard, details?: any }) {
   // Logic-driven state: starting at 0, no mock pre-filled data.
   const [votedFor, setVotedFor] = useState<'home' | 'away' | null>(null);
   const [homeVotes, setHomeVotes] = useState(0);
@@ -108,6 +108,22 @@ export function MatchDetailsClient({ match }: { match: Scorecard }) {
           </div>
         </div>
       </div>
+
+      {/* Raw Highlightly Details (if any) */}
+      {details && (
+        <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] shadow-sm">
+          <div className="border-b border-[var(--sk-border)] px-6 py-4">
+            <h3 className="font-bold uppercase tracking-wider text-[var(--sk-text)]">
+              Match Details (Live / Completed API Data)
+            </h3>
+          </div>
+          <div className="p-6">
+            <pre className="text-xs text-[var(--sk-muted)] whitespace-pre-wrap overflow-x-auto">
+              {JSON.stringify(details, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

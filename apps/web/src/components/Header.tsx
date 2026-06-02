@@ -1,52 +1,104 @@
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, type Category, type MenuItem as ApiMenuItem } from '@/lib/api';
 import { HeaderNav, type NavItem } from './HeaderNav';
 import { MobileNav } from './MobileNav';
 import { SearchBar } from './SearchBar';
 import { ThemeToggle } from './ThemeToggle';
 
+function fallbackNav(categories: Category[]): NavItem[] {
+  const bySlug = (slug: string) => categories.find((category) => category.slug === slug);
+
+  return [
+    {
+      label: 'Latest News',
+      href: '/search?q=latest',
+      icon: '📰',
+      children: [
+        { label: 'Top Stories', href: '/', group: 'Editorial', description: 'Homepage lead package and editor picks.' },
+        { label: 'Breaking News', href: '/search?q=breaking', group: 'Editorial', description: 'Fastest developing stories and urgent updates.' },
+        { label: 'Trending Now', href: '/search?q=trending', group: 'Newsroom', description: 'Most-read stories across every sport.' },
+        { label: 'Transfer Rumors', href: '/search?q=rumors', group: 'Newsroom', description: 'Rumors, insider chatter and movement watch.' },
+        { label: 'Analysis', href: '/search?q=analysis', group: 'Features', description: 'Deep dives, explainers and tactical reads.' },
+      ],
+    },
+    {
+      label: 'Live Scores',
+      href: '/schedule',
+      icon: '📊',
+      children: [
+        { label: 'All Fixtures', href: '/schedule', group: 'Scores', description: 'Daily match list across all tracked sports.' },
+        { label: 'Standings', href: '/standings', group: 'Scores', description: 'Tables, records and qualification picture.' },
+      ],
+    },
+    ...['cricket', 'football', 'nba', 'nfl']
+      .map((slug) => bySlug(slug))
+      .filter((category): category is Category => Boolean(category))
+      .map((category) => ({
+        label: category.name,
+        href: `/category/${category.slug}`,
+        icon: category.icon ?? undefined,
+        children: [
+          { label: `All ${category.name}`, href: `/category/${category.slug}`, group: 'Coverage', description: `All stories from the ${category.name.toLowerCase()} desk.` },
+          { label: 'Fixtures & Results', href: '/schedule', group: 'Coverage', description: 'Schedules, live trackers and final scores.' },
+          ...(category.slug === 'cricket'
+            ? [{ label: 'Player Stats', href: '/players', group: 'Resources', description: 'Player search, batting and bowling profiles.' }]
+            : []),
+          ...((category.children ?? []).slice(0, 4).map((child) => ({
+            label: child.name,
+            href: `/category/${child.slug}`,
+            group: 'Subcategories',
+            description: `Go straight to ${child.name.toLowerCase()} coverage.`,
+          }))),
+        ],
+      })),
+  ];
+}
+
+function mapMenuItems(menuItems: ApiMenuItem[]): NavItem[] {
+  return menuItems
+    .filter((item) => item.isVisible)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((item) => ({
+      label: item.title,
+      href: item.href || '#',
+      badge: (item.badge === 'NEW' ? 'NEW' : undefined) as "NEW" | undefined,
+      icon: item.icon ?? undefined,
+      description: item.description ?? undefined,
+      children: (item.children ?? [])
+        .filter((child) => child.isVisible)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((child) => ({
+          label: child.title,
+          href: child.href || '#',
+          badge: (child.badge === 'NEW' ? 'NEW' : undefined) as "NEW" | undefined,
+          icon: child.icon ?? undefined,
+          description: child.description ?? undefined,
+          group: child.groupName ?? undefined,
+        })),
+    }));
+}
+
 export async function Header() {
   let categories: Awaited<ReturnType<typeof api.getCategories>> = [];
+  let menus: Awaited<ReturnType<typeof api.getMenus>> = [];
   try {
-    categories = await api.getCategories();
+    [categories, menus] = await Promise.all([
+      api.getCategories(),
+      api.getMenus().catch(() => []),
+    ]);
   } catch {
     categories = [];
+    menus = [];
   }
+  const navItems = menus.length > 0 ? mapMenuItems(menus) : fallbackNav(categories);
 
-  // Build nav from top-level categories where showInNav === true, sorted by navOrder
-  const navCategories = categories
-    .filter((c) => c.showInNav && !c.parentId)
-    .sort((a, b) => (a.navOrder ?? 99) - (b.navOrder ?? 99));
-
-  // Fallback: if no nav categories configured yet, show a default set
-  const fallbackSlugs = ['cricket', 'football', 'nba', 'nfl', 'gaming', 'wwe'];
-  const navItems: NavItem[] =
-    navCategories.length > 0
-      ? navCategories.map((c) => ({
-          label: c.name,
-          href: `/category/${c.slug}`,
-          // Only include sub-categories that are enabled in the mega menu (showInNav)
-          children: (c.children ?? [])
-            .filter((child) => child.showInNav)
-            .map((child) => ({ label: child.name, href: `/category/${child.slug}` })),
-        }))
-      : fallbackSlugs
-          .map((slug) => categories.find((c) => c.slug === slug && !c.parentId))
-          .filter((c) => c !== undefined)
-          .map((c) => ({ label: c!.name, href: `/category/${c!.slug}`, children: [] }));
-
-  // Always show Players link under Cricket
-  const cricketNav = navItems.find((item) => item.label.toLowerCase() === 'cricket');
-  if (cricketNav) {
-    cricketNav.children = [...(cricketNav.children ?? []), { label: 'Player Stats', href: '/players' }];
-  }
   return (
     <header className="sticky top-0 z-50 bg-[var(--sn-header-bg)] border-b border-[var(--sn-header-border)]">
       {/* Top bar */}
       <div className="mx-auto flex h-[52px] max-w-[1440px] items-center gap-3 px-3 sm:px-5">
 
         {/* Left: Hamburger (always visible) + Logo */}
-        <MobileNav categories={categories} navItems={navItems} />
+        <MobileNav navItems={navItems} />
 
         {/* Logo */}
         <Link href="/" className="sn-logo shrink-0" aria-label="Xtra Time home">

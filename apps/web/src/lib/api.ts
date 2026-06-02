@@ -21,6 +21,25 @@ export type Tag = {
   slug: string;
 };
 
+export type MenuItem = {
+  id: string;
+  title: string;
+  href?: string | null;
+  type: 'INTERNAL' | 'CATEGORY' | 'EXTERNAL';
+  placement: 'MAIN' | 'MEGA';
+  description?: string | null;
+  badge?: string | null;
+  icon?: string | null;
+  groupName?: string | null;
+  isVisible: boolean;
+  opensInNewTab: boolean;
+  sortOrder: number;
+  categoryId?: string | null;
+  category?: Pick<Category, 'id' | 'name' | 'slug' | 'icon' | 'color'> | null;
+  parentId?: string | null;
+  children?: MenuItem[];
+};
+
 export type Author = {
   id: string;
   name: string;
@@ -58,7 +77,10 @@ export type MatchStatus = 'live' | 'upcoming' | 'result';
 
 export type Match = {
   id: string;
+  source?: string;
+  externalId?: string | null;
   sport: string;
+  league?: string | null;
   title: string;
   homeTeamName: string;
   homeTeamLogo: string;
@@ -68,6 +90,9 @@ export type Match = {
   awayTeamScore?: string | null;
   status: MatchStatus;
   note?: string | null;
+  statusDetail?: string | null;
+  venue?: string | null;
+  details?: Record<string, unknown> | null;
   date: string;
 };
 
@@ -102,6 +127,7 @@ async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   getCategories: () => fetchApi<Category[]>('/categories', { cache: 'no-store' }),
+  getMenus: () => fetchApi<MenuItem[]>('/menus', { cache: 'no-store' }),
   getCategory: (slug: string) => fetchApi<Category>(`/categories/${slug}`),
   getArticles: (params?: Record<string, string | number | boolean>) => {
     const search = new URLSearchParams();

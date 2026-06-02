@@ -3,7 +3,7 @@ import { EspnScheduleView } from '@/components/EspnScheduleView';
 import { fetchAllScheduleGames, type EspnScheduleGame } from '@/lib/espn';
 import { fetchCricketScorecards } from '@/lib/cricapi';
 import { api } from '@/lib/api';
-import type { ScorecardTab } from '@/lib/scorecards';
+import { storedMatchToScorecard } from '@/lib/storedMatches';
 
 export const metadata = {
   title: 'Sports Schedule & Live Scores | Xtra Time',
@@ -44,44 +44,38 @@ export default async function SchedulePage() {
     href: c.href,
   }));
 
-  const adminGames: EspnScheduleGame[] = adminMatchesRaw.map((m) => {
-    const d = new Date(m.date);
-    const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
-    const scheduledTime = hasTime
-      ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    const scheduledDay = hasTime
-      ? d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
-      : 'Today';
-
-    const sportSlug = m.sport.toLowerCase().trim() as Exclude<ScorecardTab, 'featured'>;
-    const status = m.status === 'result' ? 'completed' : m.status;
-
+  const adminGames: EspnScheduleGame[] = adminMatchesRaw.map((match) => {
+    const card = storedMatchToScorecard(match);
     return {
-      id: `admin-${m.id}`,
-      sport: m.sport,
-      sportSlug,
-      meta: m.title,
+      id: card.id,
+      sport: match.sport,
+      sportSlug: (card.tabs[1] ?? 'cricket') as EspnScheduleGame['sportSlug'],
+      meta: card.meta,
       home: {
-        abbr: m.homeTeamName.substring(0, 3).toUpperCase(),
-        name: m.homeTeamName,
-        fullName: m.homeTeamName,
-        logo: m.homeTeamLogo || '',
-        color: 'var(--sk-text)',
-        score: m.homeTeamScore || undefined,
+        abbr: card.home.abbr,
+        name: card.home.name,
+        fullName: card.home.name,
+        logo: card.home.logo,
+        color: card.home.color,
+        score: card.home.score,
       },
       away: {
-        abbr: m.awayTeamName.substring(0, 3).toUpperCase(),
-        name: m.awayTeamName,
-        fullName: m.awayTeamName,
-        logo: m.awayTeamLogo || '',
-        color: 'var(--sk-text)',
-        score: m.awayTeamScore || undefined,
+        abbr: card.away.abbr,
+        name: card.away.name,
+        fullName: card.away.name,
+        logo: card.away.logo,
+        color: card.away.color,
+        score: card.away.score,
       },
-      status: status as EspnScheduleGame['status'],
-      statusDetail: status === 'live' ? 'Live' : status === 'completed' ? (m.note || 'Final') : `${scheduledDay} · ${scheduledTime}`,
-      date: m.date,
-      href: '#',
+      status: card.status,
+      statusDetail: match.statusDetail || match.note || (card.status === 'upcoming'
+        ? `${card.scheduledDay ?? 'Today'} · ${card.scheduledTime ?? ''}`.trim()
+        : card.status === 'live'
+          ? 'Live'
+          : 'Final'),
+      date: match.date,
+      venue: match.venue ?? undefined,
+      href: card.href,
     };
   });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { adminApi, type Article } from '@/lib/api';
+import { adminApi, type Article, type Category } from '@/lib/api';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -12,20 +12,26 @@ const statusStyles: Record<string, { bg: string; text: string; label: string }> 
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   async function load() {
     setLoading(true);
     try {
-      const res = await adminApi.getArticles({ limit: '50' });
+      const [res, categoryData] = await Promise.all([
+        adminApi.getArticles({ limit: '50', ...(selectedCategory ? { category: selectedCategory } : {}) }),
+        adminApi.getCategories(),
+      ]);
       setArticles(res.items);
+      setCategories(categoryData);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [selectedCategory]);
 
   async function handleDelete(id: string, title: string) {
     if (!confirm(`Delete "${title}"?`)) return;
@@ -69,6 +75,38 @@ export default function ArticlesPage() {
         >
           + New Article
         </Link>
+      </div>
+
+      <div
+        className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3"
+        style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}
+      >
+        <label className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>
+          Filter By Category
+        </label>
+        <select
+          value={selectedCategory}
+          onChange={(event) => setSelectedCategory(event.target.value)}
+          className="rounded-lg border px-3 py-2 text-sm"
+          style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+        >
+          <option value="">All Categories</option>
+          {categories.filter((category) => !category.parentId).map((category) => (
+            <option key={category.id} value={category.slug}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+        {selectedCategory && (
+          <button
+            type="button"
+            onClick={() => setSelectedCategory('')}
+            className="text-sm font-semibold"
+            style={{ color: 'var(--admin-accent)' }}
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       <div

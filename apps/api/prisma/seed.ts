@@ -1,5 +1,11 @@
-import { ArticleStatus, PrismaClient, UserRole } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import {
+  ArticleStatus,
+  MenuItemPlacement,
+  MenuItemType,
+  PrismaClient,
+  UserRole,
+} from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -234,6 +240,146 @@ async function main() {
   const categoryMap = Object.fromEntries(
     (await prisma.category.findMany()).map((c) => [c.slug, c.id]),
   );
+
+  const menuCount = await prisma.menuItem.count().catch(() => 0);
+  if (menuCount === 0) {
+    const latest = await prisma.menuItem.create({
+      data: {
+        title: 'Latest News',
+        href: '/search?q=latest',
+        type: MenuItemType.INTERNAL,
+        placement: MenuItemPlacement.MAIN,
+        description: 'Top stories, breaking updates and fresh reports.',
+        icon: '📰',
+        sortOrder: 0,
+      },
+    });
+
+    const liveScores = await prisma.menuItem.create({
+      data: {
+        title: 'Live Scores',
+        href: '/schedule',
+        type: MenuItemType.INTERNAL,
+        placement: MenuItemPlacement.MAIN,
+        description: 'Fixtures, results, scorecards and standings.',
+        icon: '📊',
+        sortOrder: 1,
+      },
+    });
+
+    const mainCategorySlugs = ['cricket', 'football', 'nba', 'nfl'];
+    const sportsMainItems = await Promise.all(
+      mainCategorySlugs.map(async (slug, index) => {
+        const categoryId = categoryMap[slug];
+        if (!categoryId) return null;
+        const category = categories.find((entry) => entry.slug === slug);
+        if (!category) return null;
+
+        return prisma.menuItem.create({
+          data: {
+            title: category.name,
+            href: `/category/${slug}`,
+            type: MenuItemType.CATEGORY,
+            placement: MenuItemPlacement.MAIN,
+            description: `Dedicated ${category.name.toLowerCase()} coverage, scores and analysis.`,
+            icon: category.icon,
+            sortOrder: index + 2,
+            categoryId,
+          },
+        });
+      }),
+    );
+
+    const latestChildren = [
+      ['Top Stories', '/', 'Editorial', 'Homepage lead package and editor picks.'],
+      ['Breaking News', '/search?q=breaking', 'Editorial', 'Fastest developing stories and urgent updates.'],
+      ['Trending Now', '/search?q=trending', 'Newsroom', 'Most-read stories across every sport.'],
+      ['Transfer Rumors', '/search?q=rumors', 'Newsroom', 'Rumors, insider chatter and movement watch.'],
+      ['Analysis', '/search?q=analysis', 'Features', 'Deep dives, explainers and tactical reads.'],
+    ] as const;
+
+    await Promise.all(
+      latestChildren.map(([title, href, groupName, description], index) =>
+        prisma.menuItem.create({
+          data: {
+            title,
+            href,
+            type: MenuItemType.INTERNAL,
+            placement: MenuItemPlacement.MEGA,
+            groupName,
+            description,
+            parentId: latest.id,
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    const liveChildren = [
+      ['All Fixtures', '/schedule', 'Scores', 'Daily match list across all tracked sports.'],
+      ['Standings', '/standings', 'Scores', 'Tables, records and qualification picture.'],
+      ['Cricket Scores', '/category/cricket', 'Sports', 'Live scorecards and completed cricket matches.'],
+      ['Football Scores', '/category/football', 'Sports', 'Football fixtures, results and headlines.'],
+    ] as const;
+
+    await Promise.all(
+      liveChildren.map(([title, href, groupName, description], index) =>
+        prisma.menuItem.create({
+          data: {
+            title,
+            href,
+            type: MenuItemType.INTERNAL,
+            placement: MenuItemPlacement.MEGA,
+            groupName,
+            description,
+            parentId: liveScores.id,
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    await Promise.all(
+      sportsMainItems.filter(Boolean).map((item) =>
+        prisma.menuItem.createMany({
+          data: [
+            {
+              title: 'All Coverage',
+              href: item!.href,
+              type: MenuItemType.INTERNAL,
+              placement: MenuItemPlacement.MEGA,
+              groupName: 'Coverage',
+              description: `All stories from the ${item!.title.toLowerCase()} desk.`,
+              parentId: item!.id,
+              sortOrder: 0,
+            },
+            {
+              title: 'Fixtures & Results',
+              href: '/schedule',
+              type: MenuItemType.INTERNAL,
+              placement: MenuItemPlacement.MEGA,
+              groupName: 'Coverage',
+              description: 'Schedules, live trackers and final scores.',
+              parentId: item!.id,
+              sortOrder: 1,
+            },
+            ...(item!.title.toLowerCase() === 'cricket'
+              ? [{
+                  title: 'Player Stats',
+                  href: '/players',
+                  type: MenuItemType.INTERNAL,
+                  placement: MenuItemPlacement.MEGA,
+                  groupName: 'Resources',
+                  description: 'Player search, batting and bowling profiles.',
+                  parentId: item!.id,
+                  sortOrder: 2,
+                }]
+              : []),
+          ],
+        }),
+      ),
+    );
+  }
 
   for (const article of sampleArticles) {
     const categoryId = categoryMap[article.categorySlug];

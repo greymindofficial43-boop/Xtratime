@@ -3,16 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import type { Category } from '@/lib/api';
 import type { NavItem } from './HeaderNav';
 import { ThemeToggle } from './ThemeToggle';
 
 type Props = {
-  categories: Category[];
   navItems: NavItem[];
 };
 
-export function MobileNav({ categories, navItems }: Props) {
+export function MobileNav({ navItems }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -65,36 +63,41 @@ export function MobileNav({ categories, navItems }: Props) {
 
             <div className="flex-1 overflow-y-auto px-2 py-3">
               <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#666]">
-                All Categories
+                Main Menu
               </p>
-              {categories.map((cat) => {
-                const href = `/category/${cat.slug}`;
+              {navItems.map((item) => {
+                const href = item.href;
                 const active = pathname === href;
                 return (
-                  <Link
-                    key={cat.id}
-                    href={href}
-                    onClick={() => setOpen(false)}
-                    className={`block rounded-md px-3 py-2.5 text-sm font-semibold transition ${
-                      active
-                        ? 'bg-[#2a2a2b] text-[var(--sk-accent)]'
-                        : 'text-[#c8c8c8] hover:bg-[#2a2a2b] hover:text-white'
-                    }`}
-                  >
-                    {cat.icon} {cat.name}
-                  </Link>
+                  <div key={item.label} className="mb-2 rounded-lg border border-[#2b2d31] bg-[#202124]/80">
+                    <Link
+                      href={href}
+                      onClick={() => setOpen(false)}
+                      className={`block rounded-md px-3 py-2.5 text-sm font-semibold transition ${
+                        active
+                          ? 'bg-[#2a2a2b] text-[var(--sk-accent)]'
+                          : 'text-[#c8c8c8] hover:bg-[#2a2a2b] hover:text-white'
+                      }`}
+                    >
+                      {item.icon ? `${item.icon} ` : ''}{item.label}
+                    </Link>
+                    {(item.children?.length ?? 0) > 0 && (
+                      <div className="border-t border-[#2b2d31] px-2 py-2">
+                        {item.children!.map((child) => (
+                          <Link
+                            key={`${item.label}-${child.label}`}
+                            href={child.href}
+                            onClick={() => setOpen(false)}
+                            className="block rounded-md px-3 py-2 text-sm text-[#a8acb7] transition hover:bg-[#2a2a2b] hover:text-white"
+                          >
+                            {child.icon ? `${child.icon} ` : ''}{child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
-
-              <div className="mt-4 border-t border-[#333] pt-3">
-                <Link
-                  href="/schedule"
-                  onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-2.5 text-sm text-[#c8c8c8] hover:bg-[#2a2a2b] hover:text-white"
-                >
-                  🔴 Live Scores
-                </Link>
-              </div>
             </div>
 
             <div className="flex items-center justify-between border-t border-[#333] px-4 py-3">

@@ -4,6 +4,7 @@ import { fetchCricketScorecards } from '@/lib/cricapi';
 import { MatchDetailsClient } from '@/components/MatchDetailsClient';
 import type { Scorecard } from '@/lib/scorecards';
 import { api } from '@/lib/api';
+import { storedMatchToScorecard } from '@/lib/storedMatches';
 
 export default async function MatchDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,27 +15,10 @@ export default async function MatchDetailsPage({ params }: { params: Promise<{ i
     api.getMatches().catch(() => []),
   ]);
 
-  const adminMatches: Scorecard[] = adminMatchesRaw.map((m: any) => {
-    const d = new Date(m.date);
-    const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
-    const abbr = (name: string) => name.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
-    return {
-      id: `admin-${m.id}`,
-      tabs: ['featured', m.sport.toLowerCase().trim() as any],
-      meta: m.title,
-      home: { abbr: abbr(m.homeTeamName), name: m.homeTeamName, logo: m.homeTeamLogo || undefined, score: m.homeTeamScore || undefined, color: 'var(--sk-accent)' },
-      away: { abbr: abbr(m.awayTeamName), name: m.awayTeamName, logo: m.awayTeamLogo || undefined, score: m.awayTeamScore || undefined, color: 'var(--sk-text)' },
-      status: (m.status === 'result' ? 'completed' : m.status) as Scorecard['status'],
-      result: m.note || undefined,
-      scheduledTime: hasTime
-        ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        : d.toLocaleDateString([], { month: 'short', day: 'numeric' }),
-      scheduledDay: hasTime
-        ? d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
-        : undefined,
-      href: `/match/admin-${m.id}`,
-    };
-  });
+  const adminMatches: Scorecard[] = adminMatchesRaw.map((match) => storedMatchToScorecard(match));
+  const storedMatch = id.startsWith('admin-')
+    ? adminMatchesRaw.find((match) => `admin-${match.id}` === id)
+    : null;
 
   const allMatches: Scorecard[] = [
     ...adminMatches,
@@ -54,7 +38,6 @@ export default async function MatchDetailsPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      {/* Header Section */}
       <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-6 shadow-sm">
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-[var(--sk-bg)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--sk-muted)]">
@@ -128,7 +111,30 @@ export default async function MatchDetailsPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      <MatchDetailsClient match={match} />
+      {storedMatch && (
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--sk-muted)]">Competition</p>
+            <p className="mt-2 text-sm font-semibold text-[var(--sk-text)]">{storedMatch.league || storedMatch.sport}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--sk-muted)]">Date & Time</p>
+            <p className="mt-2 text-sm font-semibold text-[var(--sk-text)]">{new Date(storedMatch.date).toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--sk-muted)]">Venue</p>
+            <p className="mt-2 text-sm font-semibold text-[var(--sk-text)]">{storedMatch.venue || 'Venue not provided'}</p>
+          </div>
+          <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4 md:col-span-3">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--sk-muted)]">Match Update</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--sk-text)]">
+              {storedMatch.statusDetail || storedMatch.note || 'Detailed update not available yet.'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <MatchDetailsClient match={match} details={storedMatch?.details} />
     </div>
   );
 }

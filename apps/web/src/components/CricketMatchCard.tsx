@@ -1,4 +1,5 @@
 import type { CricketMatch } from '@/lib/cricapi';
+import Link from 'next/link';
 
 const ABBR_MAP: Record<string, string> = {
   India: 'IND', Australia: 'AUS', England: 'ENG', Pakistan: 'PAK',
@@ -28,7 +29,7 @@ export function CricketMatchCard({ match }: { match: CricketMatch }) {
   const s2 = match.scores.find((s) => s.team === t2);
 
   return (
-    <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] overflow-hidden">
+    <Link href={`/match/${match.id}`} className="block rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] overflow-hidden transition hover:border-[var(--sk-accent)]/50">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--sk-border)] bg-[var(--sk-surface-elevated)] px-4 py-2">
         <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--sk-muted)]">
@@ -90,6 +91,6 @@ export function CricketMatchCard({ match }: { match: CricketMatch }) {
           </p>
         )}
       </div>
-    </div>
+    </Link>
   );
 }

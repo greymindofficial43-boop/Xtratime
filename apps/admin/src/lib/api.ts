@@ -28,6 +28,28 @@ export type Tag = {
   slug: string;
 };
 
+export type MenuItemType = 'INTERNAL' | 'CATEGORY' | 'EXTERNAL';
+export type MenuItemPlacement = 'MAIN' | 'MEGA';
+
+export type MenuItem = {
+  id: string;
+  title: string;
+  href?: string | null;
+  type: MenuItemType;
+  placement: MenuItemPlacement;
+  description?: string | null;
+  badge?: string | null;
+  icon?: string | null;
+  groupName?: string | null;
+  isVisible: boolean;
+  opensInNewTab: boolean;
+  sortOrder: number;
+  categoryId?: string | null;
+  category?: Pick<Category, 'id' | 'name' | 'slug' | 'icon' | 'color'> | null;
+  parentId?: string | null;
+  children?: MenuItem[];
+};
+
 export type Article = {
   id: string;
   title: string;
@@ -48,7 +70,10 @@ export type MatchStatus = 'live' | 'upcoming' | 'result';
 
 export type Match = {
   id: string;
+  source?: string;
+  externalId?: string | null;
   sport: string;
+  league?: string | null;
   title: string;
   homeTeamName: string;
   homeTeamLogo: string;
@@ -58,6 +83,9 @@ export type Match = {
   awayTeamScore?: string | null;
   status: MatchStatus;
   note?: string | null;
+  statusDetail?: string | null;
+  venue?: string | null;
+  details?: Record<string, unknown> | null;
   date: string;
   createdAt: string;
   updatedAt: string;
@@ -138,6 +166,16 @@ export const adminApi = {
   createTag: (name: string) =>
     apiFetch<Tag>('/tags', { method: 'POST', body: JSON.stringify({ name }) }),
   deleteTag: (id: string) => apiFetch(`/tags/${id}`, { method: 'DELETE' }),
+
+  getMenus: () => apiFetch<MenuItem[]>('/menus'),
+  createMenu: (data: Partial<MenuItem>) =>
+    apiFetch<MenuItem>('/menus', { method: 'POST', body: JSON.stringify(data) }),
+  updateMenu: (id: string, data: Partial<MenuItem>) =>
+    apiFetch<MenuItem>(`/menus/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  reorderMenus: (updates: { id: string; sortOrder: number }[]) =>
+    apiFetch('/menus/reorder', { method: 'POST', body: JSON.stringify({ updates }) }),
+  deleteMenu: (id: string) => apiFetch(`/menus/${id}`, { method: 'DELETE' }),
+  seedMenus: () => apiFetch<{ created: number; skipped: boolean }>('/menus/seed-defaults', { method: 'POST' }),
 
   getArticles: (params?: Record<string, string>) => {
     const qs = params ? `?${new URLSearchParams(params)}` : '';

@@ -14,6 +14,8 @@ const emptyForm = {
   awayTeamScore: '',
   status: 'upcoming' as MatchStatus,
   note: '',
+  statusDetail: '',
+  venue: '',
   matchDate: '',
   matchTime: '',
 };
@@ -84,6 +86,8 @@ export default function MatchesPage() {
       awayTeamScore: form.awayTeamScore || undefined,
       status: form.status,
       note: form.note || undefined,
+      statusDetail: form.statusDetail || undefined,
+      venue: form.venue || undefined,
       date: form.matchDate ? new Date(`${form.matchDate}T${form.matchTime || '00:00'}`).toISOString() : undefined,
     };
 
@@ -113,6 +117,8 @@ export default function MatchesPage() {
       awayTeamScore: match.awayTeamScore ?? '',
       status: match.status,
       note: match.note ?? '',
+      statusDetail: match.statusDetail ?? '',
+      venue: match.venue ?? '',
       matchDate: formatDateInput(match.date).date,
       matchTime: formatDateInput(match.date).time,
     });
@@ -258,9 +264,27 @@ export default function MatchesPage() {
               className="mt-1 w-full rounded-lg border px-3 py-2"
             />
           </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500">Venue</label>
+            <input
+              value={form.venue}
+              onChange={(e) => setForm((prev) => ({ ...prev, venue: e.target.value }))}
+              className="mt-1 w-full rounded-lg border px-3 py-2"
+              placeholder="Stadium / venue"
+            />
+          </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="block text-xs font-medium text-slate-500">Status Detail</label>
+            <input
+              value={form.statusDetail}
+              onChange={(e) => setForm((prev) => ({ ...prev, statusDetail: e.target.value }))}
+              className="mt-1 w-full rounded-lg border px-3 py-2"
+              placeholder="e.g. India won by 6 wickets"
+            />
+          </div>
           <label className="block text-xs font-medium text-slate-500">Note</label>
           <textarea
             value={form.note}
@@ -324,6 +348,7 @@ export default function MatchesPage() {
                   </td>
                   <td className="px-4 py-3 text-slate-600">
                     {new Date(match.date).toLocaleString()}
+                    {match.venue && <p className="mt-1 text-xs text-slate-500">{match.venue}</p>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3">

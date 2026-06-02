@@ -10,6 +10,7 @@ import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
 import { MatchesModule } from './matches/matches.module';
 import { AdsModule } from './ads/ads.module';
+import { MenusModule } from './menus/menus.module';
 import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
@@ -29,6 +30,7 @@ import { UploadsModule } from './uploads/uploads.module';
     ArticlesModule,
     MatchesModule,
     AdsModule,
+    MenusModule,
     UploadsModule,
   ],
 })

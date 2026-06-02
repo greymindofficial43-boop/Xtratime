@@ -8,6 +8,9 @@ export type NavItem = {
   label: string;
   href: string;
   badge?: 'NEW';
+  icon?: string;
+  description?: string;
+  group?: string;
   children?: NavItem[];
 };
 
@@ -16,7 +19,8 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const children = item.children ?? [];
-  const isMega = children.length > 3;
+  const groups = Array.from(new Set(children.map((child) => child.group).filter(Boolean))) as string[];
+  const isMega = children.length > 3 || groups.length > 1;
 
   function cancelClose() {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -68,22 +72,41 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
                   View all →
                 </Link>
               </div>
-              <div className="grid grid-cols-3">
-                {children.map((child) => (
-                  <Link
-                    key={child.label}
-                    href={child.href}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 border-b border-r border-[#2a2c35] px-4 py-3 text-sm font-semibold text-[#a0a5b1] transition hover:bg-white/5 hover:text-white"
-                  >
-                    <span className="text-[var(--sn-accent)] text-[10px]">▸</span>
-                    {child.label}
-                  </Link>
-                ))}
+              <div className={`grid ${groups.length > 2 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                {(groups.length > 0 ? groups : ['All']).map((group) => {
+                  const groupChildren = groups.length > 0
+                    ? children.filter((child) => child.group === group)
+                    : children;
+                  return (
+                    <div key={group} className="border-r border-[#2a2c35] last:border-r-0">
+                      <div className="border-b border-[#2a2c35] px-4 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-[#7d8492]">
+                        {group}
+                      </div>
+                      <div>
+                        {groupChildren.map((child) => (
+                          <Link
+                            key={child.label}
+                            href={child.href}
+                            onClick={() => setOpen(false)}
+                            className="block border-b border-[#2a2c35] px-4 py-3 transition hover:bg-white/5"
+                          >
+                            <div className="flex items-center gap-2 text-sm font-semibold text-[#d2d6df]">
+                              <span className="text-[var(--sn-accent)] text-[10px]">{child.icon ?? '▸'}</span>
+                              {child.label}
+                            </div>
+                            {child.description && (
+                              <p className="mt-1 text-xs leading-5 text-[#8d93a0]">{child.description}</p>
+                            )}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               <div className="border-t border-[#2a2c35] px-5 py-2.5">
                 <Link href={item.href} onClick={() => setOpen(false)} className="text-xs font-bold text-[var(--sn-accent)] hover:underline">
-                  All {item.label} News →
+                  Explore {item.label} →
                 </Link>
               </div>
             </div>
@@ -106,7 +129,10 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
                     onClick={() => setOpen(false)}
                     className="block rounded-lg px-4 py-2.5 text-sm font-semibold text-[#a0a5b1] transition hover:bg-white/5 hover:text-white"
                   >
-                    {child.label}
+                    <span className="flex items-center gap-2">
+                      {child.icon && <span className="text-[var(--sn-accent)]">{child.icon}</span>}
+                      {child.label}
+                    </span>
                   </Link>
                 ))}
               </div>

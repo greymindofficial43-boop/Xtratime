@@ -9,6 +9,7 @@ import { fetchCricketScorecards } from '@/lib/cricapi';
 import { notFound } from 'next/navigation';
 import { Fragment } from 'react';
 import type { Scorecard } from '@/lib/scorecards';
+import { storedMatchToScorecard } from '@/lib/storedMatches';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -51,27 +52,7 @@ export default async function CategoryPage({ params }: Props) {
   // Map admin matches to Scorecard format, filter by this category/sport
   const adminMatches: Scorecard[] = adminMatchesRaw
     .filter((m) => m.sport.toLowerCase() === slug.toLowerCase() || m.sport.toLowerCase() === category.name.toLowerCase())
-    .map((m) => {
-      const d = new Date(m.date);
-      const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
-      const abbr = (name: string) => name.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
-      return {
-        id: `admin-${m.id}`,
-        tabs: ['featured' as const],
-        meta: m.title,
-        home: { abbr: abbr(m.homeTeamName), name: m.homeTeamName, logo: m.homeTeamLogo || undefined, score: m.homeTeamScore || undefined, color: 'var(--sk-accent)' },
-        away: { abbr: abbr(m.awayTeamName), name: m.awayTeamName, logo: m.awayTeamLogo || undefined, score: m.awayTeamScore || undefined, color: 'var(--sk-text)' },
-        status: (m.status === 'result' ? 'completed' : m.status) as Scorecard['status'],
-        result: m.note || undefined,
-        scheduledTime: hasTime
-          ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          : d.toLocaleDateString([], { month: 'short', day: 'numeric' }),
-        scheduledDay: hasTime
-          ? d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
-          : undefined,
-        href: '#',
-      };
-    });
+    .map((m) => storedMatchToScorecard(m));
 
   const espnMatches2 = slug === 'cricket' ? cricketMatches : espnMatches;
   // Admin matches come first (priority), then ESPN

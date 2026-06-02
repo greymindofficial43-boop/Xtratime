@@ -37,6 +37,10 @@ export class ArticlesService {
       where.category = { slug: query.category };
     }
 
+    if (query.categoryId) {
+      where.categoryId = query.categoryId;
+    }
+
     if (query.tag) {
       where.tags = { some: { tag: { slug: query.tag } } };
     }

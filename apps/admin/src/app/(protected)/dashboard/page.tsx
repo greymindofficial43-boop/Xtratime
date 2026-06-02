@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
-    total: 0, published: 0, draft: 0, featured: 0, trending: 0, categories: 0, navCategories: 0,
+    total: 0, published: 0, draft: 0, featured: 0, trending: 0, categories: 0,
   });
 
   useEffect(() => {
@@ -23,7 +23,6 @@ export default function DashboardPage() {
         featured:      items.filter((a) => a.isFeatured).length,
         trending:      items.filter((a) => a.isTrending).length,
         categories:    cats.length,
-        navCategories: cats.filter((c) => c.showInNav).length,
       });
     });
   }, []);
@@ -35,7 +34,6 @@ export default function DashboardPage() {
     { label: 'Featured',       value: stats.featured,      href: '/articles',    color: '#f04522' },
     { label: 'Trending',       value: stats.trending,      href: '/articles',    color: '#8b5cf6' },
     { label: 'Categories',     value: stats.categories,    href: '/categories',  color: '#0891b2' },
-    { label: 'In Nav',         value: stats.navCategories, href: '/categories',  color: '#059669' },
   ];
 
   return (
@@ -89,11 +87,11 @@ export default function DashboardPage() {
             + New Article
           </Link>
           <Link
-            href="/categories"
+            href="/navigation"
             className="rounded-lg border px-4 py-2 text-sm font-semibold transition hover:opacity-80"
             style={{ borderColor: 'var(--admin-border)', color: 'var(--admin-text)' }}
           >
-            Manage Nav
+            Manage Menus
           </Link>
           <Link
             href="/ads"
@@ -130,7 +128,7 @@ export default function DashboardPage() {
           💡 How to control the navbar
         </p>
         <p className="mt-1 text-sm" style={{ color: 'var(--admin-muted)' }}>
-          Go to <strong>Categories &amp; Nav</strong> → toggle the switch next to any category to add/remove it from the site&apos;s top navigation. Use the <em>Nav Order</em> number to control the order.
+          Go to <strong>Menus</strong> to manage top-level navigation, newsroom links, and grouped mega-menu dropdowns. Keep categories focused on taxonomy only.
         </p>
       </div>
     </div>

@@ -22,6 +22,10 @@ export class QueryArticlesDto {
 
   @IsOptional()
   @IsString()
+  categoryId?: string;
+
+  @IsOptional()
+  @IsString()
   tag?: string;
 
   @IsOptional()
