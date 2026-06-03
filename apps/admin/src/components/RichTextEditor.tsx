@@ -48,7 +48,11 @@ export function RichTextEditor({ value, onChange }: Props) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+        // Disable any built-in versions so our configured ones below take over
+        dropcursor: false,
+      }),
       UnderlineExt,
       ImageExt.configure({ inline: false, allowBase64: true }),
       LinkExt.configure({ openOnClick: false, autolink: true }),

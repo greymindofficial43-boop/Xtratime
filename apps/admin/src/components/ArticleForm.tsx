@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { RichTextEditor } from './RichTextEditor';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api').replace(/\/api$/, '');
 
 type Props = {
   article?: Article;
