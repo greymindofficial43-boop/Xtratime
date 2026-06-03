@@ -126,3 +126,4 @@ NEXT_PUBLIC_SITE_URL=https://your-site.vercel.app
 - Use a proper image CDN / upload service for featured images
 - Add rich text editor (TipTap, Editor.js) in admin
 - Configure `CORS_ORIGINS` on the API for your Vercel domains
+done
