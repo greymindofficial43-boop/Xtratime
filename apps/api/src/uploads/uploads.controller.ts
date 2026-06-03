@@ -47,9 +47,9 @@ export class UploadsController {
       const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: 'xtratime', resource_type: 'auto' },
-          (error, res) => {
+          (error: Error | undefined, res: { secure_url: string } | undefined) => {
             if (error || !res) return reject(error ?? new Error('Upload failed'));
-            resolve(res as { secure_url: string });
+            resolve(res);
           },
         );
         stream.end(file.buffer);
