@@ -2,7 +2,7 @@
 
 A Sportskeeda-style sports news platform built with **Next.js**, **NestJS**, and **PostgreSQL**, including an admin panel for content management.
 
-## Stack
+## Tech Stack
 
 | Layer | Tech |
 |-------|------|
