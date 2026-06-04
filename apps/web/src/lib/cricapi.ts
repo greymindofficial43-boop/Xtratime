@@ -81,11 +81,13 @@ const TEAM_COLORS: Record<string, string> = {
   default: '#166534',
 };
 
-function abbr(name: string): string {
+function abbr(name?: string | null): string {
+  if (!name) return 'TBD';
   return ABBR_MAP[name] ?? name.slice(0, 3).toUpperCase();
 }
 
-function color(name: string): string {
+function color(name?: string | null): string {
+  if (!name) return TEAM_COLORS.default;
   return TEAM_COLORS[name] ?? TEAM_COLORS.default;
 }
 
