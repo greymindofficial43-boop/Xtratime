@@ -75,7 +75,7 @@ npm run dev
 ```
 sports/
 ├── apps/
-│   ├── api/       # NestJS + Prisma API
+│   ├── api/       # NestJS + Prisma APIs
 │   ├── web/       # Public Next.js site
 │   └── admin/     # Admin Next.js panel
 ├── docker-compose.yml
