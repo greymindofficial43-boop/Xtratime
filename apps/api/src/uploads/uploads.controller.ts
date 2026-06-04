@@ -37,8 +37,12 @@ export class UploadsController {
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file provided');
 
-    // Fallback: if Cloudinary is not configured return base64 data URL
+    // Fallback: in development return base64 data URL for convenience.
+    // In production require Cloudinary configuration to avoid embedding large base64 blobs in content.
     if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new InternalServerErrorException('Image upload is not configured on the server. Set CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET in production.');
+      }
       const base64 = file.buffer.toString('base64');
       return { url: `data:${file.mimetype};base64,${base64}` };
     }

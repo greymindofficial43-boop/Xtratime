@@ -96,7 +96,9 @@ function matchState(m: CricMatch): 'live' | 'upcoming' | 'completed' {
 }
 
 function scoreForTeam(scores: CricScore[] | undefined, teamName: string): CricScore | undefined {
-  return scores?.find((s) => s.inning.toLowerCase().startsWith(teamName.toLowerCase()));
+  if (!scores || !teamName) return undefined;
+  const teamLower = teamName.toLowerCase();
+  return scores.find((s) => typeof s.inning === 'string' && s.inning.toLowerCase().startsWith(teamLower));
 }
 
 function formatStartTime(iso: string): { scheduledTime: string; scheduledDay: string } {

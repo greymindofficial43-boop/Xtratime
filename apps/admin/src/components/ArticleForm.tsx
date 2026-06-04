@@ -115,6 +115,10 @@ export function ArticleForm({ article }: Props) {
     setLoading(true);
     setError('');
     try {
+      // Prevent submitting articles that contain inline base64 image data URLs — these create very large payloads.
+      if (form.content.includes('data:')) {
+        throw new Error('Article content contains inline images (data URLs). Please upload images using the Upload button and ensure uploads are configured in the API (Cloudinary).');
+      }
       const payload = {
         ...form,
         status: form.status as Article['status'],

@@ -222,6 +222,10 @@ export const adminApi = {
     }
 
     const data = (await res.json()) as { url: string };
+    // If server returned a data URL (base64) warn the caller — in production this should not happen.
+    if (typeof data.url === 'string' && data.url.startsWith('data:')) {
+      throw new Error('Server returned inline base64 image. Configure Cloudinary for uploads in production.');
+    }
     return { ...data, absoluteUrl: `${API_BASE}${data.url}` };
   },
 

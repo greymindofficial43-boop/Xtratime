@@ -12,6 +12,7 @@ import { MatchesModule } from './matches/matches.module';
 import { AdsModule } from './ads/ads.module';
 import { MenusModule } from './menus/menus.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { TestBodyController } from './test-body.controller';
 
 @Module({
   imports: [
@@ -33,5 +34,6 @@ import { UploadsModule } from './uploads/uploads.module';
     MenusModule,
     UploadsModule,
   ],
+  controllers: [TestBodyController],
 })
 export class AppModule {}
