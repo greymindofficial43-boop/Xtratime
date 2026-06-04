@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { adminApi } from '@/lib/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useRouter } from 'next/navigation';
@@ -37,10 +38,24 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <span className="text-3xl font-black italic tracking-tight text-white">
-            Xtra<span className="text-[var(--admin-accent)]"> Time</span>
-          </span>
-          <p className="mt-1 text-sm text-slate-500">Admin Portal</p>
+          <div className="flex flex-col items-center gap-2">
+            <Image
+              src="/logo-bangla.png"
+              alt="Xtra Time Bangla logo"
+              width={220}
+              height={66}
+              priority
+              className="h-14 w-auto"
+            />
+            <Image
+              src="/logo-eng.png"
+              alt="Xtra Time English logo"
+              width={140}
+              height={42}
+              className="h-7 w-auto opacity-90"
+            />
+          </div>
+          <p className="mt-2 text-sm text-slate-500">Admin Portal</p>
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-2xl">

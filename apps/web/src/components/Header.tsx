@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { api, type Category, type MenuItem as ApiMenuItem } from '@/lib/api';
 import { HeaderNav, type NavItem } from './HeaderNav';
@@ -103,8 +104,22 @@ export async function Header() {
         <MobileNav navItems={navItems} />
 
         {/* Logo */}
-        <Link href="/" className="sn-logo shrink-0 text-lg sm:text-xl" aria-label="Xtra Time home">
-          Xtra<span className="sn-logo-accent"> Time</span>
+        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Xtra Time home">
+          <Image
+            src="/logo-bangla.png"
+            alt="Xtra Time Bangla logo"
+            width={180}
+            height={54}
+            priority
+            className="h-10 w-auto sm:h-11"
+          />
+          <Image
+            src="/logo-eng.png"
+            alt="Xtra Time English logo"
+            width={120}
+            height={36}
+            className="h-6 w-auto opacity-90 sm:h-7"
+          />
         </Link>
 
         {/* Desktop nav */}

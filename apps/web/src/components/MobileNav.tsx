@@ -1,5 +1,8 @@
 'use client';
 
+'use client';
+
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -52,8 +55,21 @@ export function MobileNav({ navItems }: Props) {
             style={{ width: 'min(300px, 88vw)', animation: 'slideInLeft 0.22s ease-out' }}
           >
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#1e2028] px-4">
-              <Link href="/" onClick={() => setOpen(false)} className="sn-logo text-lg">
-                Xtra<span className="sn-logo-accent"> Time</span>
+              <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
+                <Image
+                  src="/logo-bangla.png"
+                  alt="Xtra Time Bangla logo"
+                  width={160}
+                  height={48}
+                  className="h-9 w-auto"
+                />
+                <Image
+                  src="/logo-eng.png"
+                  alt="Xtra Time English logo"
+                  width={108}
+                  height={32}
+                  className="h-5 w-auto opacity-90"
+                />
               </Link>
               <button
                 type="button"

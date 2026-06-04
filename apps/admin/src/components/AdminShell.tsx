@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
@@ -51,17 +52,26 @@ function SidebarContent({
     <>
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-[#1e2535] px-5">
-        <div className="flex items-baseline gap-0">
-          <span style={{ fontStyle: 'italic', fontWeight: 900, fontSize: '1.2rem', letterSpacing: '-0.04em', color: '#fff' }}>
-            Xtra
-          </span>
-          <span style={{ fontStyle: 'italic', fontWeight: 900, fontSize: '1.2rem', letterSpacing: '-0.04em', color: 'var(--admin-accent)' }}>
-            {' '}Time
+        <Image
+          src="/logo-bangla.png"
+          alt="Xtra Time Bangla logo"
+          width={168}
+          height={50}
+          className="h-9 w-auto"
+          priority
+        />
+        <div className="flex flex-col leading-none">
+          <Image
+            src="/logo-eng.png"
+            alt="Xtra Time English logo"
+            width={112}
+            height={34}
+            className="h-5 w-auto opacity-90"
+          />
+          <span className="mt-1 rounded bg-[#1e2535] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            Admin
           </span>
         </div>
-        <span className="ml-1 rounded bg-[#1e2535] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-          Admin
-        </span>
       </div>
 
       {/* Nav */}

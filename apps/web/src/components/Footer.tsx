@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 const FOOTER_LINKS = [
@@ -32,8 +33,17 @@ export function Footer() {
 
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="sn-logo text-xl">
-              Xtra<span className="sn-logo-accent"> Time</span>
+            <Link href="/" className="inline-flex items-center gap-2">
+              <Image
+                src="/logo-eng.png"
+                alt="Xtra Time English logo"
+                width={120}
+                height={36}
+                className="h-7 w-auto"
+              />
+              <span className="rounded-full border border-[var(--sn-header-border)] px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-[var(--sn-header-nav)]">
+                Secondary
+              </span>
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-[var(--sn-header-nav)]">
               Your go-to destination for breaking sports news, live scores, and in-depth analysis across cricket, football, basketball, and more.
