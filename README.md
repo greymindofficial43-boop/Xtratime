@@ -7,7 +7,7 @@ A Sportskeeda-style sports news platform built with **Next.js**, **NestJS**, and
 | Layer | Tech |
 |-------|------|
 | Public site | Next.js 15 (port 3000) |
-| Admin panel | Next.js 15 (port 3001) |
+| Admin panel | Next.js 15 (port 3001) |s
 | API | NestJS 11 (port 4000) |
 | Database | PostgreSQL 16 + Prisma |
 
