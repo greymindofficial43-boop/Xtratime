@@ -226,7 +226,7 @@ export const adminApi = {
     if (typeof data.url === 'string' && data.url.startsWith('data:')) {
       throw new Error('Server returned inline base64 image. Configure Cloudinary for uploads in production.');
     }
-    return { ...data, absoluteUrl: `${API_BASE}${data.url}` };
+    return { ...data, absoluteUrl: data.url };
   },
 
   getAds: () => apiFetch<Advertisement[]>('/ads'),

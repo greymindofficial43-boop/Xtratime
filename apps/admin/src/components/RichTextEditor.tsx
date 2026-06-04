@@ -98,7 +98,7 @@ export function RichTextEditor({ value, onChange }: Props) {
       });
       if (res.ok) {
         const data = (await res.json()) as { url: string };
-        editor.chain().focus().setImage({ src: `${API_BASE}${data.url}`, alt: file.name }).run();
+        editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
       }
     } catch { /* keep base64 preview */ } finally {
       setUploading(false);

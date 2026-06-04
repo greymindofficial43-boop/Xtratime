@@ -90,7 +90,7 @@ export function ArticleForm({ article }: Props) {
       });
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json() as { url: string };
-      const fullUrl = `${API_BASE}${data.url}`;
+      const fullUrl = data.url;
       update('featuredImage', fullUrl);
       setImagePreview(fullUrl);
     } catch (err) {
