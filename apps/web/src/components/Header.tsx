@@ -105,21 +105,17 @@ export async function Header() {
 
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Xtra Time home">
-          <Image
-            src="/logo-bangla.png"
-            alt="Xtra Time Bangla logo"
-            width={180}
-            height={54}
-            priority
-            className="h-10 w-auto sm:h-11"
-          />
-          <Image
-            src="/logo-eng.png"
-            alt="Xtra Time English logo"
-            width={120}
-            height={36}
-            className="h-6 w-auto opacity-90 sm:h-7"
-          />
+          <span className="rounded-sm bg-white/5 px-1 py-0.5">
+            <Image
+              src="/logo-bangla.png"
+              alt="Xtra Time Bangla logo"
+              width={180}
+              height={54}
+              priority
+              className="h-10 w-auto sm:h-11"
+            />
+          </span>
+          {/* English secondary logo removed from header — primary (Bangla) only */}
         </Link>
 
         {/* Desktop nav */}

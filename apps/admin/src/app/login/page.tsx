@@ -39,20 +39,14 @@ export default function LoginPage() {
         {/* Brand */}
         <div className="mb-8 text-center">
           <div className="flex flex-col items-center gap-2">
-            <Image
-              src="/logo-bangla.png"
-              alt="Xtra Time Bangla logo"
-              width={220}
-              height={66}
-              priority
-              className="h-14 w-auto"
-            />
+            {/* Show secondary English logo on the login screen so placements differ from the admin shell */}
             <Image
               src="/logo-eng.png"
               alt="Xtra Time English logo"
-              width={140}
-              height={42}
-              className="h-7 w-auto opacity-90"
+              width={180}
+              height={54}
+              priority
+              className="h-12 w-auto opacity-90"
             />
           </div>
           <p className="mt-2 text-sm text-slate-500">Admin Portal</p>

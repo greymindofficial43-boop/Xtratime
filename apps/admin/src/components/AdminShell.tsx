@@ -52,22 +52,17 @@ function SidebarContent({
     <>
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-[#1e2535] px-5">
-        <Image
-          src="/logo-bangla.png"
-          alt="Xtra Time Bangla logo"
-          width={168}
-          height={50}
-          className="h-9 w-auto"
-          priority
-        />
-        <div className="flex flex-col leading-none">
+        <span className="rounded-sm bg-white/5 px-1 py-0.5">
           <Image
-            src="/logo-eng.png"
-            alt="Xtra Time English logo"
-            width={112}
-            height={34}
-            className="h-5 w-auto opacity-90"
+            src="/logo-bangla.png"
+            alt="Xtra Time Bangla logo"
+            width={168}
+            height={50}
+            className="h-9 w-auto"
+            priority
           />
+        </span>
+        <div className="flex flex-col leading-none">
           <span className="mt-1 rounded bg-[#1e2535] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
             Admin
           </span>

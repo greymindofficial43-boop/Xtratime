@@ -56,20 +56,16 @@ export function MobileNav({ navItems }: Props) {
           >
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#1e2028] px-4">
               <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
-                <Image
-                  src="/logo-bangla.png"
-                  alt="Xtra Time Bangla logo"
-                  width={160}
-                  height={48}
-                  className="h-9 w-auto"
-                />
-                <Image
-                  src="/logo-eng.png"
-                  alt="Xtra Time English logo"
-                  width={108}
-                  height={32}
-                  className="h-5 w-auto opacity-90"
-                />
+                <span className="rounded-sm bg-white/5 px-1 py-0.5">
+                  <Image
+                    src="/logo-bangla.png"
+                    alt="Xtra Time Bangla logo"
+                    width={160}
+                    height={48}
+                    className="h-9 w-auto"
+                  />
+                </span>
+                {/* English secondary logo removed from mobile drawer — primary (Bangla) only */}
               </Link>
               <button
                 type="button"
