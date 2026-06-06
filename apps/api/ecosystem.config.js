@@ -35,7 +35,8 @@ function loadEnv(file) {
 
 const common = {
   cwd: __dirname,
-  script: 'dist/main.js',
+  // Nest emits to dist/src/main.js (the project references files outside src/, e.g. prisma/)
+  script: 'dist/src/main.js',
   instances: 1,
   autorestart: true,
   max_memory_restart: '400M',
