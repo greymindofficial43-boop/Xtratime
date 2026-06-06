@@ -34,15 +34,15 @@ export function Footer() {
 
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <span className="inline-flex items-center rounded-md bg-white px-2 py-1">
+            <Link href="/" className="inline-flex items-center">
+              <span className="inline-flex items-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm ring-1 ring-black/5">
                 <Image
                   src={branding.logoSecondary}
                   alt={`${branding.siteName} logo`}
-                  width={120}
-                  height={36}
+                  width={624}
+                  height={322}
                   unoptimized={isExternal(branding.logoSecondary)}
-                  className="h-7 w-auto"
+                  className="h-8 w-auto object-contain"
                 />
               </span>
             </Link>

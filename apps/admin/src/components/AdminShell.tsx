@@ -53,13 +53,13 @@ function SidebarContent({
     <>
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-[#1e2535] px-5">
-        <span className="inline-flex items-center rounded-md bg-white px-2 py-1">
+        <span className="inline-flex items-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm ring-1 ring-black/5">
           <Image
             src={branding.logoPrimary}
             alt={`${branding.siteName} logo`}
-            width={168}
-            height={50}
-            className="h-9 w-auto"
+            width={624}
+            height={425}
+            className="h-8 w-auto object-contain"
             priority
             unoptimized={isExternal(branding.logoPrimary)}
           />

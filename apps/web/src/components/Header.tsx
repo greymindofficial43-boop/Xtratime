@@ -105,19 +105,18 @@ export async function Header() {
         <MobileNav navItems={navItems} />
 
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={`${branding.siteName} home`}>
-          <span className="inline-flex items-center rounded-md bg-white px-2 py-1">
+        <Link href="/" className="flex shrink-0 items-center" aria-label={`${branding.siteName} home`}>
+          <span className="inline-flex items-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm ring-1 ring-black/5 transition-shadow hover:shadow-md">
             <Image
               src={branding.logoPrimary}
               alt={`${branding.siteName} logo`}
-              width={180}
-              height={54}
+              width={624}
+              height={425}
               priority
               unoptimized={isExternal(branding.logoPrimary)}
-              className="h-10 w-auto sm:h-11"
+              className="h-8 w-auto object-contain sm:h-9"
             />
           </span>
-          {/* Secondary logo removed from header — primary only */}
         </Link>
 
         {/* Desktop nav */}
