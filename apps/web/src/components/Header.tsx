@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { api, type Category, type MenuItem as ApiMenuItem } from '@/lib/api';
+import { branding, isExternal } from '@/lib/branding';
 import { HeaderNav, type NavItem } from './HeaderNav';
 import { MobileNav } from './MobileNav';
 import { AllSportsPanel } from './AllSportsPanel';
@@ -104,18 +105,19 @@ export async function Header() {
         <MobileNav navItems={navItems} />
 
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Xtra Time home">
+        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={`${branding.siteName} home`}>
           <span className="rounded-sm bg-white/5 px-1 py-0.5">
             <Image
-              src="/logo-bangla.png"
-              alt="Xtra Time Bangla logo"
+              src={branding.logoPrimary}
+              alt={`${branding.siteName} logo`}
               width={180}
               height={54}
               priority
+              unoptimized={isExternal(branding.logoPrimary)}
               className="h-10 w-auto sm:h-11"
             />
           </span>
-          {/* English secondary logo removed from header — primary (Bangla) only */}
+          {/* Secondary logo removed from header — primary only */}
         </Link>
 
         {/* Desktop nav */}

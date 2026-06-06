@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { adminApi } from '@/lib/api';
+import { branding, isExternal } from '@/lib/branding';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
@@ -39,13 +40,14 @@ export default function LoginPage() {
         {/* Brand */}
         <div className="mb-8 text-center">
           <div className="flex flex-col items-center gap-2">
-            {/* Show secondary English logo on the login screen so placements differ from the admin shell */}
+            {/* Show secondary logo on the login screen so placements differ from the admin shell */}
             <Image
-              src="/logo-eng.png"
-              alt="Xtra Time English logo"
+              src={branding.logoSecondary}
+              alt={`${branding.siteName} logo`}
               width={180}
               height={54}
               priority
+              unoptimized={isExternal(branding.logoSecondary)}
               className="h-12 w-auto opacity-90"
             />
           </div>

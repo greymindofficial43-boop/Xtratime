@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { NavItem } from './HeaderNav';
+import { branding, isExternal } from '@/lib/branding';
 import { ThemeToggle } from './ThemeToggle';
 
 type Props = {
@@ -58,14 +59,15 @@ export function MobileNav({ navItems }: Props) {
               <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
                 <span className="rounded-sm bg-white/5 px-1 py-0.5">
                   <Image
-                    src="/logo-bangla.png"
-                    alt="Xtra Time Bangla logo"
+                    src={branding.logoPrimary}
+                    alt={`${branding.siteName} logo`}
                     width={160}
                     height={48}
+                    unoptimized={isExternal(branding.logoPrimary)}
                     className="h-9 w-auto"
                   />
                 </span>
-                {/* English secondary logo removed from mobile drawer — primary (Bangla) only */}
+                {/* Secondary logo removed from mobile drawer — primary only */}
               </Link>
               <button
                 type="button"

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { site } from '@/lib/site';
+import { branding, isExternal } from '@/lib/branding';
 import { ThemeToggle } from './ThemeToggle';
 
 const NAV_SECTIONS = [
@@ -54,12 +55,13 @@ function SidebarContent({
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-[#1e2535] px-5">
         <span className="rounded-sm bg-white/5 px-1 py-0.5">
           <Image
-            src="/logo-bangla.png"
-            alt="Xtra Time Bangla logo"
+            src={branding.logoPrimary}
+            alt={`${branding.siteName} logo`}
             width={168}
             height={50}
             className="h-9 w-auto"
             priority
+            unoptimized={isExternal(branding.logoPrimary)}
           />
         </span>
         <div className="flex flex-col leading-none">
