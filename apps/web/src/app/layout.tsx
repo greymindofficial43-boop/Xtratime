@@ -9,6 +9,7 @@ import { Header } from '@/components/Header';
 import { SubHeader } from '@/components/SubHeader';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { RandomAdInjector } from '@/components/RandomAdInjector';
+import { branding } from '@/lib/branding';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -20,14 +21,12 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Xtra Time — Live Scores, Sports News & Updates',
-  description:
-    'Xtra Time covers cricket, football, NBA, NFL, NHL and more. Live scores, breaking news, trending stories and deep analysis — all in one place.',
-  manifest: '/manifest.json',
+  title: branding.siteName,
+  description: branding.siteDescription,
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Xtra Time',
+    title: branding.siteName,
   },
 };
 
@@ -39,7 +38,7 @@ const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={branding.siteLocale} suppressHydrationWarning>
       <body
         className={`${inter.variable} ${poppins.variable} ${inter.className} min-h-screen antialiased`}
       >
