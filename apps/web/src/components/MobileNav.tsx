@@ -57,7 +57,7 @@ export function MobileNav({ navItems }: Props) {
           >
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#1e2028] px-4">
               <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
-                <span className="rounded-sm bg-white/5 px-1 py-0.5">
+                <span className="inline-flex items-center rounded-md bg-white px-2 py-1">
                   <Image
                     src={branding.logoPrimary}
                     alt={`${branding.siteName} logo`}

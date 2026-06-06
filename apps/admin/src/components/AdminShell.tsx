@@ -53,7 +53,7 @@ function SidebarContent({
     <>
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-[#1e2535] px-5">
-        <span className="rounded-sm bg-white/5 px-1 py-0.5">
+        <span className="inline-flex items-center rounded-md bg-white px-2 py-1">
           <Image
             src={branding.logoPrimary}
             alt={`${branding.siteName} logo`}

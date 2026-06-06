@@ -41,15 +41,17 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <div className="flex flex-col items-center gap-2">
             {/* Show secondary logo on the login screen so placements differ from the admin shell */}
-            <Image
-              src={branding.logoSecondary}
-              alt={`${branding.siteName} logo`}
-              width={180}
-              height={54}
-              priority
-              unoptimized={isExternal(branding.logoSecondary)}
-              className="h-12 w-auto opacity-90"
-            />
+            <span className="inline-flex items-center rounded-lg bg-white px-4 py-3 shadow-lg">
+              <Image
+                src={branding.logoSecondary}
+                alt={`${branding.siteName} logo`}
+                width={180}
+                height={54}
+                priority
+                unoptimized={isExternal(branding.logoSecondary)}
+                className="h-12 w-auto"
+              />
+            </span>
           </div>
           <p className="mt-2 text-sm text-slate-500">Admin Portal</p>
         </div>

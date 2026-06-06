@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { branding, isExternal } from '@/lib/branding';
 
 const FOOTER_LINKS = [
   { label: 'About Us', href: '#' },
@@ -34,15 +35,15 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2">
-              <Image
-                src="/logo-eng.png"
-                alt="Xtra Time English logo"
-                width={120}
-                height={36}
-                className="h-7 w-auto"
-              />
-              <span className="rounded-full border border-[var(--sn-header-border)] px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-[var(--sn-header-nav)]">
-                Secondary
+              <span className="inline-flex items-center rounded-md bg-white px-2 py-1">
+                <Image
+                  src={branding.logoSecondary}
+                  alt={`${branding.siteName} logo`}
+                  width={120}
+                  height={36}
+                  unoptimized={isExternal(branding.logoSecondary)}
+                  className="h-7 w-auto"
+                />
               </span>
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-[var(--sn-header-nav)]">

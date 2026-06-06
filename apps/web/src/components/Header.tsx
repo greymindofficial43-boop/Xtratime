@@ -106,7 +106,7 @@ export async function Header() {
 
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center gap-2" aria-label={`${branding.siteName} home`}>
-          <span className="rounded-sm bg-white/5 px-1 py-0.5">
+          <span className="inline-flex items-center rounded-md bg-white px-2 py-1">
             <Image
               src={branding.logoPrimary}
               alt={`${branding.siteName} logo`}
