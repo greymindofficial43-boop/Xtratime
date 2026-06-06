@@ -4,6 +4,9 @@ dist
 .env.example
 .env
 .env.local
+# Per-edition secret env files — VPS only, never commit (dual-pushed to public repo)
+.env.bn
+.env.en
 *.log
 .DS_Store
 .vercel
