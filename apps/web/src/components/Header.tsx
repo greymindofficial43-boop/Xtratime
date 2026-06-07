@@ -99,7 +99,7 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--sn-header-bg)] border-b border-[var(--sn-header-border)]">
-      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-2 px-3 sm:px-5">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-2 px-3 sm:px-5">
 
         {/* Hamburger (mobile only) */}
         <MobileNav navItems={navItems} />
@@ -115,7 +115,7 @@ export async function Header() {
               priority
               unoptimized={isExternal(branding.logoPrimary)}
               className="w-auto object-contain"
-              style={{ height: '2rem', width: 'auto' }}
+              style={{ height: '2.75rem', width: 'auto' }}
             />
           </span>
         </Link>
