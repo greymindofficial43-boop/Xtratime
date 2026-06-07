@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import { storedMatchToScorecard } from '@/lib/storedMatches';
 
 export const metadata = {
-  title: 'Sports Schedule & Live Scores | Xtra Time',
+  title: 'Sports Schedule & Live Scores',
   description: 'Live scores, today\'s fixtures and results across Cricket, NFL, NBA, MLB, Soccer and NHL.',
 };
 

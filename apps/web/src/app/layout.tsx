@@ -10,6 +10,7 @@ import { SubHeader } from '@/components/SubHeader';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { RandomAdInjector } from '@/components/RandomAdInjector';
 import { branding } from '@/lib/branding';
+import { site } from '@/lib/site';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -21,8 +22,27 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: branding.siteName,
+  metadataBase: new URL(site.siteUrl),
+  title: {
+    default: branding.siteName,
+    template: `%s | ${branding.siteName}`,
+  },
   description: branding.siteDescription,
+  applicationName: branding.siteName,
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: 'website',
+    siteName: branding.siteName,
+    title: branding.siteName,
+    description: branding.siteDescription,
+    url: site.siteUrl,
+    locale: branding.siteLocale,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: branding.siteName,
+    description: branding.siteDescription,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

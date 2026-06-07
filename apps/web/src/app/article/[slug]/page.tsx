@@ -21,9 +21,24 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const article = await api.getArticle(slug).catch(() => null);
   if (!article) return { title: 'Article Not Found' };
+  const images = article.featuredImage ? [article.featuredImage] : undefined;
   return {
-    title: `${article.title} | Xtra Time`,
+    title: article.title,
     description: article.excerpt ?? undefined,
+    alternates: { canonical: `/article/${article.slug}` },
+    openGraph: {
+      type: 'article',
+      title: article.title,
+      description: article.excerpt ?? undefined,
+      images,
+      publishedTime: article.publishedAt ?? undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt ?? undefined,
+      images,
+    },
   };
 }
 

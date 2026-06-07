@@ -1,7 +1,7 @@
 import { AdSlot } from '@/components/AdSlot';
 
 export const metadata = {
-  title: 'Points Table & Standings | Xtra Time',
+  title: 'Points Table & Standings',
   description: 'Latest points table and standings for live tournaments.',
 };
 
