@@ -114,7 +114,8 @@ export async function Header() {
               height={425}
               priority
               unoptimized={isExternal(branding.logoPrimary)}
-              className="h-8 w-auto object-contain sm:h-9"
+              className="w-auto object-contain"
+              style={{ height: '2rem', width: 'auto' }}
             />
           </span>
         </Link>

@@ -59,7 +59,8 @@ function SidebarContent({
             alt={`${branding.siteName} logo`}
             width={624}
             height={425}
-            className="h-8 w-auto object-contain"
+            className="w-auto object-contain"
+            style={{ height: '2rem', width: 'auto' }}
             priority
             unoptimized={isExternal(branding.logoPrimary)}
           />

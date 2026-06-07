@@ -42,7 +42,8 @@ export function Footer() {
                   width={624}
                   height={322}
                   unoptimized={isExternal(branding.logoSecondary)}
-                  className="h-8 w-auto object-contain"
+                  className="w-auto object-contain"
+                  style={{ height: '1.75rem', width: 'auto' }}
                 />
               </span>
             </Link>
