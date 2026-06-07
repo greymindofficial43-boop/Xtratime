@@ -36,6 +36,12 @@ const NAV_SECTIONS = [
       { href: '/ads', label: 'Ad Slots', icon: '◻' },
     ],
   },
+  {
+    label: 'Administration',
+    items: [
+      { href: '/users', label: 'Users', icon: '◉' },
+    ],
+  },
 ];
 
 const ALL_ITEMS = NAV_SECTIONS.flatMap((s) => s.items);

@@ -8,6 +8,14 @@ export type AuthUser = {
   role: string;
 };
 
+export type ManagedUser = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt?: string;
+};
+
 export type Category = {
   id: string;
   name: string;
@@ -166,6 +174,15 @@ export const adminApi = {
   createTag: (name: string) =>
     apiFetch<Tag>('/tags', { method: 'POST', body: JSON.stringify({ name }) }),
   deleteTag: (id: string) => apiFetch(`/tags/${id}`, { method: 'DELETE' }),
+
+  getUsers: () => apiFetch<ManagedUser[]>('/users'),
+  createUser: (data: { email: string; name: string; password: string; role: string }) =>
+    apiFetch<ManagedUser>('/users', { method: 'POST', body: JSON.stringify(data) }),
+  updateUser: (
+    id: string,
+    data: Partial<{ email: string; name: string; password: string; role: string }>,
+  ) => apiFetch<ManagedUser>(`/users/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteUser: (id: string) => apiFetch(`/users/${id}`, { method: 'DELETE' }),
 
   getMenus: () => apiFetch<MenuItem[]>('/menus'),
   createMenu: (data: Partial<MenuItem>) =>
