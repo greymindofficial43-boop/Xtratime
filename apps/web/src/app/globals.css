@@ -400,6 +400,31 @@ body {
   border-radius: 4px;
 }
 
+/* Mobile safety: never let pasted admin content overflow horizontally. */
+.prose-article {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.prose-article a,
+.prose-article code,
+.prose-article pre {
+  overflow-wrap: anywhere;
+}
+/* Wide tables/embeds in article content scroll inside their own box
+   instead of widening the whole page on phones. */
+.prose-article table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+.prose-article iframe,
+.prose-article video,
+.prose-article embed {
+  max-width: 100%;
+}
+
 /* ─── Scrollbar hide ────────────────────────────────────────────────────────── */
 
 .sk-scrollbar-hide {
