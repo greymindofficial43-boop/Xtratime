@@ -149,7 +149,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const currentLabel = ALL_ITEMS.find((i) => isActive(i.href))?.label ?? 'Admin';
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
 
       {/* ── Desktop sidebar (always visible on lg+) ── */}
       <aside
