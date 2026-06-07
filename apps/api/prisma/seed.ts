@@ -199,15 +199,20 @@ const sampleArticles: SampleArticle[] = [
 ];
 
 async function main() {
-  const passwordHash = await bcrypt.hash('admin123', 10);
+  // Admin credentials are env-driven so they are never hardcoded in this
+  // (public) repo. Set SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD per deployment.
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@sportskeeda.local';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+  const adminName = process.env.SEED_ADMIN_NAME || 'Site Admin';
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@sportskeeda.local' },
-    update: {},
+    where: { email: adminEmail },
+    update: { passwordHash, name: adminName, role: UserRole.ADMIN },
     create: {
-      email: 'admin@sportskeeda.local',
+      email: adminEmail,
       passwordHash,
-      name: 'Sports Admin',
+      name: adminName,
       role: UserRole.ADMIN,
     },
   });
@@ -418,7 +423,7 @@ async function main() {
   }
 
   console.log('Seed completed.');
-  console.log('Admin login: admin@sportskeeda.local / admin123');
+  console.log(`Admin login: ${adminEmail} / ${adminPassword}`);
 }
 
 main()
