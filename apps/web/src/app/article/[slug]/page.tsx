@@ -144,7 +144,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* In-article ad — below image/video, before content */}
         <div className="my-6 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3 sk-random-ad">
-          <AdSlot zone="inline" />
+          <AdSlot zone="article-top" />
         </div>
 
         <div
@@ -154,7 +154,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* In-article ad — after content */}
         <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-3 sk-random-ad">
-          <AdSlot zone="inline" />
+          <AdSlot zone="article-bottom" />
         </div>
 
         {article.tags.length > 0 && (

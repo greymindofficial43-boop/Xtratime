@@ -6,7 +6,7 @@ import { api, type Advertisement } from '@/lib/api';
 const ROTATE_INTERVAL_MS = 5000; // switch ad every 5 seconds
 
 type Props = {
-  zone?: 'inline' | 'sidebar';
+  zone?: string; // ad slot id, e.g. 'home-top', 'article-bottom', 'sidebar'
   className?: string;
   adOverride?: Advertisement; // For random injector to force a specific ad
 };

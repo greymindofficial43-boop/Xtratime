@@ -15,8 +15,14 @@ const emptyForm = {
 };
 
 const placements: { id: string; label: string }[] = [
-  { id: 'inline', label: 'Inline Banner (Wide)' },
-  { id: 'sidebar', label: 'Sidebar Ad (Square/Tall)' },
+  { id: 'home-top', label: 'Homepage — Top (below live scores)' },
+  { id: 'home-infeed', label: 'Homepage — Between sections' },
+  { id: 'home-bottom', label: 'Homepage — Bottom banner' },
+  { id: 'article-top', label: 'Article — Below title' },
+  { id: 'article-bottom', label: 'Article — End of content' },
+  { id: 'category', label: 'Category pages — Inline' },
+  { id: 'sidebar', label: 'Sidebar (all pages)' },
+  { id: 'inline', label: 'Inline Banner (generic / random)' },
 ];
 
 function ctr(views: number, clicks: number): string {

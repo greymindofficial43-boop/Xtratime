@@ -12,7 +12,9 @@ export function RandomAdInjector() {
   useEffect(() => {
     async function loadAds() {
       try {
-        const data = await api.getAds(); // Fetch all ads regardless of zone
+        // Only the generic "inline" slot is scattered randomly; ads assigned to
+        // a fixed slot (home-top, article-bottom, sidebar, ...) stay in that slot.
+        const data = await api.getAds('inline');
         setAds(data);
       } catch {
         // ignore

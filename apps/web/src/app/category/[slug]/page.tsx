@@ -128,7 +128,7 @@ export default async function CategoryPage({ params }: Props) {
                   {/* Inject ad every 3 articles */}
                   {(index + 1) % 3 === 0 && (
                     <div className="py-4">
-                      <AdSlot zone="inline" className="border-none shadow-none" />
+                      <AdSlot zone="category" className="border-none shadow-none" />
                     </div>
                   )}
                 </Fragment>

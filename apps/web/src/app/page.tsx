@@ -53,7 +53,7 @@ export default async function HomePage() {
       {/* Leaderboard ad below live scores */}
       <div className="border-b border-[var(--sk-border)] bg-[var(--sk-surface)] px-4 py-3">
         <div className="mx-auto max-w-[970px]">
-          <AdSlot zone="inline" />
+          <AdSlot zone="home-top" />
         </div>
       </div>
 
@@ -82,7 +82,7 @@ export default async function HomePage() {
 
         {/* In-content ad */}
         <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-          <AdSlot zone="inline" />
+          <AdSlot zone="home-infeed" />
         </div>
 
         {/* More Stories (admin articles) */}
@@ -120,7 +120,7 @@ export default async function HomePage() {
                 />
                 {(idx + 1) % 2 === 0 && idx < arr.length - 1 && (
                   <div className="my-4 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-                    <AdSlot zone="inline" />
+                    <AdSlot zone="home-infeed" />
                   </div>
                 )}
               </div>
@@ -187,7 +187,7 @@ export default async function HomePage() {
 
         {/* Footer banner ad */}
         <div className="mt-10 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-          <AdSlot zone="inline" />
+          <AdSlot zone="home-bottom" />
         </div>
       </div>
     </>
