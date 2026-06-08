@@ -2,7 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
 import { AdSlot } from '@/components/AdSlot';
+import { ShareButtons } from '@/components/ShareButtons';
 import { api } from '@/lib/api';
+import { site } from '@/lib/site';
 import { formatDateTime } from '@/lib/format';
 import { sanitizeArticleHtml } from '@/lib/sanitize';
 import { notFound } from 'next/navigation';
@@ -92,6 +94,13 @@ export default async function ArticlePage({ params }: Props) {
           <span className="mx-2">·</span>
           {article.viewCount.toLocaleString()} views
         </p>
+
+        <div className="mt-4 border-y border-[var(--sk-border)] py-3">
+          <ShareButtons
+            url={`${site.siteUrl.replace(/\/$/, '')}/article/${article.slug}`}
+            title={article.title}
+          />
+        </div>
 
         {/* Featured image — only show if there's no video (video takes priority) */}
         {article.featuredImage && !article.videoUrl && (

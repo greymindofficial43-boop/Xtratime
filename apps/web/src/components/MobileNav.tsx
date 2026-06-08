@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import type { NavItem } from './HeaderNav';
 import { branding, isExternal } from '@/lib/branding';
 import { ThemeToggle } from './ThemeToggle';
+import { SocialLinks } from './SocialLinks';
 
 type Props = {
   navItems: NavItem[];
@@ -139,6 +140,14 @@ export function MobileNav({ navItems }: Props) {
                 <Link href="/standings" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-[#9ca3af] hover:text-white">
                   📊 Standings
                 </Link>
+              </div>
+
+              {/* Social links (only render when configured) */}
+              <div className="mt-3 border-t border-[#1e2028] pt-3">
+                <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#666]">Follow us</p>
+                <div className="px-3">
+                  <SocialLinks />
+                </div>
               </div>
             </div>
 

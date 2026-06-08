@@ -10,6 +10,14 @@ export const branding = {
     'Live scores, breaking news, trending stories and deep analysis — all in one place.',
   logoPrimary: process.env.NEXT_PUBLIC_LOGO_PRIMARY_URL || '/logo-bangla.png',
   logoSecondary: process.env.NEXT_PUBLIC_LOGO_SECONDARY_URL || '/logo-eng.png',
+  // Social profile links — set per deployment. Empty ones are not rendered.
+  social: {
+    facebook: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK || '',
+    twitter: process.env.NEXT_PUBLIC_SOCIAL_TWITTER || '',
+    instagram: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM || '',
+    youtube: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE || '',
+    whatsapp: process.env.NEXT_PUBLIC_SOCIAL_WHATSAPP || '',
+  },
 };
 
 // External logo URLs (e.g. Cloudinary) skip next/image optimization so no

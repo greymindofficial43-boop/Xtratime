@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { branding, isExternal } from '@/lib/branding';
+import { SocialLinks } from './SocialLinks';
 
 const FOOTER_LINKS = [
   { label: 'About Us', href: '#' },
@@ -50,17 +51,7 @@ export function Footer() {
             <p className="mt-3 text-sm leading-relaxed text-[var(--sn-header-nav)]">
               Your go-to destination for breaking sports news, live scores, and in-depth analysis across cricket, football, basketball, and more.
             </p>
-            <div className="mt-4 flex gap-3">
-              {['𝕏', 'f', 'in'].map((s) => (
-                <a
-                  key={s}
-                  href="#"
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--sn-header-border)] text-sm font-bold text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-white"
-                >
-                  {s}
-                </a>
-              ))}
-            </div>
+            <SocialLinks className="mt-4" />
           </div>
 
           {/* Explore */}
