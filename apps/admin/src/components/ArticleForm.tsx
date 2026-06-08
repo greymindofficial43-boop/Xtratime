@@ -4,6 +4,7 @@ import { adminApi, type Article, type Category, type Tag } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { RichTextEditor } from './RichTextEditor';
+import { ArticlePreview } from './ArticlePreview';
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api').replace(/\/api$/, '');
 
@@ -26,6 +27,7 @@ export function ArticleForm({ article }: Props) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   // Image upload state
   const [imageUploading, setImageUploading] = useState(false);
@@ -370,12 +372,32 @@ export function ArticleForm({ article }: Props) {
         </button>
         <button
           type="button"
+          onClick={() => setShowPreview(true)}
+          className="rounded-lg border border-slate-300 px-6 py-2.5 font-medium text-slate-700 hover:bg-slate-50"
+        >
+          👁 Preview
+        </button>
+        <button
+          type="button"
           onClick={() => router.back()}
           className="rounded-lg border border-slate-300 px-6 py-2.5 font-medium"
         >
           Cancel
         </button>
       </div>
+
+      <ArticlePreview
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        data={{
+          title: form.title,
+          excerpt: form.excerpt,
+          content: form.content,
+          featuredImage: form.featuredImage,
+          categoryName: categories.find((c) => c.id === form.categoryId)?.name ?? '',
+          publishedAt: form.publishedAt,
+        }}
+      />
     </form>
   );
 }

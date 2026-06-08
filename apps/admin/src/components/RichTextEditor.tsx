@@ -50,8 +50,11 @@ export function RichTextEditor({ value, onChange }: Props) {
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
-        // Disable any built-in versions so our configured ones below take over
+        // Disable built-ins so our separately-configured versions take over
+        // (prevents the "Duplicate extension names: link, underline" warning).
         dropcursor: false,
+        link: false,
+        underline: false,
       }),
       UnderlineExt,
       ImageExt.configure({ inline: false, allowBase64: true }),
