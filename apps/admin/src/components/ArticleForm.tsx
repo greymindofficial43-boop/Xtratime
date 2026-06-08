@@ -35,6 +35,7 @@ export function ArticleForm({ article }: Props) {
 
   const [form, setForm] = useState<{
     title: string;
+    slug: string;
     excerpt: string;
     content: string;
     featuredImage: string;
@@ -50,6 +51,7 @@ export function ArticleForm({ article }: Props) {
     metaKeywords: string;
   }>({
     title: article?.title ?? '',
+    slug: article?.slug ?? '',
     excerpt: article?.excerpt ?? '',
     content: article?.content ?? '<p>Write your article content here...</p>',
     featuredImage: article?.featuredImage ?? '',
@@ -140,6 +142,8 @@ export function ArticleForm({ article }: Props) {
         ...form,
         status: form.status as Article['status'],
         publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : undefined,
+        // Empty slug => let the API auto-generate from the title.
+        slug: form.slug.trim() || undefined,
       };
       if (isEdit && article) {
         await adminApi.updateArticle(article.id, payload);
@@ -172,6 +176,21 @@ export function ArticleForm({ article }: Props) {
             required
             minLength={5}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">
+            URL slug <span className="font-normal text-slate-400">(the article&apos;s web address)</span>
+          </label>
+          <input
+            value={form.slug}
+            onChange={(e) => update('slug', e.target.value)}
+            placeholder="auto-generated from the title — leave blank for that"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          />
+          <p className="mt-1 text-xs text-slate-400">
+            Works with any language (e.g. Bangla). Leave blank to auto-create from the title.
+          </p>
         </div>
 
         <div>

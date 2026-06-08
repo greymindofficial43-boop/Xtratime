@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
 import { AdSlot } from '@/components/AdSlot';
 import { ShareButtons } from '@/components/ShareButtons';
+import { ArticleLightbox } from '@/components/ArticleLightbox';
 import { api } from '@/lib/api';
 import { site } from '@/lib/site';
 import { formatDateTime } from '@/lib/format';
@@ -66,6 +67,7 @@ export default async function ArticlePage({ params }: Props) {
     <div className="mx-auto max-w-7xl px-4 py-6 lg:grid lg:grid-cols-[1fr_300px] lg:gap-10">
       {/* ── Main article ── */}
       <article>
+        <ArticleLightbox />
         {/* Breadcrumb / meta */}
         <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
           <Link
