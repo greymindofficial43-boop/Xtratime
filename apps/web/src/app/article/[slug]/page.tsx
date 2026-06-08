@@ -24,21 +24,28 @@ export async function generateMetadata({ params }: Props) {
   const article = await api.getArticle(slug).catch(() => null);
   if (!article) return { title: 'Article Not Found' };
   const images = article.featuredImage ? [article.featuredImage] : undefined;
+  // Per-post SEO overrides, with sensible fallbacks.
+  const metaTitle = article.metaTitle || article.title;
+  const metaDescription = article.metaDescription || article.excerpt || undefined;
+  const keywords = article.metaKeywords
+    ? article.metaKeywords.split(',').map((k) => k.trim()).filter(Boolean)
+    : undefined;
   return {
-    title: article.title,
-    description: article.excerpt ?? undefined,
+    title: metaTitle,
+    description: metaDescription,
+    keywords,
     alternates: { canonical: `/article/${article.slug}` },
     openGraph: {
       type: 'article',
-      title: article.title,
-      description: article.excerpt ?? undefined,
+      title: metaTitle,
+      description: metaDescription,
       images,
       publishedTime: article.publishedAt ?? undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: article.title,
-      description: article.excerpt ?? undefined,
+      title: metaTitle,
+      description: metaDescription,
       images,
     },
   };

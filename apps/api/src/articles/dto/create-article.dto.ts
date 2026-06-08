@@ -43,6 +43,19 @@ export class CreateArticleDto {
   @IsDateString()
   publishedAt?: string;
 
+  // SEO meta (per-post). Empty = fall back to title/excerpt on the site.
+  @IsOptional()
+  @IsString()
+  metaTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  metaDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  metaKeywords?: string;
+
   @IsOptional()
   @IsBoolean()
   isFeatured?: boolean;

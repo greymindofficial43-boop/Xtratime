@@ -74,6 +74,9 @@ export type Article = {
   tags: Tag[];
   publishedAt?: string | null;
   createdAt?: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
 };
 
 export type MatchStatus = 'live' | 'upcoming' | 'result';

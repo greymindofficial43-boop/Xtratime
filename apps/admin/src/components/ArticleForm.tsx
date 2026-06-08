@@ -45,6 +45,9 @@ export function ArticleForm({ article }: Props) {
     categoryId: string;
     tagIds: string[];
     publishedAt: string;
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string;
   }>({
     title: article?.title ?? '',
     excerpt: article?.excerpt ?? '',
@@ -58,6 +61,9 @@ export function ArticleForm({ article }: Props) {
     tagIds: article?.tags.map((t) => t.id) ?? [],
     // datetime-local value (local time). Existing date on edit, else now.
     publishedAt: toLocalInput(article?.publishedAt ? new Date(article.publishedAt) : new Date()),
+    metaTitle: article?.metaTitle ?? '',
+    metaDescription: article?.metaDescription ?? '',
+    metaKeywords: article?.metaKeywords ?? '',
   });
 
   useEffect(() => {
@@ -359,6 +365,62 @@ export function ArticleForm({ article }: Props) {
               </button>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* ── SEO settings (per-post meta tags) ── */}
+      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-sm font-semibold text-slate-700">🔍 SEO settings</h2>
+          <span className="text-xs text-slate-400">How this post appears on Google &amp; social shares</span>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Meta title</label>
+          <input
+            value={form.metaTitle}
+            onChange={(e) => update('metaTitle', e.target.value)}
+            placeholder={form.title || 'Defaults to the article title'}
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+          <p className={`mt-1 text-xs ${form.metaTitle.length > 60 ? 'text-red-500' : 'text-slate-400'}`}>
+            {form.metaTitle.length}/60 — leave blank to use the title.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Meta description</label>
+          <textarea
+            value={form.metaDescription}
+            onChange={(e) => update('metaDescription', e.target.value)}
+            rows={3}
+            placeholder={form.excerpt || 'Defaults to the excerpt'}
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+          <p className={`mt-1 text-xs ${form.metaDescription.length > 160 ? 'text-red-500' : 'text-slate-400'}`}>
+            {form.metaDescription.length}/160 — leave blank to use the excerpt.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Focus keywords</label>
+          <input
+            value={form.metaKeywords}
+            onChange={(e) => update('metaKeywords', e.target.value)}
+            placeholder="cricket, ipl, virat kohli"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+          <p className="mt-1 text-xs text-slate-400">Comma-separated keywords.</p>
+        </div>
+
+        {/* Live Google snippet preview */}
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Google preview</p>
+          <p className="truncate text-base text-[#1a0dab]">{form.metaTitle || form.title || 'Article title'}</p>
+          <p className="text-xs text-[#006621]">your-site › article</p>
+          <p className="line-clamp-2 text-sm text-slate-600">
+            {form.metaDescription || form.excerpt || 'Your meta description preview will appear here…'}
+          </p>
         </div>
       </div>
 

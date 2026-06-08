@@ -59,6 +59,9 @@ export type Article = {
   isTrending: boolean;
   viewCount: number;
   publishedAt?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  metaKeywords?: string | null;
   createdAt: string;
   author: Author;
   category: Pick<Category, 'id' | 'name' | 'slug' | 'color'>;

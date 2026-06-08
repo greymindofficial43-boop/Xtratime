@@ -115,6 +115,9 @@ export class ArticlesService {
         isFeatured: dto.isFeatured ?? false,
         isTrending: dto.isTrending ?? false,
         publishedAt,
+        metaTitle: dto.metaTitle,
+        metaDescription: dto.metaDescription,
+        metaKeywords: dto.metaKeywords,
         authorId,
         categoryId: dto.categoryId,
         tags: dto.tagIds?.length
@@ -164,6 +167,9 @@ export class ArticlesService {
         isFeatured: dto.isFeatured,
         isTrending: dto.isTrending,
         publishedAt,
+        metaTitle: dto.metaTitle,
+        metaDescription: dto.metaDescription,
+        metaKeywords: dto.metaKeywords,
         categoryId: dto.categoryId,
         tags: dto.tagIds
           ? { create: dto.tagIds.map((tagId) => ({ tagId })) }
