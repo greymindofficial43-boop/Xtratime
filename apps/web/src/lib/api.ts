@@ -9,6 +9,8 @@ export type Category = {
   color?: string | null;
   showInNav?: boolean;
   navOrder?: number;
+  showOnHomepage?: boolean;
+  homepageOrder?: number;
   sortOrder?: number;
   parentId?: string | null;
   children?: Category[];

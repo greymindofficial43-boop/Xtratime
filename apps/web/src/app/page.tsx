@@ -7,7 +7,8 @@ import { PromoBanner } from '@/components/PromoBanner';
 import { api } from '@/lib/api';
 import { fetchHomepageNews } from '@/lib/espn';
 
-const HOME_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gaming'];
+// Fallback sections, used only until categories are flagged "Show on homepage" in the admin.
+const FALLBACK_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gaming'];
 
 export default async function HomePage() {
   const [categories, latest, trending, espnNews] = await Promise.all([
@@ -22,9 +23,18 @@ export default async function HomePage() {
   const moreFeatured = moreStories[0];
   const moreList = moreStories.slice(1);
 
-  const sectionCategories = HOME_SECTION_SLUGS.map((slug) =>
-    categories.find((c) => c.slug === slug),
-  ).filter(Boolean) as typeof categories;
+  // Categories flagged "Show on homepage" (admin), ordered; fall back to the
+  // default slugs until any are flagged so the homepage is never empty.
+  const flagged = categories
+    .filter((c) => c.showOnHomepage)
+    .sort((a, b) => (a.homepageOrder ?? 99) - (b.homepageOrder ?? 99));
+
+  const sectionCategories =
+    flagged.length > 0
+      ? flagged
+      : (FALLBACK_SECTION_SLUGS.map((slug) => categories.find((c) => c.slug === slug)).filter(
+          Boolean,
+        ) as typeof categories);
 
   const sectionData = await Promise.all(
     sectionCategories.map(async (cat) => {

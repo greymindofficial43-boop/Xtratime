@@ -34,6 +34,14 @@ export class CreateCategoryDto {
   navOrder?: number;
 
   @IsOptional()
+  @IsBoolean()
+  showOnHomepage?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  homepageOrder?: number;
+
+  @IsOptional()
   @IsString()
   parentId?: string;
 }

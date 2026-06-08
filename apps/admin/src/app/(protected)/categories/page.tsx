@@ -45,6 +45,11 @@ export default function CategoriesPage() {
     await load();
   }
 
+  async function toggleHomepage(category: Category) {
+    await adminApi.updateCategory(category.id, { showOnHomepage: !category.showOnHomepage });
+    await load();
+  }
+
   return (
     <div className="max-w-5xl space-y-8">
       <div>
@@ -134,6 +139,7 @@ export default function CategoriesPage() {
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Slug</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Level</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Children</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Homepage</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Actions</th>
               </tr>
             </thead>
@@ -151,6 +157,20 @@ export default function CategoriesPage() {
                     </td>
                     <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>Top Level</td>
                     <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>{childCategories(category.id).length}</td>
+                    <td className="px-5 py-3">
+                      <button
+                        type="button"
+                        onClick={() => toggleHomepage(category)}
+                        title={category.showOnHomepage ? 'Showing as a homepage section — click to hide' : 'Not on homepage — click to show as a section'}
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition ${
+                          category.showOnHomepage
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                        }`}
+                      >
+                        {category.showOnHomepage ? '✓ On homepage' : 'Off'}
+                      </button>
+                    </td>
                     <td className="px-5 py-3">
                       <button
                         onClick={() => onDelete(category.id, category.name)}
@@ -173,6 +193,7 @@ export default function CategoriesPage() {
                       </td>
                       <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>Subcategory</td>
                       <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>0</td>
+                      <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>—</td>
                       <td className="px-5 py-3">
                         <button
                           onClick={() => onDelete(child.id, child.name)}
