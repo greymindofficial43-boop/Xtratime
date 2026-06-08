@@ -99,14 +99,16 @@ export default async function HomePage() {
         {/* Main grid: category sections + sidebar */}
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_300px]">
           <div className="space-y-0">
-            {sectionData.map(({ category, articles, popular }, idx) => (
+            {sectionData
+              .filter(({ articles }) => articles.length > 0)
+              .map(({ category, articles, popular }, idx, arr) => (
               <div key={category.id}>
                 <CategorySection
                   category={category}
                   articles={articles}
                   popular={popular.length > 0 ? popular : articles}
                 />
-                {(idx + 1) % 2 === 0 && idx < sectionData.length - 1 && (
+                {(idx + 1) % 2 === 0 && idx < arr.length - 1 && (
                   <div className="my-4 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
                     <AdSlot zone="inline" />
                   </div>
