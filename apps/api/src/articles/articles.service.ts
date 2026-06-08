@@ -97,8 +97,11 @@ export class ArticlesService {
 
   async create(authorId: string, dto: CreateArticleDto) {
     const slug = await this.ensureUniqueSlug(dto.slug ?? slugify(dto.title));
-    const publishedAt =
-      dto.status === ArticleStatus.PUBLISHED ? new Date() : null;
+    const publishedAt = dto.publishedAt
+      ? new Date(dto.publishedAt)
+      : dto.status === ArticleStatus.PUBLISHED
+        ? new Date()
+        : null;
 
     const article = await this.prisma.article.create({
       data: {
@@ -138,7 +141,9 @@ export class ArticlesService {
     }
 
     let publishedAt = existing.publishedAt;
-    if (dto.status === ArticleStatus.PUBLISHED && !existing.publishedAt) {
+    if (dto.publishedAt !== undefined) {
+      publishedAt = dto.publishedAt ? new Date(dto.publishedAt) : null;
+    } else if (dto.status === ArticleStatus.PUBLISHED && !existing.publishedAt) {
       publishedAt = new Date();
     }
 

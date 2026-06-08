@@ -135,6 +135,7 @@ export default function ArticlesPage() {
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Title</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Category</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Status</th>
+                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Date</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Featured</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Trending</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Actions</th>
@@ -168,6 +169,17 @@ export default function ArticlesPage() {
                       >
                         {s.label}
                       </span>
+                    </td>
+                    <td className="px-5 py-3 whitespace-nowrap text-xs" style={{ color: 'var(--admin-muted)' }}>
+                      {(article.publishedAt ?? article.createdAt)
+                        ? new Date((article.publishedAt ?? article.createdAt) as string).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          })
+                        : '—'}
                     </td>
                     <td className="px-5 py-3 text-center">
                       <button

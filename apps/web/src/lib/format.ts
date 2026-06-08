@@ -1,3 +1,18 @@
+// Exact date + time, e.g. "Jun 8, 2026, 3:40 PM"
+export function formatDateTime(dateStr?: string | null): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
 export function formatRelativeTime(dateStr?: string | null): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);

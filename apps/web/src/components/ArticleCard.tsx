@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatRelativeTime } from '@/lib/format';
+import { formatDateTime } from '@/lib/format';
 import type { Article } from '@/lib/api';
 
 type Props = {
@@ -35,7 +35,7 @@ function ArticleMeta({ article }: { article: Article }) {
     <p className="mt-1.5 text-xs">
       <span className="font-semibold text-[var(--sk-category)]">{article.category.name}</span>
       <span className="mx-1.5 text-[var(--sk-muted)]">•</span>
-      <span className="text-[var(--sk-muted)]">{formatRelativeTime(article.publishedAt)}</span>
+      <span className="text-[var(--sk-muted)]">{formatDateTime(article.publishedAt ?? article.createdAt)}</span>
     </p>
   );
 }
@@ -64,7 +64,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
           {article.title}
         </h3>
         <p className="mt-1 text-xs text-[var(--sk-muted)]">
-          {formatRelativeTime(article.publishedAt)}
+          {formatDateTime(article.publishedAt ?? article.createdAt)}
         </p>
       </Link>
     );
@@ -95,7 +95,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
             {article.title}
           </h2>
           <p className="mt-1.5 text-xs text-white/70">
-            {formatRelativeTime(article.publishedAt)}
+            {formatDateTime(article.publishedAt ?? article.createdAt)}
           </p>
         </div>
       </Link>
@@ -131,7 +131,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
             {article.title}
           </p>
           <p className="mt-0.5 text-xs text-[var(--sk-muted)]">
-            {formatRelativeTime(article.publishedAt)}
+            {formatDateTime(article.publishedAt ?? article.createdAt)}
           </p>
         </div>
       </Link>

@@ -72,6 +72,8 @@ export type Article = {
   categoryId: string;
   category: { id: string; name: string; slug: string; color?: string | null };
   tags: Tag[];
+  publishedAt?: string | null;
+  createdAt?: string;
 };
 
 export type MatchStatus = 'live' | 'upcoming' | 'result';

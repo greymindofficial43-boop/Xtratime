@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBoolean,
+  IsDateString,
   IsEnum,
   IsOptional,
   IsString,
@@ -36,6 +37,11 @@ export class CreateArticleDto {
   @IsOptional()
   @IsEnum(ArticleStatus)
   status?: ArticleStatus;
+
+  // ISO datetime; when set, overrides the auto "now" publish timestamp.
+  @IsOptional()
+  @IsDateString()
+  publishedAt?: string;
 
   @IsOptional()
   @IsBoolean()

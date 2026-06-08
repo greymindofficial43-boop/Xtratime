@@ -7,6 +7,12 @@ import { RichTextEditor } from './RichTextEditor';
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api').replace(/\/api$/, '');
 
+// Date -> value for <input type="datetime-local"> in the browser's local time.
+function toLocalInput(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 type Props = {
   article?: Article;
 };
@@ -36,6 +42,7 @@ export function ArticleForm({ article }: Props) {
     isTrending: boolean;
     categoryId: string;
     tagIds: string[];
+    publishedAt: string;
   }>({
     title: article?.title ?? '',
     excerpt: article?.excerpt ?? '',
@@ -47,6 +54,8 @@ export function ArticleForm({ article }: Props) {
     isTrending: article?.isTrending ?? false,
     categoryId: article?.categoryId ?? '',
     tagIds: article?.tags.map((t) => t.id) ?? [],
+    // datetime-local value (local time). Existing date on edit, else now.
+    publishedAt: toLocalInput(article?.publishedAt ? new Date(article.publishedAt) : new Date()),
   });
 
   useEffect(() => {
@@ -122,6 +131,7 @@ export function ArticleForm({ article }: Props) {
       const payload = {
         ...form,
         status: form.status as Article['status'],
+        publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : undefined,
       };
       if (isEdit && article) {
         await adminApi.updateArticle(article.id, payload);
@@ -297,6 +307,16 @@ export function ArticleForm({ article }: Props) {
               <option value="PUBLISHED">Published</option>
               <option value="ARCHIVED">Archived</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Publish date &amp; time</label>
+            <input
+              type="datetime-local"
+              value={form.publishedAt}
+              onChange={(e) => update('publishedAt', e.target.value)}
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+            />
+            <p className="mt-1 text-xs text-slate-400">Shown on the article. Defaults to now; change it to backdate.</p>
           </div>
         </div>
 

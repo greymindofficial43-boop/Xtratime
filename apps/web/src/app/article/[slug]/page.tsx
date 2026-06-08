@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
 import { AdSlot } from '@/components/AdSlot';
 import { api } from '@/lib/api';
-import { formatRelativeTime } from '@/lib/format';
+import { formatDateTime } from '@/lib/format';
 import { sanitizeArticleHtml } from '@/lib/sanitize';
 import { notFound } from 'next/navigation';
 
@@ -67,7 +67,7 @@ export default async function ArticlePage({ params }: Props) {
           </Link>
           <span className="text-[var(--sk-muted)]">•</span>
           <span className="text-[var(--sk-muted)]">
-            {formatRelativeTime(article.publishedAt)}
+            {formatDateTime(article.publishedAt ?? article.createdAt)}
           </span>
           {article.isTrending && (
             <span className="rounded-full bg-[var(--sk-accent)]/15 px-2.5 py-0.5 text-xs font-bold text-[var(--sk-accent)]">
