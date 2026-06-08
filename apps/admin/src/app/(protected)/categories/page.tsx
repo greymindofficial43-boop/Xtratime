@@ -50,6 +50,12 @@ export default function CategoriesPage() {
     await load();
   }
 
+  async function setHomepageOrder(category: Category, order: number) {
+    if (Number.isNaN(order) || order === (category.homepageOrder ?? 99)) return;
+    await adminApi.updateCategory(category.id, { homepageOrder: order });
+    await load();
+  }
+
   return (
     <div className="max-w-5xl space-y-8">
       <div>
@@ -158,18 +164,30 @@ export default function CategoriesPage() {
                     <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>Top Level</td>
                     <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>{childCategories(category.id).length}</td>
                     <td className="px-5 py-3">
-                      <button
-                        type="button"
-                        onClick={() => toggleHomepage(category)}
-                        title={category.showOnHomepage ? 'Showing as a homepage section — click to hide' : 'Not on homepage — click to show as a section'}
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition ${
-                          category.showOnHomepage
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                        }`}
-                      >
-                        {category.showOnHomepage ? '✓ On homepage' : 'Off'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleHomepage(category)}
+                          title={category.showOnHomepage ? 'Showing as a homepage section — click to hide' : 'Not on homepage — click to show as a section'}
+                          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold transition ${
+                            category.showOnHomepage
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                          }`}
+                        >
+                          {category.showOnHomepage ? '✓ On homepage' : 'Off'}
+                        </button>
+                        {category.showOnHomepage && (
+                          <input
+                            type="number"
+                            min={1}
+                            defaultValue={category.homepageOrder ?? 99}
+                            onBlur={(e) => setHomepageOrder(category, Number(e.target.value))}
+                            title="Order on homepage (lower number shows first)"
+                            className="w-14 rounded border border-slate-300 px-1.5 py-0.5 text-xs"
+                          />
+                        )}
+                      </div>
                     </td>
                     <td className="px-5 py-3">
                       <button
