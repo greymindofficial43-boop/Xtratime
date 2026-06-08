@@ -194,11 +194,31 @@ export default function NavigationBuilderPage() {
 
   return (
     <div className="max-w-6xl space-y-6 pb-20">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--admin-text)' }}>Menu Builder</h1>
-        <p className="mt-1 text-sm" style={{ color: 'var(--admin-muted)' }}>
-          Add categories or custom links from the left column, then drag and drop them to arrange your site's navigation.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--admin-text)' }}>Menu Builder</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--admin-muted)' }}>
+            Add categories or custom links from the left column, then drag and drop them to arrange your site&apos;s navigation.
+          </p>
+        </div>
+        {mainItems.length === 0 && (
+          <button
+            type="button"
+            disabled={saving === 'seed'}
+            onClick={async () => {
+              setSaving('seed');
+              try {
+                await adminApi.seedMenus();
+                await load();
+              } finally {
+                setSaving(null);
+              }
+            }}
+            className="shrink-0 rounded-lg bg-[var(--admin-accent)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {saving === 'seed' ? 'Loading…' : '✨ Load default menu'}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[300px_1fr]">
