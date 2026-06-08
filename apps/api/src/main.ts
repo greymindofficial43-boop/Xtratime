@@ -8,11 +8,14 @@ async function bootstrap() {
   // Increase payload limits to allow large article content uploads
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
-  const corsOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:3000').split(',');
-
+  // Auth is via Bearer token (Authorization header, stored client-side) — not
+  // cookies — so we don't need credentialed CORS. We allow all origins because
+  // the reverse proxy (LiteSpeed/Nginx) can strip the Origin header, which would
+  // otherwise break origin-reflection. Public read API + token-gated writes.
   app.enableCors({
-    origin: corsOrigins.map((o) => o.trim()),
-    credentials: true,
+    origin: '*',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.useGlobalPipes(
@@ -30,4 +33,9 @@ async function bootstrap() {
   console.log(`API running on http://localhost:${port}/api`);
 }
 
-bootstrap();
+// Exit on startup failure (e.g. DB not ready yet at boot) so PM2 restarts us
+// and retries until Postgres is up — prevents the "online but dead" boot race.
+bootstrap().catch((err) => {
+  console.error('Failed to start API:', err);
+  process.exit(1);
+});
