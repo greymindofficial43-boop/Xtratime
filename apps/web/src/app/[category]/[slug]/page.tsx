@@ -1,20 +1,20 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { api } from '@/lib/api';
-import { sanitize } from '@/lib/sanitize';
+import { sanitizeArticleHtml } from '@/lib/sanitize';
 import { formatDateTime } from '@/lib/format';
 import { ShareButtons } from '@/components/ShareButtons';
 import { ArticleCard } from '@/components/ArticleCard';
 import { AdSlot } from '@/components/AdSlot';
-import { RandomAdInjector } from '@/components/RandomAdInjector';
 
 type Props = {
-  params: { slug: string; category: string };
+  params: Promise<{ slug: string; category: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
-  const article = await api.getArticle(params.slug).catch(() => null);
-  if (!article || article.category.slug !== params.category) {
+  const { slug, category } = await params;
+  const article = await api.getArticle(slug).catch(() => null);
+  if (!article || article.category.slug !== category) {
     return { title: 'Not Found' };
   }
 
@@ -47,18 +47,19 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function ArticlePage({ params }: Props) {
-  const article = await api.getArticle(params.slug).catch(() => null);
-  if (!article || article.category.slug !== params.category) {
+  const { slug, category } = await params;
+  const article = await api.getArticle(slug).catch(() => null);
+  if (!article || article.category.slug !== category) {
     notFound();
   }
 
-  const relatedArticles = await api.getArticles({
+  const relatedRes = await api.getArticles({
     categoryId: article.category.id,
-    exclude: article.id,
-    limit: 4,
+    limit: 5,
   });
+  const relatedArticles = relatedRes.items.filter((a) => a.id !== article.id).slice(0, 4);
 
-  const sanitizedContent = sanitize(article.content);
+  const sanitizedContent = sanitizeArticleHtml(article.content);
 
   return (
     <div className="mx-auto max-w-[1200px] px-3 sm:px-5">
@@ -83,12 +84,11 @@ export default async function ArticlePage({ params }: Props) {
                 <ShareButtons
                   url={`/${article.category.slug}/${article.slug}`}
                   title={article.title}
-                  className="justify-start"
                 />
               </div>
             </header>
 
-            <AdSlot slotId="article-top" className="my-4" />
+            <AdSlot zone="article-top" className="my-4" />
 
             {article.featuredImage && (
               <div className="relative my-5 aspect-video overflow-hidden rounded-xl">
@@ -107,7 +107,7 @@ export default async function ArticlePage({ params }: Props) {
               dangerouslySetInnerHTML={{ __html: sanitizedContent }}
             />
 
-            <AdSlot slotId="article-bottom" className="my-4" />
+            <AdSlot zone="article-bottom" className="my-4" />
 
             <footer className="mt-8 border-t border-[var(--sk-border)] pt-6">
               <div className="flex items-center justify-between">
@@ -115,7 +115,6 @@ export default async function ArticlePage({ params }: Props) {
                 <ShareButtons
                   url={`/${article.category.slug}/${article.slug}`}
                   title={article.title}
-                  className="justify-end"
                 />
               </div>
             </footer>
@@ -125,14 +124,12 @@ export default async function ArticlePage({ params }: Props) {
         {/* Sidebar */}
         <aside className="col-span-12 lg:col-span-4">
           <div className="sticky top-[65px] py-4 md:py-6">
-            <AdSlot slotId="sidebar" className="mb-5" />
+            <AdSlot zone="sidebar" className="mb-5" />
             <h3 className="text-xl font-bold">More from {article.category.name}</h3>
             <div className="mt-3 flex flex-col">
-              <RandomAdInjector>
-                {relatedArticles.map((related) => (
-                  <ArticleCard key={related.id} article={related} size="list" />
-                ))}
-              </RandomAdInjector>
+              {relatedArticles.map((related) => (
+                <ArticleCard key={related.id} article={related} size="list" />
+              ))}
             </div>
           </div>
         </aside>

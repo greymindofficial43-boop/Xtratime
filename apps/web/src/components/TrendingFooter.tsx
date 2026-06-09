@@ -17,7 +17,7 @@ export async function TrendingFooter() {
           {articles.map((article) => (
             <Link
               key={article.id}
-              href={`/article/${article.slug}`}
+              href={`/${article.category.slug}/${article.slug}`}
               className="group flex flex-col rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface-elevated)] p-4 shadow-sm transition hover:border-[var(--sk-accent)] hover:shadow-md"
             >
               <div className="mb-3 flex items-center gap-2">
