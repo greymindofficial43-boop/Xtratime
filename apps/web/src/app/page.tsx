@@ -4,22 +4,38 @@ import { CategorySection } from '@/components/CategorySection';
 import { EspnNewsCard } from '@/components/EspnNewsCard';
 import { LiveScoresSection } from '@/components/LiveScoresSection';
 import { PromoBanner } from '@/components/PromoBanner';
-import { api } from '@/lib/api';
+import { api, type Article } from '@/lib/api';
 import { fetchHomepageNews } from '@/lib/espn';
 
 // Fallback sections, used only until categories are flagged "Show on homepage" in the admin.
 const FALLBACK_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gaming'];
 
+// Keep the first occurrence of each article id, preserving order. Used to put
+// editor-featured articles ahead of the newest-first fallback without dupes.
+function dedupeById(items: Article[]): Article[] {
+  const seen = new Set<string>();
+  return items.filter((a) => {
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
+    return true;
+  });
+}
+
 export default async function HomePage() {
-  const [categories, latest, trending, espnNews] = await Promise.all([
+  const [categories, latest, featured, trending, espnNews] = await Promise.all([
     api.getCategories().catch(() => []),
     api.getArticles({ limit: 20 }).catch(() => ({ items: [] })),
+    api.getArticles({ featured: true, limit: 10 }).catch(() => ({ items: [] })),
     api.getArticles({ trending: true, limit: 5 }).catch(() => ({ items: [] })),
     fetchHomepageNews(4),
   ]);
 
-  const topStories = latest.items.slice(0, 4);
-  const moreStories = latest.items.slice(4, 10);
+  // Editor-controlled placement: articles flagged "Featured" (★) in the admin
+  // fill the large hero slots first (Top Stories, then More Stories hero);
+  // everything else falls back to newest-first so the homepage is never empty.
+  const ordered = dedupeById([...featured.items, ...latest.items]);
+  const topStories = ordered.slice(0, 4);
+  const moreStories = ordered.slice(4, 10);
   const moreFeatured = moreStories[0];
   const moreList = moreStories.slice(1);
 
@@ -42,7 +58,14 @@ export default async function HomePage() {
         api.getArticles({ category: cat.slug, limit: 6 }).catch(() => ({ items: [] })),
         api.getArticles({ category: cat.slug, trending: true, limit: 5 }).catch(() => ({ items: [] })),
       ]);
-      return { category: cat, articles: articles.items, popular: popular.items };
+      // A Featured (★) article in this category takes the section's hero slot;
+      // otherwise the newest article does.
+      const catFeatured = featured.items.filter((a) => a.category.slug === cat.slug);
+      return {
+        category: cat,
+        articles: dedupeById([...catFeatured, ...articles.items]),
+        popular: popular.items,
+      };
     }),
   );
 

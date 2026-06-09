@@ -347,23 +347,30 @@ export function ArticleForm({ article }: Props) {
           </div>
         </div>
 
-        <div className="flex gap-6">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.isFeatured}
-              onChange={(e) => update('isFeatured', e.target.checked)}
-            />
-            Featured on homepage
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.isTrending}
-              onChange={(e) => update('isTrending', e.target.checked)}
-            />
-            Trending sidebar
-          </label>
+        <div>
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.isFeatured}
+                onChange={(e) => update('isFeatured', e.target.checked)}
+              />
+              Featured on homepage
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.isTrending}
+                onChange={(e) => update('isTrending', e.target.checked)}
+              />
+              Trending sidebar
+            </label>
+          </div>
+          <p className="mt-1.5 text-xs text-slate-400">
+            Featured articles take the large hero slots on the homepage (Top Stories, the
+            More Stories hero, and their category section). Tip: give a featured article a
+            good image so the big slot looks its best.
+          </p>
         </div>
 
         <div>
