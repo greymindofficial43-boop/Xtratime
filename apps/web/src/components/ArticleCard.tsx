@@ -41,7 +41,7 @@ function ArticleMeta({ article }: { article: Article }) {
 }
 
 export function ArticleCard({ article, size = 'default', rank }: Props) {
-  const href = `/article/${article.slug}`;
+  const href = `/${article.category.slug}/${article.slug}`;
   const image = article.featuredImage || getYouTubeThumbnail(article.videoUrl) || FALLBACK_IMAGE;
   const hasVideo = !!article.videoUrl;
 

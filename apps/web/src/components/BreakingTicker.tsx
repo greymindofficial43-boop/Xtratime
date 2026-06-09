@@ -5,7 +5,11 @@ export async function BreakingTicker() {
   const latest = await api.getArticles({ limit: 10 }).catch(() => ({ items: [] }));
   if (!latest.items.length) return null;
 
-  const headlines = latest.items.map((a) => ({ title: a.title, slug: a.slug }));
+  const headlines = latest.items.map((a) => ({
+    title: a.title,
+    slug: a.slug,
+    categorySlug: a.category.slug,
+  }));
 
   return (
     <div className="sk-ticker-wrap flex h-[34px] items-stretch overflow-hidden border-b border-[var(--sk-header-border)] bg-[var(--sk-header-bg)]">
@@ -18,7 +22,7 @@ export async function BreakingTicker() {
           {[...headlines, ...headlines].map((h, i) => (
             <span key={i} className="inline-flex items-center">
               <Link
-                href={`/article/${h.slug}`}
+                href={`/${h.categorySlug}/${h.slug}`}
                 className="inline-block whitespace-nowrap px-5 text-[13px] font-medium text-[var(--sk-header-nav)] transition-colors hover:text-white"
               >
                 {h.title}
