@@ -65,7 +65,8 @@ export function MobileNav({ navItems }: Props) {
                     width={160}
                     height={48}
                     unoptimized={isExternal(branding.logoPrimary)}
-                    className="h-9 w-auto"
+                    className="w-auto object-contain"
+                    style={{ height: '2.25rem' }}
                   />
                 </span>
                 {/* Secondary logo removed from mobile drawer — primary only */}
