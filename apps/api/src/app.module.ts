@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { MatchesModule } from './matches/matches.module';
 import { AdsModule } from './ads/ads.module';
 import { MenusModule } from './menus/menus.module';
+import { HomeSectionsModule } from './home-sections/home-sections.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { TestBodyController } from './test-body.controller';
 
@@ -32,6 +33,7 @@ import { TestBodyController } from './test-body.controller';
     MatchesModule,
     AdsModule,
     MenusModule,
+    HomeSectionsModule,
     UploadsModule,
   ],
   controllers: [TestBodyController],

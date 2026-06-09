@@ -38,6 +38,14 @@ export type Tag = {
   slug: string;
 };
 
+export type HomeSection = {
+  id: string;
+  key: string;
+  title: string;
+  enabled: boolean;
+  sortOrder: number;
+};
+
 export type MenuItemType = 'INTERNAL' | 'CATEGORY' | 'EXTERNAL';
 export type MenuItemPlacement = 'MAIN' | 'MEGA';
 
@@ -200,6 +208,13 @@ export const adminApi = {
     apiFetch('/menus/reorder', { method: 'POST', body: JSON.stringify({ updates }) }),
   deleteMenu: (id: string) => apiFetch(`/menus/${id}`, { method: 'DELETE' }),
   seedMenus: () => apiFetch<{ created: number; skipped: boolean }>('/menus/seed-defaults', { method: 'POST' }),
+
+  getHomeSections: () => apiFetch<HomeSection[]>('/home-sections'),
+  updateHomeSection: (id: string, data: Partial<Pick<HomeSection, 'title' | 'enabled' | 'sortOrder'>>) =>
+    apiFetch<HomeSection>(`/home-sections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  reorderHomeSections: (updates: { id: string; sortOrder: number }[]) =>
+    apiFetch('/home-sections/reorder', { method: 'POST', body: JSON.stringify({ updates }) }),
+  seedHomeSections: () => apiFetch<{ created: number }>('/home-sections/seed-defaults', { method: 'POST' }),
 
   getArticles: (params?: Record<string, string>) => {
     const qs = params ? `?${new URLSearchParams(params)}` : '';

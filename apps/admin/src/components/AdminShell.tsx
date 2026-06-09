@@ -28,6 +28,7 @@ const NAV_SECTIONS = [
     label: 'Navigation',
     items: [
       { href: '/navigation', label: 'Menus', icon: '☰' },
+      { href: '/homepage', label: 'Homepage', icon: '⌂' },
     ],
   },
   {

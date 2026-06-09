@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { AdSlot } from '@/components/AdSlot';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategorySection } from '@/components/CategorySection';
@@ -9,6 +10,27 @@ import { fetchHomepageNews } from '@/lib/espn';
 
 // Fallback sections, used only until categories are flagged "Show on homepage" in the admin.
 const FALLBACK_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gaming'];
+
+// Default homepage block order/titles — used when the admin config is missing
+// (e.g. before the HomeSection migration runs) so the page always renders.
+const DEFAULT_SECTION_ORDER = [
+  'live-scores',
+  'top-stories',
+  'more-stories',
+  'promo',
+  'category-sections',
+  'espn-news',
+  'trending',
+];
+const DEFAULT_TITLES: Record<string, string> = {
+  'live-scores': 'Live Scores',
+  'top-stories': 'Top Stories',
+  'more-stories': 'More Stories',
+  promo: 'Promo Banner',
+  'category-sections': 'Category Sections',
+  'espn-news': 'Latest from ESPN',
+  trending: 'Trending Now',
+};
 
 // Keep the first occurrence of each article id, preserving order. Used to put
 // editor-featured articles ahead of the newest-first fallback without dupes.
@@ -22,13 +44,21 @@ function dedupeById(items: Article[]): Article[] {
 }
 
 export default async function HomePage() {
-  const [categories, latest, featured, trending, espnNews] = await Promise.all([
+  const [categories, latest, featured, trending, espnNews, homeSections] = await Promise.all([
     api.getCategories().catch(() => []),
     api.getArticles({ limit: 20 }).catch(() => ({ items: [] })),
     api.getArticles({ featured: true, limit: 10 }).catch(() => ({ items: [] })),
     api.getArticles({ trending: true, limit: 5 }).catch(() => ({ items: [] })),
     fetchHomepageNews(4),
+    api.getHomeSections().catch(() => []),
   ]);
+
+  // Admin-controlled homepage config (show/hide, order, custom titles). Falls
+  // back to sensible defaults for any block the admin hasn't configured.
+  const byKey = new Map(homeSections.map((s) => [s.key, s]));
+  const enabled = (key: string) => byKey.get(key)?.enabled ?? true;
+  const title = (key: string) => byKey.get(key)?.title || DEFAULT_TITLES[key] || '';
+  const orderOf = (key: string) => byKey.get(key)?.sortOrder ?? DEFAULT_SECTION_ORDER.indexOf(key);
 
   // Editor-controlled placement: articles flagged "Featured" (★) in the admin
   // fill the large hero slots first (Top Stories, then More Stories hero);
@@ -69,9 +99,154 @@ export default async function HomePage() {
     }),
   );
 
+  const sidebar = (
+    <aside className="hidden lg:block">
+      <div className="sticky top-24 space-y-6">
+        <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+          <AdSlot zone="sidebar" />
+        </div>
+        {enabled('trending') && (
+          <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-5">
+            <h2 className="sk-section-heading mb-4 text-sm font-black uppercase tracking-wide text-[var(--sk-text)]">
+              {title('trending')}
+            </h2>
+            {trending.items.length > 0 ? (
+              <div className="space-y-0.5">
+                {trending.items.map((article, i) => (
+                  <ArticleCard key={article.id} article={article} size="numbered" rank={i + 1} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--sk-muted)]">No trending stories yet.</p>
+            )}
+          </div>
+        )}
+        <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+          <AdSlot zone="sidebar" />
+        </div>
+      </div>
+    </aside>
+  );
+
+  // Build the reorderable main-column blocks. Live Scores (top, full-width) and
+  // Trending (sidebar) keep fixed positions and are handled separately.
+  const blocks: { key: string; node: ReactNode }[] = [];
+
+  if (enabled('top-stories') && topStories.length > 0) {
+    blocks.push({
+      key: 'top-stories',
+      node: (
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
+              {title('top-stories')}
+            </h2>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-2 sk-scrollbar-hide sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4">
+            {topStories.map((article) => (
+              <ArticleCard key={article.id} article={article} size="grid" />
+            ))}
+          </div>
+        </section>
+      ),
+    });
+  }
+
+  if (enabled('more-stories') && moreFeatured) {
+    blocks.push({
+      key: 'more-stories',
+      node: (
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
+              {title('more-stories')}
+            </h2>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+            <ArticleCard article={moreFeatured} size="hero" />
+            <div className="divide-y divide-[var(--sk-border)] rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] px-3">
+              {moreList.map((article) => (
+                <ArticleCard key={article.id} article={article} size="list" />
+              ))}
+            </div>
+          </div>
+        </section>
+      ),
+    });
+  }
+
+  if (enabled('promo')) {
+    blocks.push({ key: 'promo', node: <PromoBanner /> });
+  }
+
+  if (enabled('category-sections')) {
+    const visibleSections = sectionData.filter(({ articles }) => articles.length > 0);
+    if (visibleSections.length > 0) {
+      blocks.push({
+        key: 'category-sections',
+        node: (
+          <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
+            <div className="space-y-0">
+              {visibleSections.map(({ category, articles, popular }, idx, arr) => (
+                <div key={category.id}>
+                  <CategorySection
+                    category={category}
+                    articles={articles}
+                    popular={popular.length > 0 ? popular : articles}
+                  />
+                  {(idx + 1) % 2 === 0 && idx < arr.length - 1 && (
+                    <div className="my-4 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+                      <AdSlot zone="home-infeed" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            {sidebar}
+          </div>
+        ),
+      });
+    }
+  }
+
+  if (enabled('espn-news') && espnNews.length > 0) {
+    blocks.push({
+      key: 'espn-news',
+      node: (
+        <section className="border-t border-[var(--sk-border)] pt-8">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="sk-section-heading text-xl font-black uppercase tracking-tight text-[var(--sk-text)]">
+              {title('espn-news')}
+            </h2>
+            <span className="rounded-full border border-[var(--sk-border)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--sk-muted)]">
+              ESPN
+            </span>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+            <EspnNewsCard news={espnNews[0]} size="hero" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              {espnNews.slice(1, 5).map((news) => (
+                <EspnNewsCard key={news.id} news={news} />
+              ))}
+            </div>
+          </div>
+          {espnNews.length > 5 && (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {espnNews.slice(5, 9).map((news) => (
+                <EspnNewsCard key={news.id} news={news} />
+              ))}
+            </div>
+          )}
+        </section>
+      ),
+    });
+  }
+
+  blocks.sort((a, b) => orderOf(a.key) - orderOf(b.key));
+
   return (
     <>
-      <LiveScoresSection />
+      {enabled('live-scores') && <LiveScoresSection />}
 
       {/* Leaderboard ad below live scores */}
       <div className="border-b border-[var(--sk-border)] bg-[var(--sk-surface)] px-4 py-3">
@@ -83,129 +258,24 @@ export default async function HomePage() {
       <div className="mx-auto max-w-7xl px-4 py-6">
         <h1 className="sr-only">Xtra Time — Sports, Entertainment, Gaming News</h1>
 
-        {/* Top Stories */}
-        {topStories.length > 0 ? (
-          <section>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
-                Top Stories
-              </h2>
-            </div>
-            <div className="flex gap-4 overflow-x-auto pb-2 sk-scrollbar-hide sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4">
-              {topStories.map((article) => (
-                <ArticleCard key={article.id} article={article} size="grid" />
-              ))}
-            </div>
-          </section>
-        ) : (
-          <div className="rounded-lg border border-dashed border-[var(--sk-border)] p-16 text-center text-[var(--sk-muted)]">
-            No articles yet — add content from the admin panel.
-          </div>
-        )}
-
-        {/* In-content ad */}
-        <div className="my-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-          <AdSlot zone="home-infeed" />
-        </div>
-
-        {/* More Stories (admin articles) */}
-        {moreFeatured && (
-          <section className="mt-2">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
-                More Stories
-              </h2>
-            </div>
-            <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-              <ArticleCard article={moreFeatured} size="hero" />
-              <div className="divide-y divide-[var(--sk-border)] rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] px-3">
-                {moreList.map((article) => (
-                  <ArticleCard key={article.id} article={article} size="list" />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        <PromoBanner />
-
-        {/* Main grid: category sections + sidebar */}
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_300px]">
-          <div className="space-y-0">
-            {sectionData
-              .filter(({ articles }) => articles.length > 0)
-              .map(({ category, articles, popular }, idx, arr) => (
-              <div key={category.id}>
-                <CategorySection
-                  category={category}
-                  articles={articles}
-                  popular={popular.length > 0 ? popular : articles}
-                />
-                {(idx + 1) % 2 === 0 && idx < arr.length - 1 && (
-                  <div className="my-4 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
+        {blocks.length > 0 ? (
+          <div className="space-y-10">
+            {blocks.map((block, idx) => (
+              <div key={block.key}>
+                {block.node}
+                {/* In-content ad after the first block */}
+                {idx === 0 && (
+                  <div className="mt-8 rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
                     <AdSlot zone="home-infeed" />
                   </div>
                 )}
               </div>
             ))}
           </div>
-
-          {/* Sticky sidebar */}
-          <aside className="hidden lg:block">
-            <div className="sticky top-24 space-y-6">
-              <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-                <AdSlot zone="sidebar" />
-              </div>
-              <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-5">
-                <h2 className="sk-section-heading mb-4 text-sm font-black uppercase tracking-wide text-[var(--sk-text)]">
-                  Trending Now
-                </h2>
-                {trending.items.length > 0 ? (
-                  <div className="space-y-0.5">
-                    {trending.items.map((article, i) => (
-                      <ArticleCard key={article.id} article={article} size="numbered" rank={i + 1} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-[var(--sk-muted)]">No trending stories yet.</p>
-                )}
-              </div>
-              <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-                <AdSlot zone="sidebar" />
-              </div>
-            </div>
-          </aside>
-        </div>
-
-        {/* ESPN News Section */}
-        {espnNews.length > 0 && (
-          <section className="mt-10 border-t border-[var(--sk-border)] pt-8">
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="sk-section-heading text-xl font-black uppercase tracking-tight text-[var(--sk-text)]">
-                Latest from ESPN
-              </h2>
-              <span className="rounded-full border border-[var(--sk-border)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--sk-muted)]">
-                ESPN
-              </span>
-            </div>
-            {/* Hero + grid layout */}
-            <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-              <EspnNewsCard news={espnNews[0]} size="hero" />
-              <div className="grid gap-4 sm:grid-cols-2">
-                {espnNews.slice(1, 5).map((news) => (
-                  <EspnNewsCard key={news.id} news={news} />
-                ))}
-              </div>
-            </div>
-            {/* Second row */}
-            {espnNews.length > 5 && (
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {espnNews.slice(5, 9).map((news) => (
-                  <EspnNewsCard key={news.id} news={news} />
-                ))}
-              </div>
-            )}
-          </section>
+        ) : (
+          <div className="rounded-lg border border-dashed border-[var(--sk-border)] p-16 text-center text-[var(--sk-muted)]">
+            No content to show yet — add articles or enable sections from the admin panel.
+          </div>
         )}
 
         {/* Footer banner ad */}
