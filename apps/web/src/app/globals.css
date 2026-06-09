@@ -16,9 +16,17 @@
   --sn-category:      #b45309;
   --sn-prose:         #374151;
   --sn-hover:         rgba(0,0,0,0.04);
-  --sn-header-bg:     #0a0c10;
-  --sn-header-border: #1e2028;
-  --sn-header-nav:    #9ca3af;
+  /* Chrome (header / footer / nav / menus). Theme-aware: light here, dark in .dark. */
+  --sn-header-bg:     #ffffff;
+  --sn-header-border: #e2e5ea;
+  --sn-header-nav:    #4b5563;
+  --sn-nav-strong:    #0d1117;
+  --sn-menu-bg:       #ffffff;
+  --sn-menu-bg-2:     #f7f8fa;
+  --sn-menu-border:   #e2e5ea;
+  --sn-menu-hover:    #eef0f4;
+  --sn-menu-muted:    #6b7280;
+  --sn-accent-soft:   #fdece9;
   --sn-shadow-sm:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
   --sn-shadow-md:     0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.07);
   --sn-shadow-lg:     0 10px 32px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.08);
@@ -60,6 +68,17 @@
   --sn-category:      #fbbf24;
   --sn-prose:         #cbd5e1;
   --sn-hover:         rgba(255,255,255,0.06);
+  /* Chrome — dark values (override the light defaults from :root). */
+  --sn-header-bg:     #0a0c10;
+  --sn-header-border: #1e2028;
+  --sn-header-nav:    #9ca3af;
+  --sn-nav-strong:    #ffffff;
+  --sn-menu-bg:       #13151c;
+  --sn-menu-bg-2:     #1a1c23;
+  --sn-menu-border:   #2a2c35;
+  --sn-menu-hover:    #1e2028;
+  --sn-menu-muted:    #8b909c;
+  --sn-accent-soft:   #1a0e0a;
   --sn-shadow-sm:     0 1px 3px rgba(0,0,0,0.4);
   --sn-shadow-md:     0 4px 16px rgba(0,0,0,0.5);
   --sn-shadow-lg:     0 10px 32px rgba(0,0,0,0.6);
@@ -105,7 +124,7 @@ body {
   letter-spacing: -0.04em;
   line-height: 1;
   text-decoration: none;
-  color: #ffffff;
+  color: var(--sn-nav-strong);
   display: inline-flex;
   align-items: baseline;
   gap: 0;

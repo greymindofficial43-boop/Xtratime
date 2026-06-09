@@ -33,7 +33,7 @@ export function HeaderMoreMenu({ categories, topNavSlugs }: Props) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="sk-more-btn flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[var(--sk-header-nav)] transition hover:text-white"
+        className="sk-more-btn flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[var(--sk-header-nav)] transition hover:text-[var(--sn-nav-strong)]"
         aria-expanded={open}
         aria-label="More menu"
       >
@@ -60,7 +60,7 @@ export function HeaderMoreMenu({ categories, topNavSlugs }: Props) {
             <Link
               href={site.adminUrl}
               onClick={() => setOpen(false)}
-              className="block px-4 py-2.5 text-sm font-semibold text-[var(--sk-accent)] hover:bg-[#2a2a2b]"
+              className="block px-4 py-2.5 text-sm font-semibold text-[var(--sk-accent)] hover:bg-[var(--sn-menu-hover)]"
             >
               Log in
             </Link>
@@ -69,7 +69,7 @@ export function HeaderMoreMenu({ categories, topNavSlugs }: Props) {
           {moreCategories.length > 0 && (
             <>
               <div className="border-t border-[var(--sk-header-border)] px-4 py-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#666]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--sn-menu-muted)]">
                   More Sports
                 </p>
               </div>
@@ -79,7 +79,7 @@ export function HeaderMoreMenu({ categories, topNavSlugs }: Props) {
                     key={cat.id}
                     href={`/category/${cat.slug}`}
                     onClick={() => setOpen(false)}
-                    className="block px-4 py-2 text-sm font-semibold text-[#808080] hover:bg-[#2a2a2b] hover:text-white"
+                    className="block px-4 py-2 text-sm font-semibold text-[var(--sn-menu-muted)] hover:bg-[var(--sn-menu-hover)] hover:text-[var(--sn-nav-strong)]"
                   >
                     {cat.icon} {cat.name}
                   </Link>

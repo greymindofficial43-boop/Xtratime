@@ -56,13 +56,13 @@ export function Footer() {
 
           {/* Explore */}
           <div>
-            <p className="mb-4 text-xs font-black uppercase tracking-widest text-white">Explore</p>
+            <p className="mb-4 text-xs font-black uppercase tracking-widest text-[var(--sn-nav-strong)]">Explore</p>
             <ul className="space-y-2.5">
               {FOOTER_LINKS.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[var(--sn-header-nav)] transition hover:text-white"
+                    className="text-sm text-[var(--sn-header-nav)] transition hover:text-[var(--sn-nav-strong)]"
                   >
                     {link.label}
                   </Link>
@@ -73,13 +73,13 @@ export function Footer() {
 
           {/* Sports */}
           <div>
-            <p className="mb-4 text-xs font-black uppercase tracking-widest text-white">Sports</p>
+            <p className="mb-4 text-xs font-black uppercase tracking-widest text-[var(--sn-nav-strong)]">Sports</p>
             <div className="flex flex-wrap gap-2">
               {SPORTS_LINKS.map((sport) => (
                 <Link
                   key={sport.slug}
                   href={`/category/${sport.slug}`}
-                  className="rounded-lg border border-[var(--sn-header-border)] px-2.5 py-1 text-xs text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-white"
+                  className="rounded-lg border border-[var(--sn-header-border)] px-2.5 py-1 text-xs text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-[var(--sn-nav-strong)]"
                 >
                   {sport.label}
                 </Link>
@@ -89,7 +89,7 @@ export function Footer() {
 
           {/* Newsletter */}
           <div>
-            <p className="mb-4 text-xs font-black uppercase tracking-widest text-white">
+            <p className="mb-4 text-xs font-black uppercase tracking-widest text-[var(--sn-nav-strong)]">
               Stay Updated
             </p>
             <p className="mb-3 text-sm text-[var(--sn-header-nav)]">
@@ -119,9 +119,9 @@ export function Footer() {
             © {new Date().getFullYear()} Xtra Time — For the hardcore sports fan
           </p>
           <div className="flex gap-4 text-xs text-[var(--sn-header-nav)]">
-            <Link href="#" className="hover:text-white transition">Privacy</Link>
-            <Link href="#" className="hover:text-white transition">Terms</Link>
-            <Link href="#" className="hover:text-white transition">Sitemap</Link>
+            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">Privacy</Link>
+            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">Terms</Link>
+            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">Sitemap</Link>
           </div>
         </div>
       </div>

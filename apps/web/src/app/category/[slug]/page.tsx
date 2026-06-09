@@ -84,11 +84,11 @@ export default async function CategoryPage({ params }: Props) {
             All Fixtures ›
           </Link>
         </div>
-        <div className="p-4 bg-[#1e1e1e] dark:bg-transparent min-h-[150px] flex items-center justify-center">
+        <div className="p-4 min-h-[150px] flex items-center justify-center">
           {matches.length > 0 ? (
             <ScorecardCarousel cards={matches} />
           ) : (
-            <div className="text-center text-sm font-semibold text-white/50">
+            <div className="text-center text-sm font-semibold text-[var(--sk-muted)]">
               No live or recent matches available right now.
             </div>
           )}

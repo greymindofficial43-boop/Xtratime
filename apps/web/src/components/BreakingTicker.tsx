@@ -23,7 +23,7 @@ export async function BreakingTicker() {
             <span key={i} className="inline-flex items-center">
               <Link
                 href={`/${h.categorySlug}/${h.slug}`}
-                className="inline-block whitespace-nowrap px-5 text-[13px] font-medium text-[var(--sk-header-nav)] transition-colors hover:text-white"
+                className="inline-block whitespace-nowrap px-5 text-[13px] font-medium text-[var(--sk-header-nav)] transition-colors hover:text-[var(--sn-nav-strong)]"
               >
                 {h.title}
               </Link>

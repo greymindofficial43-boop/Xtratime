@@ -40,7 +40,7 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
       <Link
         href={item.href}
         className={`sk-nav-link relative shrink-0 whitespace-nowrap px-4 py-[14px] text-sm font-semibold transition flex items-center gap-1 ${
-          active || open ? 'text-white' : 'text-[var(--sn-header-nav)] hover:text-white'
+          active || open ? 'text-[var(--sn-nav-strong)]' : 'text-[var(--sn-header-nav)] hover:text-[var(--sn-nav-strong)]'
         }`}
       >
         {item.label}
@@ -65,10 +65,10 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
         >
           {isMega ? (
             /* ── Wide mega menu (4+ sub-categories) ── */
-            <div className="overflow-hidden rounded-xl border border-[#2a2c35] bg-[#13151c] shadow-2xl" style={{ width: '540px' }}>
-              <div className="flex items-center justify-between border-b border-[#2a2c35] px-5 py-3">
+            <div className="overflow-hidden rounded-xl border border-[var(--sn-menu-border)] bg-[var(--sn-menu-bg)] shadow-2xl" style={{ width: '540px' }}>
+              <div className="flex items-center justify-between border-b border-[var(--sn-menu-border)] px-5 py-3">
                 <span className="text-xs font-black uppercase tracking-widest text-[var(--sn-accent)]">{item.label}</span>
-                <Link href={item.href} onClick={() => setOpen(false)} className="text-xs font-semibold text-[#a0a5b1] hover:text-white transition">
+                <Link href={item.href} onClick={() => setOpen(false)} className="text-xs font-semibold text-[var(--sn-header-nav)] hover:text-[var(--sn-nav-strong)] transition">
                   View all →
                 </Link>
               </div>
@@ -78,8 +78,8 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
                     ? children.filter((child) => child.group === group)
                     : children;
                   return (
-                    <div key={group} className="border-r border-[#2a2c35] last:border-r-0">
-                      <div className="border-b border-[#2a2c35] px-4 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-[#7d8492]">
+                    <div key={group} className="border-r border-[var(--sn-menu-border)] last:border-r-0">
+                      <div className="border-b border-[var(--sn-menu-border)] px-4 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--sn-menu-muted)]">
                         {group}
                       </div>
                       <div>
@@ -88,14 +88,14 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
                             key={child.label}
                             href={child.href}
                             onClick={() => setOpen(false)}
-                            className="block border-b border-[#2a2c35] px-4 py-3 transition hover:bg-white/5"
+                            className="block border-b border-[var(--sn-menu-border)] px-4 py-3 transition hover:bg-[var(--sn-menu-hover)]"
                           >
-                            <div className="flex items-center gap-2 text-sm font-semibold text-[#d2d6df]">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-[var(--sn-header-nav)]">
                               <span className="text-[var(--sn-accent)] text-[10px]">{child.icon ?? '▸'}</span>
                               {child.label}
                             </div>
                             {child.description && (
-                              <p className="mt-1 text-xs leading-5 text-[#8d93a0]">{child.description}</p>
+                              <p className="mt-1 text-xs leading-5 text-[var(--sn-menu-muted)]">{child.description}</p>
                             )}
                           </Link>
                         ))}
@@ -104,7 +104,7 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
                   );
                 })}
               </div>
-              <div className="border-t border-[#2a2c35] px-5 py-2.5">
+              <div className="border-t border-[var(--sn-menu-border)] px-5 py-2.5">
                 <Link href={item.href} onClick={() => setOpen(false)} className="text-xs font-bold text-[var(--sn-accent)] hover:underline">
                   Explore {item.label} →
                 </Link>
@@ -112,22 +112,22 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
             </div>
           ) : (
             /* ── Simple dropdown (0–3 sub-categories) ── */
-            <div className="w-52 overflow-hidden rounded-xl border border-[#2a2c35] bg-[#1a1c23] shadow-2xl">
+            <div className="w-52 overflow-hidden rounded-xl border border-[var(--sn-menu-border)] bg-[var(--sn-menu-bg-2)] shadow-2xl">
               <div className="p-2">
                 <Link
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-lg px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--sn-accent)] hover:bg-white/5 transition"
+                  className="block rounded-lg px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--sn-accent)] hover:bg-[var(--sn-menu-hover)] transition"
                 >
                   All {item.label}
                 </Link>
-                {children.length > 0 && <div className="my-1 h-px bg-[#2a2c35]" />}
+                {children.length > 0 && <div className="my-1 h-px bg-[var(--sn-menu-border)]" />}
                 {children.map((child) => (
                   <Link
                     key={child.label}
                     href={child.href}
                     onClick={() => setOpen(false)}
-                    className="block rounded-lg px-4 py-2.5 text-sm font-semibold text-[#a0a5b1] transition hover:bg-white/5 hover:text-white"
+                    className="block rounded-lg px-4 py-2.5 text-sm font-semibold text-[var(--sn-header-nav)] transition hover:bg-[var(--sn-menu-hover)] hover:text-[var(--sn-nav-strong)]"
                   >
                     <span className="flex items-center gap-2">
                       {child.icon && <span className="text-[var(--sn-accent)]">{child.icon}</span>}
@@ -178,7 +178,7 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 whitespace-nowrap px-4 py-[14px] text-sm font-semibold text-[var(--sn-header-nav)] transition hover:text-white"
+            className="flex items-center gap-2 whitespace-nowrap px-4 py-[14px] text-sm font-semibold text-[var(--sn-header-nav)] transition hover:text-[var(--sn-nav-strong)]"
             aria-expanded={open}
           >
             More
@@ -196,7 +196,7 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
 
           {open && (
             <div className="absolute left-0 top-full z-50 pt-1">
-              <div className="w-52 overflow-hidden rounded-xl border border-[#2a2c35] bg-[#1a1c23] shadow-2xl backdrop-blur-xl">
+              <div className="w-52 overflow-hidden rounded-xl border border-[var(--sn-menu-border)] bg-[var(--sn-menu-bg-2)] shadow-2xl backdrop-blur-xl">
                 <div className="p-2">
                   {overflow.map((item) => {
                     const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -207,7 +207,7 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
                         onClick={() => setOpen(false)}
                         className={`block rounded-lg px-4 py-2.5 text-sm font-semibold transition ${active
                             ? 'text-[var(--sn-accent)]'
-                            : 'text-[#a0a5b1] hover:bg-white/5 hover:text-white'
+                            : 'text-[var(--sn-header-nav)] hover:bg-[var(--sn-menu-hover)] hover:text-[var(--sn-nav-strong)]'
                           }`}
                       >
                         {item.label}

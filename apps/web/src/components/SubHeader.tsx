@@ -46,7 +46,7 @@ export function SubHeader() {
   }
 
   return (
-    <div className="border-b border-[#2a2a2a] bg-[#1a1a1a]">
+    <div className="border-b border-[var(--sn-header-border)] bg-[var(--sn-header-bg)]">
       <div className="mx-auto flex max-w-[1440px] items-center gap-6 overflow-x-auto px-3 py-0 sm:px-5 sk-scrollbar-hide">
         {tabs.map((tab, idx) => {
           // The first tab (category name) is always active in this view based on screenshots
@@ -57,7 +57,7 @@ export function SubHeader() {
               key={tab.label}
               href={tab.href}
               className={`relative whitespace-nowrap py-3 text-sm font-semibold transition-colors ${
-                isActive ? 'text-[#d62828]' : 'text-gray-300 hover:text-white'
+                isActive ? 'text-[#d62828]' : 'text-[var(--sn-header-nav)] hover:text-[var(--sn-nav-strong)]'
               }`}
             >
               {tab.label}

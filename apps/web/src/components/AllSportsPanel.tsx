@@ -46,7 +46,7 @@ export function AllSportsPanel({ categories }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="All Sports"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#2a2c35] text-[#9ca3af] transition hover:border-[var(--sn-accent)] hover:text-white"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--sn-menu-border)] text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-[var(--sn-nav-strong)]"
       >
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -66,16 +66,16 @@ export function AllSportsPanel({ categories }: Props) {
 
           {/* Panel — slides in from right */}
           <aside
-            className="absolute right-0 top-0 flex h-full flex-col bg-[#0d0f14] shadow-2xl"
+            className="absolute right-0 top-0 flex h-full flex-col bg-[var(--sn-menu-bg)] shadow-2xl"
             style={{ width: 'min(420px, 100vw)', animation: 'slideInRight 0.22s ease-out' }}
           >
             {/* Header */}
-            <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#1e2028] px-4">
-              <span className="text-sm font-black uppercase tracking-widest text-white">All Sports</span>
+            <div className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--sn-menu-border)] px-4">
+              <span className="text-sm font-black uppercase tracking-widest text-[var(--sn-nav-strong)]">All Sports</span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-xl text-[#666] transition hover:bg-[#1e2028] hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-xl text-[var(--sn-menu-muted)] transition hover:bg-[var(--sn-menu-hover)] hover:text-[var(--sn-nav-strong)]"
                 aria-label="Close"
               >
                 ×
@@ -92,7 +92,7 @@ export function AllSportsPanel({ categories }: Props) {
                     key={link.href}
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 rounded-xl border border-[#1e2028] bg-[#13151c] px-3 py-3 text-sm font-semibold text-[#c8ccd6] transition hover:border-[var(--sn-accent)] hover:text-white"
+                    className="flex items-center gap-2 rounded-xl border border-[var(--sn-menu-border)] bg-[var(--sn-menu-bg)] px-3 py-3 text-sm font-semibold text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-[var(--sn-nav-strong)]"
                   >
                     {link.label}
                   </Link>
@@ -100,8 +100,8 @@ export function AllSportsPanel({ categories }: Props) {
               </div>
 
               {/* Divider */}
-              <div className="mx-4 border-t border-[#1e2028]" />
-              <p className="px-4 pt-4 pb-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#555]">
+              <div className="mx-4 border-t border-[var(--sn-menu-border)]" />
+              <p className="px-4 pt-4 pb-2 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--sn-menu-muted)]">
                 All Categories
               </p>
 
@@ -115,7 +115,7 @@ export function AllSportsPanel({ categories }: Props) {
                   return (
                     <div
                       key={cat.id}
-                      className={`rounded-xl border transition ${active ? 'border-[var(--sn-accent)] bg-[#1a0e0a]' : 'border-[#1e2028] bg-[#13151c] hover:border-[#2a2c35]'}`}
+                      className={`rounded-xl border transition ${active ? 'border-[var(--sn-accent)] bg-[var(--sn-accent-soft)]' : 'border-[var(--sn-menu-border)] bg-[var(--sn-menu-bg)] hover:border-[var(--sn-menu-border)]'}`}
                     >
                       <Link
                         href={href}
@@ -124,22 +124,22 @@ export function AllSportsPanel({ categories }: Props) {
                       >
                         <span className="text-xl">{icon}</span>
                         <div className="min-w-0">
-                          <p className={`text-sm font-bold leading-tight ${active ? 'text-[var(--sn-accent)]' : 'text-white'}`}>
+                          <p className={`text-sm font-bold leading-tight ${active ? 'text-[var(--sn-accent)]' : 'text-[var(--sn-nav-strong)]'}`}>
                             {cat.name}
                           </p>
                           {cat.description && (
-                            <p className="mt-0.5 truncate text-[10px] text-[#666]">{cat.description}</p>
+                            <p className="mt-0.5 truncate text-[10px] text-[var(--sn-menu-muted)]">{cat.description}</p>
                           )}
                         </div>
                       </Link>
                       {children.length > 0 && (
-                        <div className="border-t border-[#1e2028] px-3 py-2 flex flex-wrap gap-1.5">
+                        <div className="border-t border-[var(--sn-menu-border)] px-3 py-2 flex flex-wrap gap-1.5">
                           {children.slice(0, 4).map((child) => (
                             <Link
                               key={child.id}
                               href={`/category/${child.slug}`}
                               onClick={() => setOpen(false)}
-                              className="rounded-full bg-[#1e2028] px-2.5 py-1 text-[10px] font-semibold text-[#9ca3af] transition hover:bg-[var(--sn-accent)] hover:text-white"
+                              className="rounded-full bg-[var(--sn-menu-border)] px-2.5 py-1 text-[10px] font-semibold text-[var(--sn-header-nav)] transition hover:bg-[var(--sn-accent)] hover:text-white"
                             >
                               {child.name}
                             </Link>
@@ -153,7 +153,7 @@ export function AllSportsPanel({ categories }: Props) {
             </div>
 
             {/* Footer */}
-            <div className="flex shrink-0 items-center justify-between border-t border-[#1e2028] px-4 py-3">
+            <div className="flex shrink-0 items-center justify-between border-t border-[var(--sn-menu-border)] px-4 py-3">
               <Link
                 href="/"
                 onClick={() => setOpen(false)}
