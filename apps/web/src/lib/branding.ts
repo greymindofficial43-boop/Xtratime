@@ -14,7 +14,11 @@ const SOCIAL_DEFAULTS: Record<string, Partial<Record<SocialKey, string>>> = {
     twitter: 'https://x.com/XtratimeB',
     youtube: 'https://youtube.com/@xtratimebangla?si=SdN33FN0wXi0OvOU',
   },
-  // en: { facebook: '...', ... }  // add the English site's handles here later
+  en: {
+    facebook: 'https://www.facebook.com/share/1BXrcksszd/',
+    twitter: 'https://x.com/xtratimeindia',
+    youtube: 'https://youtube.com/@xtratime?si=I-DuOUspKnM2kRzH',
+  },
 };
 
 const socialDefaults = SOCIAL_DEFAULTS[siteLocale] ?? {};
