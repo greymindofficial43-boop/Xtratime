@@ -60,18 +60,18 @@ export function EspnNewsCard({ news, size = 'default' }: Props) {
             className="object-cover transition duration-500 group-hover:scale-105"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/10" />
           <span className="absolute left-3 top-3 sk-cat-badge">{news.sport}</span>
           <span className="absolute right-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white/80">
             ESPN
           </span>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-          <h2 className="text-lg font-bold leading-snug text-white group-hover:text-[var(--sk-accent)] md:text-xl lg:text-2xl">
+          <h2 className="line-clamp-2 text-lg font-bold leading-snug text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)] group-hover:text-[var(--sk-accent)] md:text-xl lg:text-2xl">
             {news.title}
           </h2>
           {news.publishedAt && (
-            <p className="mt-1.5 text-xs text-white/70">{formatRelativeTime(news.publishedAt)}</p>
+            <p className="mt-1.5 text-xs text-white/80 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">{formatRelativeTime(news.publishedAt)}</p>
           )}
         </div>
       </a>

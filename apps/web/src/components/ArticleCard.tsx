@@ -82,7 +82,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
             priority
           />
           {hasVideo && <PlayIcon />}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/10 pointer-events-none" />
           <span className="absolute left-3 top-3 sk-cat-badge">{article.category.name}</span>
           {article.isTrending && (
             <span className="absolute right-3 top-3 rounded-full bg-[var(--sk-accent)] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
@@ -91,10 +91,10 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
           )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-          <h2 className="text-base font-bold leading-snug text-white group-hover:text-[var(--sk-accent)] md:text-lg">
+          <h2 className="line-clamp-2 text-base font-bold leading-snug text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)] group-hover:text-[var(--sk-accent)] md:text-lg">
             {article.title}
           </h2>
-          <p className="mt-1.5 text-xs text-white/70">
+          <p className="mt-1.5 text-xs text-white/80 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
             {formatDateTime(article.publishedAt ?? article.createdAt)}
           </p>
         </div>
