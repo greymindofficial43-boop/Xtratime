@@ -6,6 +6,7 @@ import { FormEvent, Fragment, useEffect, useMemo, useState } from 'react';
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
   const [color, setColor] = useState('#e10600');
   const [parentId, setParentId] = useState('');
   // Reassign-on-delete modal: set when deleting a category that still has articles.
@@ -33,13 +34,30 @@ export default function CategoriesPage() {
     event.preventDefault();
     await adminApi.createCategory({
       name,
+      // Optional manual slug (English/ASCII). Blank = auto-generate from the name.
+      slug: slug.trim() || undefined,
       color,
       sortOrder: categories.length,
       parentId: parentId || undefined,
     });
     setName('');
+    setSlug('');
     setParentId('');
     await load();
+  }
+
+  // Save an edited slug for an existing category. The API normalizes it to
+  // English/ASCII, so a clean URL like "football" stays "football".
+  async function saveSlug(category: Category, value: string) {
+    const next = value.trim();
+    if (!next || next === category.slug) return;
+    try {
+      await adminApi.updateCategory(category.id, { slug: next });
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Could not update the slug');
+      await load();
+    }
   }
 
   async function onDelete(category: Category) {
@@ -115,6 +133,18 @@ export default function CategoriesPage() {
             />
           </div>
           <div>
+            <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--admin-muted)' }}>
+              URL slug <span className="font-normal opacity-70">(English)</span>
+            </label>
+            <input
+              value={slug}
+              onChange={(event) => setSlug(event.target.value)}
+              className="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]"
+              style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+              placeholder="auto from name — e.g. football"
+            />
+          </div>
+          <div>
             <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--admin-muted)' }}>Parent Category</label>
             <select
               value={parentId}
@@ -185,9 +215,18 @@ export default function CategoriesPage() {
                       {category.icon ? `${category.icon} ` : ''}{category.name}
                     </td>
                     <td className="px-5 py-3">
-                      <code className="rounded px-2 py-0.5 text-xs" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }}>
-                        /{category.slug}
-                      </code>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs" style={{ color: 'var(--admin-muted)' }}>/</span>
+                        <input
+                          key={category.slug}
+                          defaultValue={category.slug}
+                          onBlur={(e) => saveSlug(category, e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                          title="Edit the URL slug (English). Press Enter or click away to save."
+                          className="w-32 rounded border px-2 py-0.5 text-xs"
+                          style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+                        />
+                      </div>
                     </td>
                     <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>Top Level</td>
                     <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>{childCategories(category.id).length}</td>
@@ -233,9 +272,18 @@ export default function CategoriesPage() {
                         {child.icon ? `${child.icon} ` : ''}{child.name}
                       </td>
                       <td className="px-5 py-3">
-                        <code className="rounded px-2 py-0.5 text-xs opacity-80" style={{ background: 'var(--admin-bg)', color: 'var(--admin-muted)' }}>
-                          /{child.slug}
-                        </code>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs" style={{ color: 'var(--admin-muted)' }}>/</span>
+                          <input
+                            key={child.slug}
+                            defaultValue={child.slug}
+                            onBlur={(e) => saveSlug(child, e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                            title="Edit the URL slug (English). Press Enter or click away to save."
+                            className="w-32 rounded border px-2 py-0.5 text-xs"
+                            style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-muted)' }}
+                          />
+                        </div>
                       </td>
                       <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>Subcategory</td>
                       <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>0</td>
