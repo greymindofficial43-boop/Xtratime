@@ -43,6 +43,10 @@ export type HomeSection = {
   id: string;
   key: string;
   title: string;
+  type?: 'SYSTEM' | 'CUSTOM_CATEGORY';
+  categoryId?: string | null;
+  category?: Category | null;
+  articleLimit?: number;
   enabled: boolean;
   sortOrder: number;
 };
@@ -226,8 +230,13 @@ export const adminApi = {
   seedMenus: () => apiFetch<{ created: number; skipped: boolean }>('/menus/seed-defaults', { method: 'POST' }),
 
   getHomeSections: () => apiFetch<HomeSection[]>('/home-sections'),
+  createHomeSection: (data: Partial<Pick<HomeSection, 'title' | 'type' | 'categoryId' | 'articleLimit' | 'enabled'>>) =>
+    apiFetch<HomeSection>('/home-sections', { method: 'POST', body: JSON.stringify(data) }),
   updateHomeSection: (id: string, data: Partial<Pick<HomeSection, 'title' | 'enabled' | 'sortOrder'>>) =>
     apiFetch<HomeSection>(`/home-sections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  updateHomeSectionDetails: (id: string, data: Partial<Pick<HomeSection, 'title' | 'enabled' | 'sortOrder' | 'type' | 'categoryId' | 'articleLimit'>>) =>
+    apiFetch<HomeSection>(`/home-sections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteHomeSection: (id: string) => apiFetch(`/home-sections/${id}`, { method: 'DELETE' }),
   reorderHomeSections: (updates: { id: string; sortOrder: number }[]) =>
     apiFetch('/home-sections/reorder', { method: 'POST', body: JSON.stringify({ updates }) }),
   seedHomeSections: () => apiFetch<{ created: number }>('/home-sections/seed-defaults', { method: 'POST' }),
@@ -250,6 +259,11 @@ export const adminApi = {
 
   deleteArticle: (id: string) =>
     apiFetch(`/articles/${id}`, { method: 'DELETE' }),
+  bulkTrashArticles: (ids: string[]) =>
+    apiFetch<{ success: boolean; count: number }>('/articles/bulk/trash', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
 
   getTrash: (params?: Record<string, string>) => {
     const qs = params ? `?${new URLSearchParams(params)}` : '';
@@ -263,9 +277,23 @@ export const adminApi = {
 
   restoreArticle: (id: string) =>
     apiFetch<Article>(`/articles/${id}/restore`, { method: 'POST' }),
+  bulkRestoreArticles: (ids: string[]) =>
+    apiFetch<{ success: boolean; count: number }>('/articles/bulk/restore', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
 
   permanentlyDeleteArticle: (id: string) =>
     apiFetch(`/articles/${id}/permanent`, { method: 'DELETE' }),
+  bulkPermanentlyDeleteArticles: (ids: string[]) =>
+    apiFetch<{ success: boolean; count: number }>('/articles/bulk/permanent-delete', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
+  emptyTrash: () =>
+    apiFetch<{ success: boolean; count: number }>('/articles/trash/empty', {
+      method: 'DELETE',
+    }),
 
   getMatches: () => apiFetch<Match[]>('/matches'),
   createMatch: (data: Partial<Match>) =>

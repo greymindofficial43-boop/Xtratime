@@ -99,6 +99,25 @@ export default async function HomePage() {
     }),
   );
 
+  const customSectionData = await Promise.all(
+    homeSections
+      .filter((section) => section.enabled && section.type === 'CUSTOM_CATEGORY' && section.category)
+      .map(async (section) => {
+        const category = section.category!;
+        const limit = section.articleLimit ?? 6;
+        const [articles, popular] = await Promise.all([
+          api.getArticles({ category: category.slug, limit }).catch(() => ({ items: [] })),
+          api.getArticles({ category: category.slug, trending: true, limit: 5 }).catch(() => ({ items: [] })),
+        ]);
+        return {
+          section,
+          category: { ...category, name: section.title },
+          articles: articles.items,
+          popular: popular.items,
+        };
+      }),
+  );
+
   const sidebar = (
     <aside className="hidden lg:block">
       <div className="sticky top-24 space-y-6">
@@ -208,6 +227,21 @@ export default async function HomePage() {
       });
     }
   }
+
+  customSectionData
+    .filter(({ articles }) => articles.length > 0)
+    .forEach(({ section, category, articles, popular }) => {
+      blocks.push({
+        key: section.key,
+        node: (
+          <CategorySection
+            category={category}
+            articles={articles}
+            popular={popular.length > 0 ? popular : articles}
+          />
+        ),
+      });
+    });
 
   if (enabled('espn-news') && espnNews.length > 0) {
     blocks.push({

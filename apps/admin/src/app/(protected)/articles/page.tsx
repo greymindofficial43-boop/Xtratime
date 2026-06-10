@@ -15,6 +15,8 @@ export default function ArticlesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [view, setView] = useState<'active' | 'trash'>('active');
   const [trashCount, setTrashCount] = useState(0);
@@ -31,6 +33,7 @@ export default function ArticlesPage() {
       setArticles(res.items);
       setCategories(categoryData);
       setTrashCount(trash.total);
+      setSelectedIds([]);
     } finally {
       setLoading(false);
     }
@@ -64,6 +67,72 @@ export default function ArticlesPage() {
       load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed');
+    }
+  }
+
+  function toggleSelected(id: string) {
+    setSelectedIds((current) =>
+      current.includes(id) ? current.filter((selected) => selected !== id) : [...current, id],
+    );
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds((current) =>
+      current.length === articles.length ? [] : articles.map((article) => article.id),
+    );
+  }
+
+  async function handleBulkTrash() {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Move ${selectedIds.length} selected article(s) to Trash?`)) return;
+    setBulkLoading(true);
+    try {
+      await adminApi.bulkTrashArticles(selectedIds);
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Bulk delete failed');
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  async function handleBulkRestore() {
+    if (selectedIds.length === 0) return;
+    setBulkLoading(true);
+    try {
+      await adminApi.bulkRestoreArticles(selectedIds);
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Bulk restore failed');
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  async function handleBulkPermanentDelete() {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Permanently delete ${selectedIds.length} selected article(s)? This cannot be undone.`)) return;
+    setBulkLoading(true);
+    try {
+      await adminApi.bulkPermanentlyDeleteArticles(selectedIds);
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Bulk delete failed');
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  async function handleEmptyTrash() {
+    if (!confirm('Permanently delete every article in Trash? This cannot be undone.')) return;
+    setBulkLoading(true);
+    try {
+      await adminApi.emptyTrash();
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Empty trash failed');
+    } finally {
+      setBulkLoading(false);
     }
   }
 
@@ -121,6 +190,68 @@ export default function ArticlesPage() {
           ),
         )}
       </div>
+
+      {(selectedIds.length > 0 || view === 'trash') && (
+        <div
+          className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3"
+          style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}
+        >
+          <span className="text-sm font-semibold" style={{ color: 'var(--admin-text)' }}>
+            {selectedIds.length} selected
+          </span>
+          {selectedIds.length > 0 && view === 'active' && (
+            <button
+              type="button"
+              onClick={handleBulkTrash}
+              disabled={bulkLoading}
+              className="rounded-lg bg-red-500 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              Move selected to Trash
+            </button>
+          )}
+          {selectedIds.length > 0 && view === 'trash' && (
+            <>
+              <button
+                type="button"
+                onClick={handleBulkRestore}
+                disabled={bulkLoading}
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                style={{ background: 'var(--admin-accent-2)' }}
+              >
+                Restore selected
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkPermanentDelete}
+                disabled={bulkLoading}
+                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                Delete selected forever
+              </button>
+            </>
+          )}
+          {selectedIds.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="text-sm font-semibold"
+              style={{ color: 'var(--admin-muted)' }}
+            >
+              Clear selection
+            </button>
+          )}
+          {view === 'trash' && trashCount > 0 && (
+            <button
+              type="button"
+              onClick={handleEmptyTrash}
+              disabled={bulkLoading}
+              className="ml-auto rounded-lg border border-red-500 px-3 py-2 text-sm font-semibold text-red-500 disabled:opacity-60"
+            >
+              Empty Trash
+            </button>
+          )}
+        </div>
+      )}
 
       <div
         className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3"
@@ -181,6 +312,14 @@ export default function ArticlesPage() {
           <table className="w-full text-left text-sm">
             <thead className="border-b" style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }}>
               <tr>
+                <th className="px-5 py-3">
+                  <input
+                    type="checkbox"
+                    checked={articles.length > 0 && selectedIds.length === articles.length}
+                    onChange={toggleSelectAll}
+                    aria-label="Select all articles"
+                  />
+                </th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Title</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Category</th>
                 <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Status</th>
@@ -195,6 +334,14 @@ export default function ArticlesPage() {
                 const s = statusStyles[article.status] ?? statusStyles.DRAFT;
                 return (
                   <tr key={article.id} className="border-b last:border-0 transition-colors" style={{ borderColor: 'var(--admin-border)' }}>
+                    <td className="px-5 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(article.id)}
+                        onChange={() => toggleSelected(article.id)}
+                        aria-label={`Select ${article.title}`}
+                      />
+                    </td>
                     <td className="px-5 py-3" style={{ maxWidth: 280 }}>
                       <p
                         className="line-clamp-2 text-sm font-medium leading-snug"

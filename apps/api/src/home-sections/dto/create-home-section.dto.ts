@@ -1,14 +1,9 @@
 import { IsBoolean, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
-export class UpdateHomeSectionDto {
-  @IsOptional()
+export class CreateHomeSectionDto {
   @IsString()
   @MaxLength(80)
-  title?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  enabled?: boolean;
+  title!: string;
 
   @IsOptional()
   @IsString()
@@ -24,7 +19,6 @@ export class UpdateHomeSectionDto {
   articleLimit?: number;
 
   @IsOptional()
-  @IsInt()
-  @Min(0)
-  sortOrder?: number;
+  @IsBoolean()
+  enabled?: boolean;
 }

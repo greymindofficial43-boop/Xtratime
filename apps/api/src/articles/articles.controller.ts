@@ -12,6 +12,7 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ArticlesService } from './articles.service';
+import { BulkArticleActionDto } from './dto/bulk-article-action.dto';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { QueryArticlesDto } from './dto/query-articles.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -63,6 +64,30 @@ export class ArticlesController {
   @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() dto: UpdateArticleDto) {
     return this.articlesService.update(id, dto);
+  }
+
+  @Post('bulk/trash')
+  @UseGuards(JwtAuthGuard)
+  bulkTrash(@Body() dto: BulkArticleActionDto) {
+    return this.articlesService.bulkRemove(dto.ids);
+  }
+
+  @Post('bulk/restore')
+  @UseGuards(JwtAuthGuard)
+  bulkRestore(@Body() dto: BulkArticleActionDto) {
+    return this.articlesService.bulkRestore(dto.ids);
+  }
+
+  @Post('bulk/permanent-delete')
+  @UseGuards(JwtAuthGuard)
+  bulkPermanentDelete(@Body() dto: BulkArticleActionDto) {
+    return this.articlesService.bulkPermanentRemove(dto.ids);
+  }
+
+  @Delete('trash/empty')
+  @UseGuards(JwtAuthGuard)
+  emptyTrash() {
+    return this.articlesService.emptyTrash();
   }
 
   @Post(':id/restore')

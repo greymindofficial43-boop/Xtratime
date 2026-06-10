@@ -234,6 +234,14 @@ export class ArticlesService {
     return { success: true };
   }
 
+  async bulkRemove(ids: string[]) {
+    const result = await this.prisma.article.updateMany({
+      where: { id: { in: ids }, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+    return { success: true, count: result.count };
+  }
+
   async restore(id: string) {
     const article = await this.prisma.article.findUnique({ where: { id } });
     if (!article) throw new NotFoundException('Article not found');
@@ -245,12 +253,34 @@ export class ArticlesService {
     return this.formatArticle(restored);
   }
 
+  async bulkRestore(ids: string[]) {
+    const result = await this.prisma.article.updateMany({
+      where: { id: { in: ids }, deletedAt: { not: null } },
+      data: { deletedAt: null },
+    });
+    return { success: true, count: result.count };
+  }
+
   // Permanently delete — removes the article from the database for good.
   async permanentRemove(id: string) {
     const article = await this.prisma.article.findUnique({ where: { id } });
     if (!article) throw new NotFoundException('Article not found');
     await this.prisma.article.delete({ where: { id } });
     return { success: true };
+  }
+
+  async bulkPermanentRemove(ids: string[]) {
+    const result = await this.prisma.article.deleteMany({
+      where: { id: { in: ids }, deletedAt: { not: null } },
+    });
+    return { success: true, count: result.count };
+  }
+
+  async emptyTrash() {
+    const result = await this.prisma.article.deleteMany({
+      where: { deletedAt: { not: null } },
+    });
+    return { success: true, count: result.count };
   }
 
   /** Union of the primary category and any extra categories, primary first. */

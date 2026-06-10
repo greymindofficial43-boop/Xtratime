@@ -122,6 +122,10 @@ export type HomeSection = {
   id: string;
   key: string;
   title: string;
+  type?: 'SYSTEM' | 'CUSTOM_CATEGORY';
+  categoryId?: string | null;
+  category?: Category | null;
+  articleLimit?: number;
   enabled: boolean;
   sortOrder: number;
 };
