@@ -15,6 +15,8 @@ export default function NavigationBuilderPage() {
   const [expandedSection, setExpandedSection] = useState<'categories' | 'custom'>('categories');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(new Set());
   const [customLink, setCustomLink] = useState({ title: '', href: '' });
+  // '' = add as a top-level item; otherwise add as a sub-item of this main menu id.
+  const [targetParentId, setTargetParentId] = useState<string>('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -46,9 +48,10 @@ export default function NavigationBuilderPage() {
     try {
       const selectedCats = categories.filter(c => selectedCategoryIds.has(c.id));
       for (const cat of selectedCats) {
-        // If it's a child category, try to find its parent in the menu to nest it automatically
-        let parentMenuId: string | undefined = undefined;
-        if (cat.parentId) {
+        // Explicit "Add to" parent wins; otherwise, if it's a child category,
+        // try to nest it under its parent category's menu item automatically.
+        let parentMenuId: string | undefined = targetParentId || undefined;
+        if (!parentMenuId && cat.parentId) {
           const parentMenu = mainItems.find(m => m.categoryId === cat.parentId);
           if (parentMenu) {
             parentMenuId = parentMenu.id;
@@ -78,7 +81,8 @@ export default function NavigationBuilderPage() {
         title: customLink.title,
         href: customLink.href,
         type: 'INTERNAL',
-        placement: 'MAIN',
+        placement: targetParentId ? 'MEGA' : 'MAIN',
+        parentId: targetParentId || undefined,
       });
       setCustomLink({ title: '', href: '' });
       await load();
@@ -228,7 +232,31 @@ export default function NavigationBuilderPage() {
             <div className="p-3 border-b" style={{ borderColor: 'var(--admin-border)' }}>
               <h2 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--admin-text)' }}>Add menu items</h2>
             </div>
-            
+
+            {/* Add-to target: top level or a sub-item of an existing main menu item */}
+            <div className="p-4 border-b" style={{ borderColor: 'var(--admin-border)' }}>
+              <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--admin-muted)' }}>Add to</label>
+              <select
+                value={targetParentId}
+                onChange={(e) => setTargetParentId(e.target.value)}
+                className="w-full rounded-lg border px-3 py-2 text-sm"
+                style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+              >
+                <option value="">Top level (main menu)</option>
+                {mainItems.map((m) => (
+                  <option key={m.id} value={m.id}>↳ Sub-item of: {m.title}</option>
+                ))}
+              </select>
+              {targetParentId && (
+                <p className="mt-1.5 text-[11px]" style={{ color: 'var(--admin-muted)' }}>
+                  New items will be nested as a submenu under{' '}
+                  <span className="font-semibold" style={{ color: 'var(--admin-text)' }}>
+                    {mainItems.find((m) => m.id === targetParentId)?.title}
+                  </span>.
+                </p>
+              )}
+            </div>
+
             {/* Categories Accordion */}
             <div className="border-b" style={{ borderColor: 'var(--admin-border)' }}>
               <button 

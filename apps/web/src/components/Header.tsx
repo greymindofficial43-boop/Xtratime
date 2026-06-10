@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { api, type Category, type MenuItem as ApiMenuItem } from '@/lib/api';
 import { branding, isExternal } from '@/lib/branding';
+import { t } from '@/lib/strings';
 import { HeaderNav, type NavItem } from './HeaderNav';
 import { MobileNav } from './MobileNav';
 import { AllSportsPanel } from './AllSportsPanel';
@@ -13,7 +14,7 @@ function fallbackNav(categories: Category[]): NavItem[] {
 
   return [
     {
-      label: 'Latest News',
+      label: t.latestNews,
       href: '/search?q=latest',
       icon: '📰',
       children: [
@@ -133,7 +134,7 @@ export async function Header() {
             href="/schedule"
             className="hidden rounded-full border border-[var(--sn-accent)] px-3 py-1 text-xs font-bold text-[var(--sn-accent)] transition hover:bg-[var(--sn-accent)] hover:text-white sm:block"
           >
-            Live
+            {t.live}
           </Link>
           {/* All Sports panel trigger — visible on all screen sizes */}
           <AllSportsPanel categories={categories} />

@@ -14,6 +14,28 @@ export type NavItem = {
   children?: NavItem[];
 };
 
+function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+  return (
+    <div className="relative flex h-full items-center">
+      <Link
+        href={item.href}
+        className={`sk-nav-link relative shrink-0 whitespace-nowrap px-4 py-[14px] text-sm font-semibold transition flex items-center gap-1 ${
+          active ? 'text-[var(--sn-nav-strong)]' : 'text-[var(--sn-header-nav)] hover:text-[var(--sn-nav-strong)]'
+        }`}
+      >
+        {item.icon && <span>{item.icon}</span>}
+        {item.label}
+        {item.badge && (
+          <span className="ml-1 rounded bg-red-600 px-1 py-px text-[9px] font-bold text-white">{item.badge}</span>
+        )}
+      </Link>
+      {active && (
+        <div className="absolute bottom-0 left-1/2 h-0 w-0 -translate-x-1/2 border-l-[6px] border-r-[6px] border-b-[6px] border-l-transparent border-r-transparent border-b-[var(--sn-accent)]" />
+      )}
+    </div>
+  );
+}
+
 function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -170,7 +192,10 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
     <nav className="hidden min-w-0 flex-1 items-center gap-2 lg:flex pl-4">
       {primary.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-        return <NavDropdown key={item.label} item={item} active={active} />;
+        const hasChildren = (item.children?.length ?? 0) > 0;
+        return hasChildren
+          ? <NavDropdown key={item.label} item={item} active={active} />
+          : <NavLink key={item.label} item={item} active={active} />;
       })}
 
       {overflow.length > 0 && (

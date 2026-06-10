@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
 import type { Article, Category } from '@/lib/api';
+import { t } from '@/lib/strings';
 
 type Props = {
   category: Category;
@@ -28,7 +29,7 @@ export function CategorySection({ category, articles, popular }: Props) {
           className="sk-view-all-btn"
           aria-label={`View all ${category.name} news`}
         >
-          View All <span aria-hidden>›</span>
+          {t.viewAll} <span aria-hidden>›</span>
         </Link>
       </div>
 
@@ -39,7 +40,7 @@ export function CategorySection({ category, articles, popular }: Props) {
             {featured ? (
               <ArticleCard article={featured} size="hero" />
             ) : (
-              <p className="text-sm text-[var(--sk-muted)]">No stories yet.</p>
+              <p className="text-sm text-[var(--sk-muted)]">{t.noStories}</p>
             )}
           </div>
           <div className="divide-y divide-[var(--sk-border)]">
@@ -52,7 +53,7 @@ export function CategorySection({ category, articles, popular }: Props) {
         {/* Sidebar: latest/popular */}
         <aside className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
           <div className="mb-4 flex items-center gap-2">
-            <span className="sk-cat-badge text-[9px]">Latest</span>
+            <span className="sk-cat-badge text-[9px]">{t.latest}</span>
           </div>
           {popular.length > 0 ? (
             popular.slice(0, 5).map((article, i) => (
@@ -68,7 +69,7 @@ export function CategorySection({ category, articles, popular }: Props) {
         href={`/category/${category.slug}`}
         className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-full border border-[var(--sk-border)] bg-[var(--sk-surface)] px-6 py-2 text-xs font-bold uppercase tracking-wider text-[var(--sk-muted)] transition hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]"
       >
-        More {category.name} News ›
+        {t.moreNews(category.name)} ›
       </Link>
     </section>
   );
