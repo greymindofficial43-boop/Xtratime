@@ -50,4 +50,10 @@ export class QueryArticlesDto {
   @Type(() => Boolean)
   @IsBoolean()
   allStatuses?: boolean;
+
+  // When true, list only soft-deleted (trashed) articles.
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  trash?: boolean;
 }

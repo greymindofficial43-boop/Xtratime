@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import Link from 'next/link';
 import { api } from '@/lib/api';
 import { sanitizeArticleHtml } from '@/lib/sanitize';
 import { formatDateTime } from '@/lib/format';
@@ -68,7 +68,25 @@ export default async function ArticlePage({ params }: Props) {
         <div className="col-span-12 lg:col-span-8">
           <article className="py-4 md:py-6">
             <header>
-              <p className="font-bold text-[var(--sk-accent)]">{article.category.name}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href={`/category/${article.category.slug}`}
+                  className="font-bold text-[var(--sk-accent)] hover:underline"
+                >
+                  {article.category.name}
+                </Link>
+                {article.categories
+                  ?.filter((c) => c.id !== article.category.id)
+                  .map((c) => (
+                    <Link
+                      key={c.id}
+                      href={`/category/${c.slug}`}
+                      className="rounded-full border border-[var(--sk-border)] px-2.5 py-0.5 text-xs font-semibold text-[var(--sk-muted)] transition hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+              </div>
               <h1 className="mt-1 text-2xl font-extrabold leading-tight md:text-3xl lg:text-4xl">
                 {article.title}
               </h1>
@@ -91,13 +109,13 @@ export default async function ArticlePage({ params }: Props) {
             <AdSlot zone="article-top" className="my-4" />
 
             {article.featuredImage && (
-              <div className="relative my-5 aspect-video overflow-hidden rounded-xl">
-                <Image
+              // Show the full image at its natural aspect ratio — never cropped.
+              <div className="my-5 overflow-hidden rounded-xl bg-[var(--sk-surface)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={article.featuredImage}
                   alt={article.title}
-                  fill
-                  className="object-cover"
-                  priority
+                  className="mx-auto h-auto w-full object-contain"
                 />
               </div>
             )}

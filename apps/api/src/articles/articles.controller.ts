@@ -34,6 +34,16 @@ export class ArticlesController {
     });
   }
 
+  @Get('admin/trash')
+  @UseGuards(JwtAuthGuard)
+  findTrash(@Query() query: QueryArticlesDto) {
+    return this.articlesService.findAll({
+      ...query,
+      allStatuses: true,
+      trash: true,
+    });
+  }
+
   @Get(':slug')
   findBySlug(@Param('slug') slug: string, @Query('preview') preview?: string) {
     const incrementView = preview !== 'true';
@@ -55,9 +65,23 @@ export class ArticlesController {
     return this.articlesService.update(id, dto);
   }
 
+  @Post(':id/restore')
+  @UseGuards(JwtAuthGuard)
+  restore(@Param('id') id: string) {
+    return this.articlesService.restore(id);
+  }
+
+  // Soft delete — moves to trash (recoverable).
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.articlesService.remove(id);
+  }
+
+  // Permanent delete — removes from the database for good.
+  @Delete(':id/permanent')
+  @UseGuards(JwtAuthGuard)
+  permanentRemove(@Param('id') id: string) {
+    return this.articlesService.permanentRemove(id);
   }
 }

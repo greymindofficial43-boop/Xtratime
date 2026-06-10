@@ -58,6 +58,7 @@ model Category {
   parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children    Category[] @relation("CategoryHierarchy")
   articles    Article[]
+  articleLinks ArticleCategory[]
   menuItems   MenuItem[]
 }
 
@@ -85,15 +86,32 @@ model Article {
   metaTitle       String?
   metaDescription String?
   metaKeywords    String?
+  deletedAt     DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   authorId      String
   author        User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  // Primary category — drives the article's URL (/<category>/<slug>).
   categoryId    String
-  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  // Full set of categories this article belongs to (incl. the primary one).
+  categories    ArticleCategory[]
   tags          ArticleTag[]
 
   @@index([status, publishedAt])
+  @@index([categoryId])
+  @@index([deletedAt])
+}
+
+// Many-to-many: an article can appear under several categories. The primary
+// category lives on Article.categoryId; these rows include it plus any extras.
+model ArticleCategory {
+  articleId  String
+  categoryId String
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, categoryId])
   @@index([categoryId])
 }
 

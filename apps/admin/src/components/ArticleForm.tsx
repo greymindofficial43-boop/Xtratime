@@ -44,6 +44,7 @@ export function ArticleForm({ article }: Props) {
     isFeatured: boolean;
     isTrending: boolean;
     categoryId: string;
+    categoryIds: string[];
     tagIds: string[];
     publishedAt: string;
     metaTitle: string;
@@ -60,6 +61,9 @@ export function ArticleForm({ article }: Props) {
     isFeatured: article?.isFeatured ?? false,
     isTrending: article?.isTrending ?? false,
     categoryId: article?.categoryId ?? '',
+    categoryIds:
+      article?.categories?.map((c) => c.id) ??
+      (article?.categoryId ? [article.categoryId] : []),
     tagIds: article?.tags.map((t) => t.id) ?? [],
     // datetime-local value (local time). Existing date on edit, else now.
     publishedAt: toLocalInput(article?.publishedAt ? new Date(article.publishedAt) : new Date()),
@@ -72,12 +76,38 @@ export function ArticleForm({ article }: Props) {
     Promise.all([adminApi.getCategories(), adminApi.getTags()]).then(([cats, tgs]) => {
       setCategories(cats);
       setTags(tgs);
-      setForm((f) => (!f.categoryId && cats[0] ? { ...f, categoryId: cats[0].id } : f));
+      setForm((f) =>
+        !f.categoryId && cats[0]
+          ? { ...f, categoryId: cats[0].id, categoryIds: [cats[0].id] }
+          : f,
+      );
     });
   }, []);
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  // Toggle a category on/off. The first selected becomes the main (URL) category;
+  // unchecking the main one promotes the next selected category.
+  function toggleCategory(id: string) {
+    setForm((f) => {
+      const selected = f.categoryIds.includes(id)
+        ? f.categoryIds.filter((c) => c !== id)
+        : [...f.categoryIds, id];
+      let primary = f.categoryId;
+      if (!selected.includes(primary)) primary = selected[0] ?? '';
+      if (!primary && selected.length) primary = selected[0];
+      return { ...f, categoryIds: selected, categoryId: primary };
+    });
+  }
+
+  function setPrimaryCategory(id: string) {
+    setForm((f) => ({
+      ...f,
+      categoryId: id,
+      categoryIds: f.categoryIds.includes(id) ? f.categoryIds : [...f.categoryIds, id],
+    }));
   }
 
   function toggleTag(tagId: string) {
@@ -138,8 +168,13 @@ export function ArticleForm({ article }: Props) {
       if (form.content.includes('data:')) {
         throw new Error('Article content contains inline images (data URLs). Please upload images using the Upload button and ensure uploads are configured in the API (Cloudinary).');
       }
+      if (!form.categoryId || form.categoryIds.length === 0) {
+        throw new Error('Please select at least one category.');
+      }
       const payload = {
         ...form,
+        // Make sure the main category is always part of the set.
+        categoryIds: Array.from(new Set([form.categoryId, ...form.categoryIds])),
         status: form.status as Article['status'],
         publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : undefined,
         // Empty slug => let the API auto-generate from the title.
@@ -214,7 +249,7 @@ export function ArticleForm({ article }: Props) {
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="max-h-56 w-full object-cover"
+                className="mx-auto max-h-72 w-full object-contain"
               />
               <button
                 type="button"
@@ -308,20 +343,53 @@ export function ArticleForm({ article }: Props) {
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium">Category *</label>
-            <select
-              value={form.categoryId}
-              onChange={(e) => update('categoryId', e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-              required
-            >
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.icon} {c.name}
-                </option>
-              ))}
-            </select>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium">Categories *</label>
+            <p className="mb-2 mt-0.5 text-xs text-slate-400">
+              Tick every category this article belongs to. The one marked{' '}
+              <span className="font-semibold text-[var(--admin-accent)]">Main</span> sets the
+              article&apos;s URL; the rest also list it on their category pages.
+            </p>
+            <div className="grid max-h-56 grid-cols-1 gap-1.5 overflow-y-auto rounded-lg border border-slate-300 p-2 sm:grid-cols-2">
+              {categories.map((c) => {
+                const checked = form.categoryIds.includes(c.id);
+                const isPrimary = form.categoryId === c.id;
+                return (
+                  <div
+                    key={c.id}
+                    className={`flex items-center justify-between gap-2 rounded-md px-2 py-1.5 ${
+                      checked ? 'bg-red-50' : ''
+                    }`}
+                  >
+                    <label className="flex min-w-0 flex-1 items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleCategory(c.id)}
+                      />
+                      <span className="truncate">
+                        {c.icon ? `${c.icon} ` : ''}
+                        {c.name}
+                      </span>
+                    </label>
+                    {checked && (
+                      <button
+                        type="button"
+                        onClick={() => setPrimaryCategory(c.id)}
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide transition ${
+                          isPrimary
+                            ? 'bg-[var(--admin-accent)] text-white'
+                            : 'border border-slate-300 text-slate-500 hover:border-[var(--admin-accent)] hover:text-[var(--admin-accent)]'
+                        }`}
+                        title={isPrimary ? 'This is the main category' : 'Make this the main category'}
+                      >
+                        {isPrimary ? '★ Main' : 'Set main'}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium">Status</label>

@@ -16,27 +16,51 @@ export default function ArticlesPage() {
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [view, setView] = useState<'active' | 'trash'>('active');
+  const [trashCount, setTrashCount] = useState(0);
 
   async function load() {
     setLoading(true);
     try {
-      const [res, categoryData] = await Promise.all([
-        adminApi.getArticles({ limit: '50', ...(selectedCategory ? { category: selectedCategory } : {}) }),
+      const fetcher = view === 'trash' ? adminApi.getTrash : adminApi.getArticles;
+      const [res, categoryData, trash] = await Promise.all([
+        fetcher({ limit: '50', ...(selectedCategory ? { category: selectedCategory } : {}) }),
         adminApi.getCategories(),
+        adminApi.getTrash({ limit: '1' }),
       ]);
       setArticles(res.items);
       setCategories(categoryData);
+      setTrashCount(trash.total);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { load(); }, [selectedCategory]);
+  useEffect(() => { load(); }, [selectedCategory, view]);
 
   async function handleDelete(id: string, title: string) {
-    if (!confirm(`Delete "${title}"?`)) return;
+    if (!confirm(`Move "${title}" to Trash? You can restore it later.`)) return;
     try {
       await adminApi.deleteArticle(id);
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Delete failed');
+    }
+  }
+
+  async function handleRestore(id: string) {
+    try {
+      await adminApi.restoreArticle(id);
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Restore failed');
+    }
+  }
+
+  async function handlePermanentDelete(id: string, title: string) {
+    if (!confirm(`Permanently delete "${title}"? This cannot be undone.`)) return;
+    try {
+      await adminApi.permanentlyDeleteArticle(id);
       load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed');
@@ -75,6 +99,27 @@ export default function ArticlesPage() {
         >
           + New Article
         </Link>
+      </div>
+
+      {/* Active / Trash tabs */}
+      <div className="mb-4 flex gap-2">
+        {([['active', 'Articles'], ['trash', `Trash${trashCount ? ` (${trashCount})` : ''}`]] as const).map(
+          ([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setView(key)}
+              className="rounded-lg px-4 py-2 text-sm font-semibold transition"
+              style={
+                view === key
+                  ? { background: 'var(--admin-accent)', color: '#fff' }
+                  : { background: 'var(--admin-surface)', color: 'var(--admin-muted)', border: '1px solid var(--admin-border)' }
+              }
+            >
+              {label}
+            </button>
+          ),
+        )}
       </div>
 
       <div
@@ -119,14 +164,18 @@ export default function ArticlesPage() {
           </div>
         ) : articles.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>No articles yet.</p>
-            <Link
-              href="/articles/new"
-              className="mt-4 inline-block rounded-lg px-4 py-2 text-sm font-semibold text-white"
-              style={{ background: 'var(--admin-accent)' }}
-            >
-              Create your first article
-            </Link>
+            <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>
+              {view === 'trash' ? 'Trash is empty.' : 'No articles yet.'}
+            </p>
+            {view === 'active' && (
+              <Link
+                href="/articles/new"
+                className="mt-4 inline-block rounded-lg px-4 py-2 text-sm font-semibold text-white"
+                style={{ background: 'var(--admin-accent)' }}
+              >
+                Create your first article
+              </Link>
+            )}
           </div>
         ) : (
           <table className="w-full text-left text-sm">
@@ -204,19 +253,39 @@ export default function ArticlesPage() {
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex gap-3">
-                        <Link
-                          href={`/articles/${article.id}/edit`}
-                          className="text-sm font-medium transition hover:opacity-70"
-                          style={{ color: 'var(--admin-accent-2)' }}
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(article.id, article.title)}
-                          className="text-sm font-medium text-red-500 transition hover:text-red-700"
-                        >
-                          Delete
-                        </button>
+                        {view === 'trash' ? (
+                          <>
+                            <button
+                              onClick={() => handleRestore(article.id)}
+                              className="text-sm font-medium transition hover:opacity-70"
+                              style={{ color: 'var(--admin-accent-2)' }}
+                            >
+                              Restore
+                            </button>
+                            <button
+                              onClick={() => handlePermanentDelete(article.id, article.title)}
+                              className="text-sm font-medium text-red-500 transition hover:text-red-700"
+                            >
+                              Delete forever
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href={`/articles/${article.id}/edit`}
+                              className="text-sm font-medium transition hover:opacity-70"
+                              style={{ color: 'var(--admin-accent-2)' }}
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(article.id, article.title)}
+                              className="text-sm font-medium text-red-500 transition hover:text-red-700"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

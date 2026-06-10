@@ -67,6 +67,7 @@ export type Article = {
   createdAt: string;
   author: Author;
   category: Pick<Category, 'id' | 'name' | 'slug' | 'color'>;
+  categories?: Pick<Category, 'id' | 'name' | 'slug' | 'color'>[];
   tags: Tag[];
 };
 

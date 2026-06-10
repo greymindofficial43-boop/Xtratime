@@ -8,6 +8,9 @@ export default function CategoriesPage() {
   const [name, setName] = useState('');
   const [color, setColor] = useState('#e10600');
   const [parentId, setParentId] = useState('');
+  // Reassign-on-delete modal: set when deleting a category that still has articles.
+  const [reassign, setReassign] = useState<{ category: Category; target: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     const data = await adminApi.getCategories();
@@ -39,10 +42,35 @@ export default function CategoriesPage() {
     await load();
   }
 
-  async function onDelete(id: string, categoryName: string) {
-    if (!confirm(`Delete category "${categoryName}"? Articles in it may be affected.`)) return;
-    await adminApi.deleteCategory(id);
-    await load();
+  async function onDelete(category: Category) {
+    const count = category._count?.articles ?? 0;
+    // Categories with articles can't be deleted until those articles are moved
+    // to another category — open the reassign modal instead of deleting.
+    if (count > 0) {
+      setReassign({ category, target: '' });
+      return;
+    }
+    if (!confirm(`Delete category "${category.name}"?`)) return;
+    try {
+      await adminApi.deleteCategory(category.id);
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Delete failed');
+    }
+  }
+
+  async function confirmReassignDelete() {
+    if (!reassign || !reassign.target) return;
+    setDeleting(true);
+    try {
+      await adminApi.deleteCategory(reassign.category.id, reassign.target);
+      setReassign(null);
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Delete failed');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function toggleHomepage(category: Category) {
@@ -191,7 +219,7 @@ export default function CategoriesPage() {
                     </td>
                     <td className="px-5 py-3">
                       <button
-                        onClick={() => onDelete(category.id, category.name)}
+                        onClick={() => onDelete(category)}
                         className="text-sm font-semibold text-red-500 transition hover:text-red-700"
                       >
                         Delete
@@ -214,7 +242,7 @@ export default function CategoriesPage() {
                       <td className="px-5 py-3 text-xs" style={{ color: 'var(--admin-muted)' }}>—</td>
                       <td className="px-5 py-3">
                         <button
-                          onClick={() => onDelete(child.id, child.name)}
+                          onClick={() => onDelete(child)}
                           className="text-sm text-red-500 transition hover:text-red-700"
                         >
                           Delete
@@ -228,6 +256,59 @@ export default function CategoriesPage() {
           </table>
         )}
       </div>
+
+      {/* Reassign-on-delete modal */}
+      {reassign && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div
+            className="w-full max-w-md rounded-xl border p-6"
+            style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', boxShadow: 'var(--admin-shadow)' }}
+          >
+            <h3 className="text-lg font-bold" style={{ color: 'var(--admin-text)' }}>
+              Delete &ldquo;{reassign.category.name}&rdquo;
+            </h3>
+            <p className="mt-2 text-sm" style={{ color: 'var(--admin-muted)' }}>
+              This category is the main category for{' '}
+              <strong>{reassign.category._count?.articles ?? 0}</strong> article(s). Choose a category
+              to move them to — no articles will be deleted.
+            </p>
+            <select
+              value={reassign.target}
+              onChange={(e) => setReassign((r) => (r ? { ...r, target: e.target.value } : r))}
+              className="mt-4 w-full rounded-lg border px-3 py-2 text-sm"
+              style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+            >
+              <option value="">Select a category…</option>
+              {categories
+                .filter((c) => c.id !== reassign.category.id)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.icon ? `${c.icon} ` : ''}{c.name}
+                  </option>
+                ))}
+            </select>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setReassign(null)}
+                className="rounded-lg border px-4 py-2 text-sm font-medium"
+                style={{ borderColor: 'var(--admin-border)', color: 'var(--admin-text)' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmReassignDelete}
+                disabled={!reassign.target || deleting}
+                className="rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                style={{ background: 'var(--admin-accent)' }}
+              >
+                {deleting ? 'Moving…' : 'Move & delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

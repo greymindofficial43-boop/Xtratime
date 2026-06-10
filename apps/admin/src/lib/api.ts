@@ -30,6 +30,7 @@ export type Category = {
   homepageOrder?: number;
   parentId?: string | null;
   children?: Category[];
+  _count?: { articles: number };
 };
 
 export type Tag = {
@@ -81,6 +82,7 @@ export type Article = {
   isTrending: boolean;
   categoryId: string;
   category: { id: string; name: string; slug: string; color?: string | null };
+  categories?: { id: string; name: string; slug: string; color?: string | null }[];
   tags: Tag[];
   publishedAt?: string | null;
   createdAt?: string;
@@ -182,8 +184,10 @@ export const adminApi = {
     apiFetch<Category>(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   reorderCategories: (updates: { id: string; sortOrder?: number; navOrder?: number }[]) =>
     apiFetch('/categories/reorder', { method: 'POST', body: JSON.stringify({ updates }) }),
-  deleteCategory: (id: string) =>
-    apiFetch(`/categories/${id}`, { method: 'DELETE' }),
+  deleteCategory: (id: string, reassignTo?: string) =>
+    apiFetch(`/categories/${id}${reassignTo ? `?reassignTo=${encodeURIComponent(reassignTo)}` : ''}`, {
+      method: 'DELETE',
+    }),
 
   getTags: () => apiFetch<Tag[]>('/tags'),
   createTag: (name: string) =>
@@ -234,6 +238,22 @@ export const adminApi = {
 
   deleteArticle: (id: string) =>
     apiFetch(`/articles/${id}`, { method: 'DELETE' }),
+
+  getTrash: (params?: Record<string, string>) => {
+    const qs = params ? `?${new URLSearchParams(params)}` : '';
+    return apiFetch<{
+      items: Article[];
+      total: number;
+      page: number;
+      totalPages: number;
+    }>(`/articles/admin/trash${qs}`);
+  },
+
+  restoreArticle: (id: string) =>
+    apiFetch<Article>(`/articles/${id}/restore`, { method: 'POST' }),
+
+  permanentlyDeleteArticle: (id: string) =>
+    apiFetch(`/articles/${id}/permanent`, { method: 'DELETE' }),
 
   getMatches: () => apiFetch<Match[]>('/matches'),
   createMatch: (data: Partial<Match>) =>
