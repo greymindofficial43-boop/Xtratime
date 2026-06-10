@@ -196,6 +196,24 @@ model MenuItem {
   @@index([parentId, sortOrder])
 }
 
+// Admin-managed promo banners shown in the homepage "Promo Banner" block.
+// Replaces the previously hard-coded NFL/NBA ESPN cards.
+model Promo {
+  id        String   @id @default(cuid())
+  title     String
+  label     String?  // small eyebrow tag, e.g. "NFL" or "Featured"
+  imageUrl  String?
+  href      String   // where the card links to
+  emoji     String?
+  openInNewTab Boolean @default(false)
+  enabled   Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
 // Toggleable / reorderable / renamable homepage blocks, edited from the admin.
 model HomeSection {
   id        String   @id @default(cuid())

@@ -29,6 +29,7 @@ const NAV_SECTIONS = [
     items: [
       { href: '/navigation', label: 'Menus', icon: '☰' },
       { href: '/homepage', label: 'Homepage', icon: '⌂' },
+      { href: '/promos', label: 'Homepage Promos', icon: '✦' },
     ],
   },
   {

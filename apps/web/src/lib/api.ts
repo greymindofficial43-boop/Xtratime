@@ -126,6 +126,18 @@ export type HomeSection = {
   sortOrder: number;
 };
 
+export type Promo = {
+  id: string;
+  title: string;
+  label?: string | null;
+  imageUrl?: string | null;
+  href: string;
+  emoji?: string | null;
+  openInNewTab: boolean;
+  enabled: boolean;
+  sortOrder: number;
+};
+
 async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
@@ -142,6 +154,7 @@ async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   getCategories: () => fetchApi<Category[]>('/categories', { cache: 'no-store' }),
   getHomeSections: () => fetchApi<HomeSection[]>('/home-sections', { cache: 'no-store' }),
+  getPromos: () => fetchApi<Promo[]>('/promos', { cache: 'no-store' }),
   getMenus: () => fetchApi<MenuItem[]>('/menus', { cache: 'no-store' }),
   getCategory: (slug: string) => fetchApi<Category>(`/categories/${slug}`),
   getArticles: (params?: Record<string, string | number | boolean>) => {

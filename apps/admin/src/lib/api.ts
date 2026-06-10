@@ -47,6 +47,18 @@ export type HomeSection = {
   sortOrder: number;
 };
 
+export type Promo = {
+  id: string;
+  title: string;
+  label?: string | null;
+  imageUrl?: string | null;
+  href: string;
+  emoji?: string | null;
+  openInNewTab: boolean;
+  enabled: boolean;
+  sortOrder: number;
+};
+
 export type MenuItemType = 'INTERNAL' | 'CATEGORY' | 'EXTERNAL';
 export type MenuItemPlacement = 'MAIN' | 'MEGA';
 
@@ -287,6 +299,13 @@ export const adminApi = {
     }
     return { ...data, absoluteUrl: data.url };
   },
+
+  getPromos: () => apiFetch<Promo[]>('/promos'),
+  createPromo: (data: Partial<Promo>) =>
+    apiFetch<Promo>('/promos', { method: 'POST', body: JSON.stringify(data) }),
+  updatePromo: (id: string, data: Partial<Promo>) =>
+    apiFetch<Promo>(`/promos/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deletePromo: (id: string) => apiFetch(`/promos/${id}`, { method: 'DELETE' }),
 
   getAds: () => apiFetch<Advertisement[]>('/ads'),
   createAd: (data: Partial<Advertisement>) =>
