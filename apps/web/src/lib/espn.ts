@@ -1,4 +1,5 @@
 import type { Scorecard, ScorecardTab, MatchStatus, TeamLine } from './scorecards';
+import { branding } from './branding';
 
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
 
@@ -411,6 +412,9 @@ export async function fetchSportNews(
   sportSlug: string,
   limit = 8,
 ): Promise<EspnNewsItem[]> {
+  // ESPN news is English-language; only surface it on the English edition.
+  // Non-English editions (e.g. Bangla) get no ESPN news — scores are unaffected.
+  if (branding.siteLocale !== 'en') return [];
   const data = await fetchEspn<EspnNewsResponse>(`${sportPath}/news`, 300);
   return (data?.articles ?? [])
     .slice(0, limit)
