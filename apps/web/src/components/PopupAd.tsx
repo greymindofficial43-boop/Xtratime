@@ -54,7 +54,7 @@ export function PopupAd() {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={close} />
-      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-w-xl md:max-w-2xl lg:max-w-3xl">
         <button
           type="button"
           onClick={close}
@@ -74,7 +74,7 @@ export function PopupAd() {
           <img
             src={ad.imageUrl}
             alt={ad.title ?? 'Advertisement'}
-            className="block h-auto w-full object-contain"
+            className="block h-auto max-h-[85vh] w-full object-contain"
           />
         </a>
       </div>
