@@ -3,7 +3,6 @@ import { AdSlot } from '@/components/AdSlot';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategorySection } from '@/components/CategorySection';
 import { EspnNewsCard } from '@/components/EspnNewsCard';
-import { LiveScoresSection } from '@/components/LiveScoresSection';
 import { PromoBanner } from '@/components/PromoBanner';
 import { api, type Article } from '@/lib/api';
 import { fetchHomepageNews } from '@/lib/espn';
@@ -14,7 +13,6 @@ const FALLBACK_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gam
 // Default homepage block order/titles — used when the admin config is missing
 // (e.g. before the HomeSection migration runs) so the page always renders.
 const DEFAULT_SECTION_ORDER = [
-  'live-scores',
   'top-stories',
   'more-stories',
   'promo',
@@ -23,7 +21,6 @@ const DEFAULT_SECTION_ORDER = [
   'trending',
 ];
 const DEFAULT_TITLES: Record<string, string> = {
-  'live-scores': 'Live Scores',
   'top-stories': 'Top Stories',
   'more-stories': 'More Stories',
   promo: 'Promo Banner',
@@ -280,9 +277,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {enabled('live-scores') && <LiveScoresSection />}
-
-      {/* Leaderboard ad below live scores */}
+      {/* Leaderboard ad (top of homepage) */}
       <div className="border-b border-[var(--sk-border)] bg-[var(--sk-surface)] px-4 py-3">
         <div className="mx-auto max-w-[970px]">
           <AdSlot zone="home-top" />

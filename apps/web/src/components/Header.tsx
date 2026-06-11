@@ -59,6 +59,24 @@ function fallbackNav(categories: Category[]): NavItem[] {
   ];
 }
 
+// Routes that have been removed from the site (live scores / fixtures /
+// standings). Drop any nav item (or child) that points at them so neither the
+// DB-driven menu nor the code fallback can link to a dead page.
+const REMOVED_ROUTE_PREFIXES = ['/schedule', '/standings'];
+function isRemovedRoute(href?: string) {
+  return !!href && REMOVED_ROUTE_PREFIXES.some(
+    (p) => href === p || href.startsWith(`${p}/`) || href.startsWith(`${p}?`),
+  );
+}
+function stripRemovedRoutes(items: NavItem[]): NavItem[] {
+  return items
+    .filter((item) => !isRemovedRoute(item.href))
+    .map((item) => ({
+      ...item,
+      children: item.children?.filter((child) => !isRemovedRoute(child.href)),
+    }));
+}
+
 function mapMenuItems(menuItems: ApiMenuItem[]): NavItem[] {
   return menuItems
     .filter((item) => item.isVisible)
@@ -95,7 +113,7 @@ export async function Header() {
     categories = [];
     menus = [];
   }
-  const navItems = menus.length > 0 ? mapMenuItems(menus) : fallbackNav(categories);
+  const navItems = stripRemovedRoutes(menus.length > 0 ? mapMenuItems(menus) : fallbackNav(categories));
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--sn-header-bg)] border-b border-[var(--sn-header-border)]">
@@ -129,12 +147,6 @@ export async function Header() {
           <div className="hidden sm:block">
             <ThemeToggle />
           </div>
-          <Link
-            href="/schedule"
-            className="hidden rounded-full border border-[var(--sn-accent)] px-3 py-1 text-xs font-bold text-[var(--sn-accent)] transition hover:bg-[var(--sn-accent)] hover:text-white sm:block"
-          >
-            {t.live}
-          </Link>
         </div>
       </div>
     </header>

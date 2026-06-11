@@ -16,8 +16,6 @@ export function SubHeader() {
   let tabs = [
     { label: formattedSlug, href: `/category/${slug}` },
     { label: 'Newsletters', href: `/category/${slug}` },
-    { label: 'Schedule', href: `/category/${slug}` },
-    { label: 'Standings', href: `/category/${slug}` },
     { label: 'Videos', href: `/category/${slug}` },
   ];
 
@@ -25,7 +23,6 @@ export function SubHeader() {
     tabs = [
       { label: 'Football', href: `/category/football` },
       { label: 'Newsletters', href: `/category/football` },
-      { label: 'Schedule', href: `/schedule` },
       { label: '2026 FIFA World Cup', href: `/category/football` },
       { label: 'EURO', href: `/category/football` },
       { label: 'Copa America', href: `/category/football` },
@@ -36,7 +33,6 @@ export function SubHeader() {
   } else if (slug === 'cricket') {
     tabs = [
       { label: 'Cricket', href: `/category/cricket` },
-      { label: 'Schedule', href: `/schedule` },
       { label: 'Player Stats', href: `/players` },
       { label: 'Videos', href: `/category/cricket` },
       { label: 'IPL 2026', href: `/category/cricket` },

@@ -134,15 +134,6 @@ export function MobileNav({ navItems }: Props) {
                 );
               })}
 
-              <div className="mt-3 border-t border-[var(--sn-menu-border)] pt-3">
-                <Link href="/schedule" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-[var(--sn-accent)]">
-                  🔴 Live Scores
-                </Link>
-                <Link href="/standings" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-[var(--sn-header-nav)] hover:text-[var(--sn-nav-strong)]">
-                  📊 Standings
-                </Link>
-              </div>
-
               {/* Social links (only render when configured) */}
               <div className="mt-3 border-t border-[var(--sn-menu-border)] pt-3">
                 <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--sn-menu-muted)]">Follow us</p>

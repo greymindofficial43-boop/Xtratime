@@ -1,15 +1,10 @@
 import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
-import { ScorecardCarousel } from '@/components/ScorecardCarousel';
 import { EspnNewsCard } from '@/components/EspnNewsCard';
 import { AdSlot } from '@/components/AdSlot';
 import { api } from '@/lib/api';
-import { fetchCategoryNews, fetchCategoryScorecards } from '@/lib/espn';
-import { fetchCricketScorecards } from '@/lib/cricapi';
-import { notFound } from 'next/navigation';
+import { fetchCategoryNews } from '@/lib/espn';
 import { Fragment } from 'react';
-import type { Scorecard } from '@/lib/scorecards';
-import { storedMatchToScorecard } from '@/lib/storedMatches';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -38,28 +33,13 @@ export default async function CategoryPage({ params }: Props) {
     };
   }
 
-  const [articles, trending, espnNews, cricketMatches, espnMatches, adminMatchesRaw] = await Promise.all([
+  const [articles, trending, espnNews] = await Promise.all([
     api.getArticles({ category: slug, limit: 24 }).catch(() => ({ items: [] })),
     api.getArticles({ category: slug, trending: true, limit: 5 }).catch(() => ({ items: [] })),
     fetchCategoryNews(slug, 8),
-    slug === 'cricket' ? fetchCricketScorecards(12) : Promise.resolve([]),
-    slug !== 'cricket' ? fetchCategoryScorecards(slug, 12) : Promise.resolve([]),
-    api.getMatches().catch(() => []),
   ]);
 
   const [featured, ...rest] = articles.items;
-
-  // Map admin matches to Scorecard format, filter by this category/sport
-  const adminMatches: Scorecard[] = adminMatchesRaw
-    .filter((m) => m.sport.toLowerCase() === slug.toLowerCase() || m.sport.toLowerCase() === category.name.toLowerCase())
-    .map((m) => storedMatchToScorecard(m));
-
-  const espnMatches2 = slug === 'cricket' ? cricketMatches : espnMatches;
-  // Admin matches come first (priority), then ESPN
-  const matches: Scorecard[] = [
-    ...adminMatches,
-    ...espnMatches2,
-  ];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
@@ -71,29 +51,6 @@ export default async function CategoryPage({ params }: Props) {
         {' > '}
         <span className="text-[var(--sk-text)]">{category.name} News</span>
       </div>
-
-      {/* Matches Carousel for Category (Full Width) */}
-      <section className="mb-8 overflow-hidden rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface-elevated)] shadow-sm">
-        <div className="flex items-center justify-between border-b border-[var(--sk-border)] px-4 pt-3">
-          <div className="flex gap-4">
-            <span className="border-b-2 border-[var(--sk-accent)] pb-2 text-sm font-bold text-[var(--sk-text)]">
-              Featured
-            </span>
-          </div>
-          <Link href="/schedule" className="pb-2 text-xs font-bold text-sky-500 hover:text-sky-400">
-            All Fixtures ›
-          </Link>
-        </div>
-        <div className="p-4 min-h-[150px] flex items-center justify-center">
-          {matches.length > 0 ? (
-            <ScorecardCarousel cards={matches} />
-          ) : (
-            <div className="text-center text-sm font-semibold text-[var(--sk-muted)]">
-              No live or recent matches available right now.
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* Category header */}
       <header className="mb-6 flex items-center gap-3 pb-2">
