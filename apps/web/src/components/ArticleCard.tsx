@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/format';
+import { branding, isExternal } from '@/lib/branding';
+import { getYouTubeThumbnail } from '@/lib/youtube';
 import type { Article } from '@/lib/api';
 
 type Props = {
@@ -9,15 +11,27 @@ type Props = {
   rank?: number;
 };
 
-const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800';
-
-function getYouTubeThumbnail(url: string | null | undefined): string | null {
-  if (!url) return null;
-  const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+// Cover image for a card. Uses the featured image, then the YouTube thumbnail,
+// then falls back to the site logo (per-locale) on a neutral surface — shown
+// object-contain so the logo isn't cropped like a stock photo would be.
+function Cover({ article, priority, zoom, compact }: { article: Article; priority?: boolean; zoom?: boolean; compact?: boolean }) {
+  const real = article.featuredImage || getYouTubeThumbnail(article.videoUrl);
+  const src = real || branding.logoPrimary;
+  const isFallback = !real;
+  return (
+    <Image
+      src={src}
+      alt={article.title}
+      fill
+      priority={priority}
+      unoptimized={isFallback && isExternal(src)}
+      className={
+        isFallback
+          ? `object-contain bg-[var(--sk-surface-elevated)] ${compact ? 'p-2' : 'p-5'}`
+          : `object-cover${zoom ? ' transition duration-300 group-hover:scale-105' : ''}`
+      }
+    />
   );
-  return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
 }
 
 const PlayIcon = ({ small }: { small?: boolean }) => (
@@ -42,19 +56,13 @@ function ArticleMeta({ article }: { article: Article }) {
 
 export function ArticleCard({ article, size = 'default', rank }: Props) {
   const href = `/${article.category.slug}/${article.slug}`;
-  const image = article.featuredImage || getYouTubeThumbnail(article.videoUrl) || FALLBACK_IMAGE;
   const hasVideo = !!article.videoUrl;
 
   if (size === 'grid') {
     return (
       <Link href={href} className="group block min-w-[240px] flex-1 sm:min-w-0">
         <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-          <Image
-            src={image}
-            alt={article.title}
-            fill
-            className="object-cover transition duration-300 group-hover:scale-105"
-          />
+          <Cover article={article} zoom />
           {hasVideo && <PlayIcon />}
           <span className="absolute left-2.5 top-2.5 sk-cat-badge">
             {article.category.name}
@@ -74,13 +82,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
     return (
       <Link href={href} className="group relative block overflow-hidden rounded-xl">
         <div className="relative aspect-[16/10] w-full">
-          <Image
-            src={article.featuredImage || getYouTubeThumbnail(article.videoUrl) || `${FALLBACK_IMAGE}&w=1200`}
-            alt={article.title}
-            fill
-            className="object-cover transition duration-500 group-hover:scale-105"
-            priority
-          />
+          <Cover article={article} priority zoom />
           {hasVideo && <PlayIcon />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/10 pointer-events-none" />
           <span className="absolute left-3 top-3 sk-cat-badge">{article.category.name}</span>
@@ -109,7 +111,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
         className="group flex gap-3 py-3 last:pb-0 border-b border-[var(--sk-border)] last:border-0"
       >
         <div className="relative h-[72px] w-[108px] shrink-0 overflow-hidden rounded-lg">
-          <Image src={image} alt="" fill className="object-cover" />
+          <Cover article={article} compact />
           {hasVideo && <PlayIcon small />}
         </div>
         <div className="min-w-0 flex-1">
@@ -145,7 +147,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
         className="group flex gap-3 border-b border-[var(--sk-border)] py-3 last:border-0"
       >
         <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg">
-          <Image src={image} alt="" fill className="object-cover" />
+          <Cover article={article} compact />
           {hasVideo && <PlayIcon small />}
         </div>
         <div className="min-w-0 flex-1">
@@ -164,12 +166,7 @@ export function ArticleCard({ article, size = 'default', rank }: Props) {
       className="group sk-card-lift block overflow-hidden rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)]"
     >
       <div className="relative aspect-video w-full overflow-hidden">
-        <Image
-          src={image}
-          alt={article.title}
-          fill
-          className="object-cover transition duration-300 group-hover:scale-105"
-        />
+        <Cover article={article} zoom />
         {hasVideo && <PlayIcon />}
         <span className="absolute left-2.5 top-2.5 sk-cat-badge">{article.category.name}</span>
       </div>

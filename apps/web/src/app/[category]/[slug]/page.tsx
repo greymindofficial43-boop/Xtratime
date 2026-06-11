@@ -6,6 +6,7 @@ import { formatDateTime } from '@/lib/format';
 import { ShareButtons } from '@/components/ShareButtons';
 import { ArticleCard } from '@/components/ArticleCard';
 import { AdSlot } from '@/components/AdSlot';
+import { getYouTubeEmbedUrl } from '@/lib/youtube';
 
 type Props = {
   params: Promise<{ slug: string; category: string }>;
@@ -108,17 +109,37 @@ export default async function ArticlePage({ params }: Props) {
 
             <AdSlot zone="article-top" className="my-4" />
 
-            {article.featuredImage && (
-              // Show the full image at its natural aspect ratio — never cropped.
-              <div className="my-5 overflow-hidden rounded-xl bg-[var(--sk-surface)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={article.featuredImage}
-                  alt={article.title}
-                  className="mx-auto h-auto w-full object-contain"
-                />
-              </div>
-            )}
+            {(() => {
+              const embedUrl = getYouTubeEmbedUrl(article.videoUrl);
+              if (embedUrl) {
+                // Video article — play the YouTube embed inline.
+                return (
+                  <div className="my-5 overflow-hidden rounded-xl bg-black" style={{ aspectRatio: '16 / 9' }}>
+                    <iframe
+                      src={embedUrl}
+                      title={article.title}
+                      className="h-full w-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                );
+              }
+              if (article.featuredImage) {
+                // Show the full image at its natural aspect ratio — never cropped.
+                return (
+                  <div className="my-5 overflow-hidden rounded-xl bg-[var(--sk-surface)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={article.featuredImage}
+                      alt={article.title}
+                      className="mx-auto h-auto w-full object-contain"
+                    />
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             <div
               className="prose prose-lg max-w-none dark:prose-invert"
