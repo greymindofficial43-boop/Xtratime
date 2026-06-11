@@ -215,6 +215,24 @@ model Promo {
   @@index([sortOrder])
 }
 
+// Site-wide popup ad: an image that links somewhere, shown as a modal on the
+// public site between an optional start/end date, with a close button.
+model PopupAd {
+  id           String    @id @default(cuid())
+  title        String?   // internal label (admin only)
+  imageUrl     String
+  linkUrl      String    // where a click redirects
+  openInNewTab Boolean   @default(true)
+  enabled      Boolean   @default(true)
+  startDate    DateTime? // null = no start bound
+  endDate      DateTime? // null = no end bound
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([sortOrder])
+}
+
 // Toggleable / reorderable / renamable homepage blocks, edited from the admin.
 model HomeSection {
   id        String   @id @default(cuid())

@@ -63,6 +63,20 @@ export type Promo = {
   sortOrder: number;
 };
 
+export type PopupAd = {
+  id: string;
+  title?: string | null;
+  imageUrl: string;
+  linkUrl: string;
+  openInNewTab: boolean;
+  enabled: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type MenuItemType = 'INTERNAL' | 'CATEGORY' | 'EXTERNAL';
 export type MenuItemPlacement = 'MAIN' | 'MEGA';
 
@@ -334,6 +348,13 @@ export const adminApi = {
   updatePromo: (id: string, data: Partial<Promo>) =>
     apiFetch<Promo>(`/promos/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deletePromo: (id: string) => apiFetch(`/promos/${id}`, { method: 'DELETE' }),
+
+  getPopupAds: () => apiFetch<PopupAd[]>('/popup-ads'),
+  createPopupAd: (data: Partial<PopupAd>) =>
+    apiFetch<PopupAd>('/popup-ads', { method: 'POST', body: JSON.stringify(data) }),
+  updatePopupAd: (id: string, data: Partial<PopupAd>) =>
+    apiFetch<PopupAd>(`/popup-ads/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deletePopupAd: (id: string) => apiFetch(`/popup-ads/${id}`, { method: 'DELETE' }),
 
   getAds: () => apiFetch<Advertisement[]>('/ads'),
   createAd: (data: Partial<Advertisement>) =>

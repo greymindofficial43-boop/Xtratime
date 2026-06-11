@@ -9,6 +9,7 @@ import { Header } from '@/components/Header';
 import { SubHeader } from '@/components/SubHeader';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { RandomAdInjector } from '@/components/RandomAdInjector';
+import { PopupAd } from '@/components/PopupAd';
 import { branding } from '@/lib/branding';
 import { site } from '@/lib/site';
 
@@ -94,6 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <RandomAdInjector />
           <TrendingFooter />
           <Footer />
+          <PopupAd />
         </ThemeProvider>
       </body>
     </html>

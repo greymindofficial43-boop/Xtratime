@@ -13,6 +13,7 @@ import { AdsModule } from './ads/ads.module';
 import { MenusModule } from './menus/menus.module';
 import { HomeSectionsModule } from './home-sections/home-sections.module';
 import { PromosModule } from './promos/promos.module';
+import { PopupAdsModule } from './popup-ads/popup-ads.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { TestBodyController } from './test-body.controller';
 
@@ -36,6 +37,7 @@ import { TestBodyController } from './test-body.controller';
     MenusModule,
     HomeSectionsModule,
     PromosModule,
+    PopupAdsModule,
     UploadsModule,
   ],
   controllers: [TestBodyController],

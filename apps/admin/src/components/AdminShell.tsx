@@ -36,6 +36,7 @@ const NAV_SECTIONS = [
     label: 'Monetisation',
     items: [
       { href: '/ads', label: 'Ad Slots', icon: '◻' },
+      { href: '/popup-ads', label: 'Popup Ads', icon: '◳' },
     ],
   },
   {

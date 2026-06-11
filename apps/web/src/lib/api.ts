@@ -142,6 +142,19 @@ export type Promo = {
   sortOrder: number;
 };
 
+export type PopupAd = {
+  id: string;
+  title?: string | null;
+  imageUrl: string;
+  linkUrl: string;
+  openInNewTab: boolean;
+  enabled: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  sortOrder: number;
+  updatedAt?: string;
+};
+
 async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
@@ -183,4 +196,5 @@ export const api = {
     fetch(`${API_URL}/ads/${id}/view`, { method: 'POST' }).catch(() => null),
   recordAdClick: (id: string) =>
     fetch(`${API_URL}/ads/${id}/click`, { method: 'POST' }).catch(() => null),
+  getActivePopupAds: () => fetchApi<PopupAd[]>('/popup-ads/active', { cache: 'no-store' }),
 };
