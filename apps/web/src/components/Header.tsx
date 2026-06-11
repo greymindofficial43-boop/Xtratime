@@ -5,7 +5,6 @@ import { branding, isExternal } from '@/lib/branding';
 import { t } from '@/lib/strings';
 import { HeaderNav, type NavItem } from './HeaderNav';
 import { MobileNav } from './MobileNav';
-import { AllSportsPanel } from './AllSportsPanel';
 import { SearchBar } from './SearchBar';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -136,8 +135,6 @@ export async function Header() {
           >
             {t.live}
           </Link>
-          {/* All Sports panel trigger — visible on all screen sizes */}
-          <AllSportsPanel categories={categories} />
         </div>
       </div>
     </header>
