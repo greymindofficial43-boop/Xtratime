@@ -1,20 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = { url: string; title: string };
 
 export function ShareButtons({ url, title }: Props) {
   const [copied, setCopied] = useState(false);
+  // Resolve the share target to an absolute URL. `url` comes in as a relative
+  // path (e.g. /cricket/foo); prepend the current origin so shared/copied links
+  // include the domain. Done after mount to keep SSR/hydration in sync, and it
+  // automatically uses the right domain per edition.
+  const [fullUrl, setFullUrl] = useState(url);
+  useEffect(() => {
+    if (/^https?:\/\//.test(url)) setFullUrl(url);
+    else setFullUrl(`${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`);
+  }, [url]);
+
   const enc = encodeURIComponent;
 
-  const whatsapp = `https://wa.me/?text=${enc(`${title} ${url}`)}`;
-  const facebook = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
-  const twitter = `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`;
+  const whatsapp = `https://wa.me/?text=${enc(`${title} ${fullUrl}`)}`;
+  const facebook = `https://www.facebook.com/sharer/sharer.php?u=${enc(fullUrl)}`;
+  const twitter = `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(fullUrl)}`;
 
   async function copyLink() {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(fullUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
