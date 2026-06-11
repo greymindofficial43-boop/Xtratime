@@ -80,15 +80,8 @@ export function RichTextEditor({ value, onChange }: Props) {
     const file = e.target.files?.[0];
     if (!file || !editor) return;
 
-    // Immediately show base64 preview at cursor
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      if (ev.target?.result) {
-        editor.chain().focus().setImage({ src: ev.target.result as string, alt: file.name }).run();
-      }
-    };
-    reader.readAsDataURL(file);
-
+    // Upload first, then insert the hosted URL. We never embed base64 into the
+    // content: base64 blobs bloat the article and are rejected on save.
     setUploading(true);
     try {
       const token = localStorage.getItem('token') ?? '';
@@ -99,11 +92,23 @@ export function RichTextEditor({ value, onChange }: Props) {
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
-      if (res.ok) {
-        const data = (await res.json()) as { url: string };
-        editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
+
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { message?: string };
+        alert(err.message || 'Image upload failed. Make sure Cloudinary is configured on the API.');
+        return;
       }
-    } catch { /* keep base64 preview */ } finally {
+
+      const data = (await res.json()) as { url: string };
+      if (!data.url || data.url.startsWith('data:')) {
+        alert('Image hosting is not configured on the server (no Cloudinary). The image was not inserted.');
+        return;
+      }
+
+      editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
+    } catch {
+      alert('Image upload failed. Please try again.');
+    } finally {
       setUploading(false);
       if (imageInputRef.current) imageInputRef.current.value = '';
     }
