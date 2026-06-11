@@ -1,5 +1,4 @@
 import type { Scorecard, ScorecardTab, MatchStatus, TeamLine } from './scorecards';
-import { branding } from './branding';
 
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
 
@@ -407,18 +406,18 @@ function normalizeNewsItem(a: EspnNewsArticle, sport: string, sportSlug: string)
 }
 
 export async function fetchSportNews(
-  sportPath: string,
-  sportLabel: string,
-  sportSlug: string,
-  limit = 8,
+  _sportPath: string,
+  _sportLabel: string,
+  _sportSlug: string,
+  _limit = 8,
 ): Promise<EspnNewsItem[]> {
-  // ESPN news is English-language; only surface it on the English edition.
-  // Non-English editions (e.g. Bangla) get no ESPN news — scores are unaffected.
-  if (branding.siteLocale !== 'en') return [];
-  const data = await fetchEspn<EspnNewsResponse>(`${sportPath}/news`, 300);
-  return (data?.articles ?? [])
-    .slice(0, limit)
-    .map((a) => normalizeNewsItem(a, sportLabel, sportSlug));
+  // ESPN content has been removed from the site entirely. Return nothing so any
+  // remaining caller (homepage/category sections, promo fallback) renders no
+  // ESPN news on either edition.
+  return [];
+  // Previous implementation kept for reference:
+  // const data = await fetchEspn<EspnNewsResponse>(`${sportPath}/news`, 300);
+  // return (data?.articles ?? []).slice(0, limit).map((a) => normalizeNewsItem(a, sportLabel, sportSlug));
 }
 
 export async function fetchHomepageNews(perSport = 4): Promise<EspnNewsItem[]> {
