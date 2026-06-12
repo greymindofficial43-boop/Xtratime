@@ -1,6 +1,7 @@
 'use client';
 
 import { adminApi, type Article, type Category } from '@/lib/api';
+import { site } from '@/lib/site';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -418,6 +419,15 @@ export default function ArticlesPage() {
                           </>
                         ) : (
                           <>
+                            <a
+                              href={`${site.webUrl}/${article.category.slug}/${article.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-medium transition hover:opacity-70"
+                              style={{ color: 'var(--admin-accent-2)' }}
+                            >
+                              View
+                            </a>
                             <Link
                               href={`/articles/${article.id}/edit`}
                               className="text-sm font-medium transition hover:opacity-70"

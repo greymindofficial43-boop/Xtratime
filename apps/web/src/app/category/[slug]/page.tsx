@@ -4,6 +4,7 @@ import { EspnNewsCard } from '@/components/EspnNewsCard';
 import { AdSlot } from '@/components/AdSlot';
 import { api } from '@/lib/api';
 import { fetchCategoryNews } from '@/lib/espn';
+import { t } from '@/lib/strings';
 import { Fragment } from 'react';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -12,9 +13,28 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const category = await api.getCategory(slug).catch(() => null);
   if (!category) return { title: 'Category Not Found' };
+
+  const title = t.categoryMetaTitle(category.name);
+  const description = t.categoryMetaDescription(category.name);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
   return {
-    title: `${category.name} News`,
-    description: `Latest ${category.name} news, rumors, scores and analysis.`,
+    title,
+    description,
+    // Set openGraph/twitter explicitly so social previews use the localized
+    // category title instead of inheriting the site-wide default.
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: `${siteUrl}/category/${category.slug}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    alternates: { canonical: `${siteUrl}/category/${category.slug}` },
   };
 }
 

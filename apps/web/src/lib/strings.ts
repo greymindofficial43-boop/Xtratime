@@ -10,6 +10,9 @@ type Strings = {
   noStories: string;
   live: string;
   moreNews: (category: string) => string;
+  // SEO / social-preview metadata for category pages.
+  categoryMetaTitle: (category: string) => string;
+  categoryMetaDescription: (category: string) => string;
 };
 
 const STRINGS: Record<string, Strings> = {
@@ -20,6 +23,9 @@ const STRINGS: Record<string, Strings> = {
     noStories: 'No stories yet.',
     live: 'Live',
     moreNews: (category) => `More ${category} News`,
+    categoryMetaTitle: (category) => `${category} News`,
+    categoryMetaDescription: (category) =>
+      `Latest ${category} news, rumors, scores and analysis.`,
   },
   bn: {
     latestNews: 'সর্বশেষ খবর',
@@ -28,6 +34,9 @@ const STRINGS: Record<string, Strings> = {
     noStories: 'এখনো কোনো খবর নেই।',
     live: 'লাইভ',
     moreNews: () => 'আরো পড়ুন',
+    categoryMetaTitle: (category) => `${category} খবর`,
+    categoryMetaDescription: (category) =>
+      `${category} সম্পর্কিত সর্বশেষ খবর, ট্রান্সফার গুজব, স্কোর এবং বিশ্লেষণ।`,
   },
 };
 
