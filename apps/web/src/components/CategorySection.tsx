@@ -53,7 +53,7 @@ export function CategorySection({ category, articles, popular }: Props) {
         {/* Sidebar: latest/popular */}
         <aside className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
           <div className="mb-4 flex items-center gap-2">
-            <span className="sk-cat-badge text-[9px]">{t.latest}</span>
+            <span className="sk-cat-badge text-[9px]">{t.latestNews}</span>
           </div>
           {popular.length > 0 ? (
             popular.slice(0, 5).map((article, i) => (

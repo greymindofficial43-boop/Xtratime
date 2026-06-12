@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { ArticleCard } from '@/components/ArticleCard';
-import { EspnNewsCard } from '@/components/EspnNewsCard';
 import { AdSlot } from '@/components/AdSlot';
 import { api } from '@/lib/api';
-import { fetchCategoryNews } from '@/lib/espn';
 import { t } from '@/lib/strings';
 import { Fragment } from 'react';
 
@@ -42,7 +40,6 @@ export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
   let category = await api.getCategory(slug).catch(() => null);
 
-  // If category is not in DB, create a fallback so ESPN data still loads
   if (!category) {
     category = {
       id: slug,
@@ -53,10 +50,9 @@ export default async function CategoryPage({ params }: Props) {
     };
   }
 
-  const [articles, trending, espnNews] = await Promise.all([
+  const [articles, trending] = await Promise.all([
     api.getArticles({ category: slug, limit: 24 }).catch(() => ({ items: [] })),
     api.getArticles({ category: slug, trending: true, limit: 5 }).catch(() => ({ items: [] })),
-    fetchCategoryNews(slug, 8),
   ]);
 
   const [featured, ...rest] = articles.items;
@@ -117,25 +113,6 @@ export default async function CategoryPage({ params }: Props) {
             <p className="py-12 text-center text-[var(--sk-muted)]">
               No articles in this category yet.
             </p>
-          )}
-
-          {/* ESPN news for this sport category */}
-          {espnNews.length > 0 && (
-            <section className="mt-8">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
-                  Latest ESPN {category.name} News
-                </h2>
-                <span className="rounded-full border border-[var(--sk-border)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--sk-muted)]">
-                  ESPN
-                </span>
-              </div>
-              <div className="divide-y divide-[var(--sk-border)] rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] px-3">
-                {espnNews.map((news) => (
-                  <EspnNewsCard key={news.id} news={news} size="compact" />
-                ))}
-              </div>
-            </section>
           )}
 
           <Link
@@ -212,19 +189,6 @@ export default async function CategoryPage({ params }: Props) {
               </div>
             )}
 
-            {/* ESPN news sidebar (compact) — if different from main */}
-            {espnNews.length > 4 && (
-              <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-4">
-                <h3 className="sk-section-heading mb-3 text-xs font-black uppercase tracking-wide text-[var(--sk-text)]">
-                  ESPN Headlines
-                </h3>
-                <div>
-                  {espnNews.slice(4, 8).map((news) => (
-                    <EspnNewsCard key={news.id} news={news} size="compact" />
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </aside>
       </div>
