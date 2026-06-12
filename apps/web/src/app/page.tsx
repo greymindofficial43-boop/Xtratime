@@ -4,6 +4,7 @@ import { ArticleCard } from '@/components/ArticleCard';
 import { CategorySection } from '@/components/CategorySection';
 import { PromoBanner } from '@/components/PromoBanner';
 import { api, type Article } from '@/lib/api';
+import { t } from '@/lib/strings';
 
 // Fallback sections, used only until categories are flagged "Show on homepage" in the admin.
 const FALLBACK_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gaming'];
@@ -22,7 +23,7 @@ const DEFAULT_TITLES: Record<string, string> = {
   'more-stories': 'More Stories',
   promo: 'Promo Banner',
   'category-sections': 'Category Sections',
-  trending: 'Trending Now',
+  trending: t.trendingNow,
 };
 
 // Keep the first occurrence of each article id, preserving order. Used to put

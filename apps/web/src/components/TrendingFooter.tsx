@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { t } from '@/lib/strings';
 
 export async function TrendingFooter() {
   const articlesRes = await api.getArticles({ trending: true, limit: 4 }).catch(() => null);
@@ -11,7 +12,7 @@ export async function TrendingFooter() {
     <section className="border-t border-[var(--sk-border)] bg-[var(--sk-surface)] py-12">
       <div className="mx-auto max-w-7xl px-4">
         <h2 className="mb-6 flex items-center gap-2 text-2xl font-black text-[var(--sk-text)]">
-          <span className="text-[var(--sk-accent)]">🔥</span> Trending Right Now
+          <span className="text-[var(--sk-accent)]">🔥</span> {t.trendingRightNow}
         </h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {articles.map((article) => (

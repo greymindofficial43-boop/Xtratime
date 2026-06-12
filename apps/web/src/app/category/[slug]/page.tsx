@@ -129,7 +129,7 @@ export default async function CategoryPage({ params }: Props) {
             {/* Most Popular */}
             <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-5">
               <h2 className="sk-section-heading mb-4 text-sm font-black uppercase tracking-wide text-[var(--sk-text)]">
-                Most Popular
+                {t.mostPopular}
               </h2>
               {(trending.items.length > 0 ? trending.items : articles.items)
                 .slice(0, 5)

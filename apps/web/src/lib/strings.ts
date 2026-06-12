@@ -9,6 +9,9 @@ type Strings = {
   viewAll: string;
   noStories: string;
   live: string;
+  trendingNow: string;
+  trendingRightNow: string;
+  mostPopular: string;
   moreNews: (category: string) => string;
   // SEO / social-preview metadata for category pages.
   categoryMetaTitle: (category: string) => string;
@@ -22,6 +25,9 @@ const STRINGS: Record<string, Strings> = {
     viewAll: 'View All',
     noStories: 'No stories yet.',
     live: 'Live',
+    trendingNow: 'Trending Now',
+    trendingRightNow: 'Trending Right Now',
+    mostPopular: 'Most Popular',
     moreNews: (category) => `More ${category} News`,
     categoryMetaTitle: (category) => `${category} News`,
     categoryMetaDescription: (category) =>
@@ -33,6 +39,9 @@ const STRINGS: Record<string, Strings> = {
     viewAll: 'সব দেখুন',
     noStories: 'এখনো কোনো খবর নেই।',
     live: 'লাইভ',
+    trendingNow: 'এখন ট্রেন্ডিং',
+    trendingRightNow: 'এখন ট্রেন্ডিং',
+    mostPopular: 'সবচেয়ে জনপ্রিয়',
     moreNews: () => 'আরো পড়ুন',
     categoryMetaTitle: (category) => `${category} খবর`,
     categoryMetaDescription: (category) =>
