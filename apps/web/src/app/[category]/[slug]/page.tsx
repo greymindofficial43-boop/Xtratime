@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props) {
     keywords: article.metaKeywords,
     openGraph: {
       title: article.title,
-      description: article.excerpt ?? article.metaDescription ?? undefined,
+      description: article.excerpt ?? undefined,
       url: canonical,
       type: 'article',
       publishedTime: article.publishedAt,
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props) {
     twitter: {
       card: 'summary_large_image',
       title: article.title,
-      description: article.excerpt ?? article.metaDescription ?? undefined,
+      description: article.excerpt ?? undefined,
       images: article.featuredImage ? [article.featuredImage] : undefined,
     },
     alternates: {
