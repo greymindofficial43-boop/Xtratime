@@ -33,7 +33,20 @@ export function ArticleForm({ article }: Props) {
   const [imageUploading, setImageUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>(article?.featuredImage ?? '');
 
+  // Gallery images state
+  type GalleryEntry = { tempId: string; url: string; caption: string; order: number; uploading?: boolean };
+  const [galleryImages, setGalleryImages] = useState<GalleryEntry[]>(
+    (article?.galleryImages ?? []).map((img, i) => ({
+      tempId: img.id,
+      url: img.url,
+      caption: img.caption ?? '',
+      order: img.order ?? i,
+    }))
+  );
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
   const [form, setForm] = useState<{
+    type: 'ARTICLE' | 'GALLERY';
     title: string;
     slug: string;
     excerpt: string;
@@ -51,6 +64,7 @@ export function ArticleForm({ article }: Props) {
     metaDescription: string;
     metaKeywords: string;
   }>({
+    type: (article?.type as 'ARTICLE' | 'GALLERY') ?? 'ARTICLE',
     title: article?.title ?? '',
     slug: article?.slug ?? '',
     excerpt: article?.excerpt ?? '',
@@ -65,7 +79,6 @@ export function ArticleForm({ article }: Props) {
       article?.categories?.map((c) => c.id) ??
       (article?.categoryId ? [article.categoryId] : []),
     tagIds: article?.tags.map((t) => t.id) ?? [],
-    // datetime-local value (local time). Existing date on edit, else now.
     publishedAt: toLocalInput(article?.publishedAt ? new Date(article.publishedAt) : new Date()),
     metaTitle: article?.metaTitle ?? '',
     metaDescription: article?.metaDescription ?? '',
@@ -150,6 +163,62 @@ export function ArticleForm({ article }: Props) {
     }
   }
 
+  async function handleGalleryUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token') ?? '';
+    const tempEntries: GalleryEntry[] = files.map((f, i) => ({
+      tempId: `tmp-${Date.now()}-${i}`,
+      url: URL.createObjectURL(f),
+      caption: '',
+      order: galleryImages.length + i,
+      uploading: true,
+    }));
+    setGalleryImages((prev) => [...prev, ...tempEntries]);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const tempId = tempEntries[i].tempId;
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch(`${API_BASE}/api/uploads`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json() as { url: string };
+        setGalleryImages((prev) =>
+          prev.map((img) => img.tempId === tempId ? { ...img, url: data.url, uploading: false } : img)
+        );
+      } catch {
+        setGalleryImages((prev) => prev.filter((img) => img.tempId !== tempId));
+      }
+    }
+    if (galleryInputRef.current) galleryInputRef.current.value = '';
+  }
+
+  function removeGalleryImage(tempId: string) {
+    setGalleryImages((prev) => prev.filter((img) => img.tempId !== tempId));
+  }
+
+  function updateGalleryCaption(tempId: string, caption: string) {
+    setGalleryImages((prev) => prev.map((img) => img.tempId === tempId ? { ...img, caption } : img));
+  }
+
+  function moveGalleryImage(tempId: string, direction: -1 | 1) {
+    setGalleryImages((prev) => {
+      const idx = prev.findIndex((img) => img.tempId === tempId);
+      if (idx < 0) return prev;
+      const next = idx + direction;
+      if (next < 0 || next >= prev.length) return prev;
+      const arr = [...prev];
+      [arr[idx], arr[next]] = [arr[next], arr[idx]];
+      return arr.map((img, i) => ({ ...img, order: i }));
+    });
+  }
+
   /** Extract a valid YouTube embed URL from any YouTube link */
   function getYouTubeEmbedUrl(url: string): string | null {
     if (!url) return null;
@@ -164,19 +233,23 @@ export function ArticleForm({ article }: Props) {
     setLoading(true);
     setError('');
     try {
-      // Prevent submitting articles that contain inline base64 image data URLs — these create very large payloads.
-      if (form.content.includes('data:')) {
+      if (form.type === 'ARTICLE' && form.content.includes('data:')) {
         throw new Error('Article content contains inline images (data URLs). Please upload images using the Upload button and ensure uploads are configured in the API (Cloudinary).');
       }
       if (!form.categoryId || form.categoryIds.length === 0) {
         throw new Error('Please select at least one category.');
       }
+      if (form.type === 'GALLERY' && galleryImages.filter((i) => !i.uploading).length === 0) {
+        throw new Error('Please add at least one image to the gallery.');
+      }
       const payload = {
         ...form,
-        // Make sure the main category is always part of the set.
         categoryIds: Array.from(new Set([form.categoryId, ...form.categoryIds])),
         status: form.status as Article['status'],
         publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : undefined,
+        galleryImages: form.type === 'GALLERY'
+          ? galleryImages.filter((i) => !i.uploading).map((img, idx) => ({ url: img.url, caption: img.caption || undefined, order: idx }))
+          : undefined,
         // Empty slug => let the API auto-generate from the title.
         slug: form.slug.trim() || undefined,
       };
@@ -200,6 +273,30 @@ export function ArticleForm({ article }: Props) {
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
+
+      {/* ── Article type toggle ── */}
+      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
+        <label className="block text-sm font-medium mb-3">Content Type</label>
+        <div className="flex gap-3">
+          {(['ARTICLE', 'GALLERY'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => update('type', t)}
+              className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
+                form.type === t
+                  ? 'border-[var(--admin-accent)] bg-red-50 text-[var(--admin-accent)]'
+                  : 'border-slate-300 text-slate-600 hover:border-slate-400'
+              }`}
+            >
+              {t === 'ARTICLE' ? '📝 Article' : '🖼️ Photo Gallery'}
+            </button>
+          ))}
+        </div>
+        {form.type === 'GALLERY' && (
+          <p className="mt-2 text-xs text-slate-400">Gallery articles show a full-screen slideshow. Upload multiple images below.</p>
+        )}
+      </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">
         <div>
@@ -332,13 +429,69 @@ export function ArticleForm({ article }: Props) {
           </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Content *</label>
-          <RichTextEditor
-            value={form.content}
-            onChange={(val) => update('content', val)}
-          />
-        </div>
+        {form.type === 'ARTICLE' ? (
+          <div>
+            <label className="block text-sm font-medium mb-1">Content *</label>
+            <RichTextEditor
+              value={form.content}
+              onChange={(val) => update('content', val)}
+            />
+          </div>
+        ) : (
+          <div>
+            <label className="block text-sm font-medium mb-2">Gallery Images *</label>
+            <p className="mb-3 text-xs text-slate-400">Upload images in order. You can reorder with the ↑ ↓ buttons. Add a caption for each slide.</p>
+
+            {/* Image list */}
+            <div className="space-y-3 mb-4">
+              {galleryImages.map((img, idx) => (
+                <div key={img.tempId} className="flex gap-3 rounded-lg border border-slate-200 p-3">
+                  <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-md bg-slate-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.url} alt="" className="h-full w-full object-cover" />
+                    {img.uploading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                        <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      </div>
+                    )}
+                    <span className="absolute left-1 top-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white">{idx + 1}</span>
+                  </div>
+                  <div className="flex flex-1 flex-col gap-2">
+                    <input
+                      value={img.caption}
+                      onChange={(e) => updateGalleryCaption(img.tempId, e.target.value)}
+                      placeholder="Caption (optional)"
+                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => moveGalleryImage(img.tempId, -1)} disabled={idx === 0} className="rounded border border-slate-300 px-2 py-1 text-xs disabled:opacity-30">↑</button>
+                      <button type="button" onClick={() => moveGalleryImage(img.tempId, 1)} disabled={idx === galleryImages.length - 1} className="rounded border border-slate-300 px-2 py-1 text-xs disabled:opacity-30">↓</button>
+                      <button type="button" onClick={() => removeGalleryImage(img.tempId)} className="rounded border border-red-200 px-2 py-1 text-xs text-red-500 hover:bg-red-50">Remove</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add images button */}
+            <button
+              type="button"
+              onClick={() => galleryInputRef.current?.click()}
+              className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-400 hover:bg-slate-100 transition"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Add Images
+            </button>
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleGalleryUpload}
+            />
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 space-y-4">

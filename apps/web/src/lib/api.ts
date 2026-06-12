@@ -48,8 +48,16 @@ export type Author = {
   email: string;
 };
 
+export type GalleryImage = {
+  id: string;
+  url: string;
+  caption?: string | null;
+  order: number;
+};
+
 export type Article = {
   id: string;
+  type: 'ARTICLE' | 'GALLERY';
   title: string;
   slug: string;
   excerpt?: string | null;
@@ -69,6 +77,7 @@ export type Article = {
   category: Pick<Category, 'id' | 'name' | 'slug' | 'color'>;
   categories?: Pick<Category, 'id' | 'name' | 'slug' | 'color'>[];
   tags: Tag[];
+  galleryImages?: GalleryImage[];
 };
 
 export type PaginatedArticles = {

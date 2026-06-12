@@ -13,6 +13,11 @@ enum ArticleStatus {
   ARCHIVED
 }
 
+enum ArticleType {
+  ARTICLE
+  GALLERY
+}
+
 enum UserRole {
   ADMIN
   EDITOR
@@ -79,6 +84,7 @@ model Article {
   content       String        @db.Text
   featuredImage String?
   videoUrl      String?
+  type          ArticleType   @default(ARTICLE)
   status        ArticleStatus @default(DRAFT)
   isFeatured    Boolean       @default(false)
   isTrending    Boolean       @default(false)
@@ -98,10 +104,22 @@ model Article {
   // Full set of categories this article belongs to (incl. the primary one).
   categories    ArticleCategory[]
   tags          ArticleTag[]
+  galleryImages GalleryImage[]
 
   @@index([status, publishedAt])
   @@index([categoryId])
   @@index([deletedAt])
+}
+
+model GalleryImage {
+  id        String  @id @default(cuid())
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  url       String
+  caption   String?
+  order     Int     @default(0)
+
+  @@index([articleId])
 }
 
 // Many-to-many: an article can appear under several categories. The primary

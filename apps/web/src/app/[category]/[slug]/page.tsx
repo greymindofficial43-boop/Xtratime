@@ -6,6 +6,7 @@ import { formatDateTime } from '@/lib/format';
 import { ShareButtons } from '@/components/ShareButtons';
 import { ArticleCard } from '@/components/ArticleCard';
 import { AdSlot } from '@/components/AdSlot';
+import { GallerySlideshow } from '@/components/GallerySlideshow';
 import { getYouTubeEmbedUrl } from '@/lib/youtube';
 
 type Props = {
@@ -109,10 +110,11 @@ export default async function ArticlePage({ params }: Props) {
 
             <AdSlot zone="article-top" className="my-4" />
 
-            {(() => {
+            {article.type === 'GALLERY' && article.galleryImages?.length ? (
+              <GallerySlideshow images={article.galleryImages} />
+            ) : (() => {
               const embedUrl = getYouTubeEmbedUrl(article.videoUrl);
               if (embedUrl) {
-                // Video article — play the YouTube embed inline.
                 return (
                   <div className="my-5 overflow-hidden rounded-xl bg-black" style={{ aspectRatio: '16 / 9' }}>
                     <iframe
@@ -126,7 +128,6 @@ export default async function ArticlePage({ params }: Props) {
                 );
               }
               if (article.featuredImage) {
-                // Show the full image at its natural aspect ratio — never cropped.
                 return (
                   <div className="my-5 overflow-hidden rounded-xl bg-[var(--sk-surface)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -141,10 +142,12 @@ export default async function ArticlePage({ params }: Props) {
               return null;
             })()}
 
-            <div
-              className="prose prose-lg max-w-none dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-            />
+            {article.type !== 'GALLERY' && (
+              <div
+                className="prose prose-lg max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+              />
+            )}
 
             <AdSlot zone="article-bottom" className="my-4" />
 

@@ -3,16 +3,35 @@ import {
   IsBoolean,
   IsDateString,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
-import { ArticleStatus } from '@prisma/client';
+import { Type } from 'class-transformer';
+import { ArticleStatus, ArticleType } from '@prisma/client';
+
+export class GalleryImageDto {
+  @IsString()
+  url!: string;
+
+  @IsOptional()
+  @IsString()
+  caption?: string;
+
+  @IsInt()
+  order!: number;
+}
 
 export class CreateArticleDto {
   @IsString()
   @MinLength(5)
   title!: string;
+
+  @IsOptional()
+  @IsEnum(ArticleType)
+  type?: ArticleType;
 
   @IsOptional()
   @IsString()
@@ -22,9 +41,15 @@ export class CreateArticleDto {
   @IsString()
   excerpt?: string;
 
+  @IsOptional()
   @IsString()
-  @MinLength(20)
-  content!: string;
+  content?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GalleryImageDto)
+  galleryImages?: GalleryImageDto[];
 
   @IsOptional()
   @IsString()

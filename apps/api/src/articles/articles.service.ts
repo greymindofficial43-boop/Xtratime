@@ -13,6 +13,7 @@ const articleInclude = {
   category: { select: categorySelect },
   categories: { include: { category: { select: categorySelect } } },
   tags: { include: { tag: true } },
+  galleryImages: { orderBy: { order: 'asc' as const } },
 } satisfies Prisma.ArticleInclude;
 
 @Injectable()
@@ -134,9 +135,10 @@ export class ArticlesService {
     const article = await this.prisma.article.create({
       data: {
         title: dto.title,
+        type: dto.type,
         slug,
         excerpt: dto.excerpt,
-        content: dto.content,
+        content: dto.content ?? '',
         featuredImage: dto.featuredImage,
         videoUrl: dto.videoUrl,
         status: dto.status ?? ArticleStatus.DRAFT,
@@ -150,9 +152,10 @@ export class ArticlesService {
         categoryId: dto.categoryId,
         categories: { create: categoryIds.map((categoryId) => ({ categoryId })) },
         tags: dto.tagIds?.length
-          ? {
-              create: dto.tagIds.map((tagId) => ({ tagId })),
-            }
+          ? { create: dto.tagIds.map((tagId) => ({ tagId })) }
+          : undefined,
+        galleryImages: dto.galleryImages?.length
+          ? { create: dto.galleryImages.map((img) => ({ url: img.url, caption: img.caption, order: img.order })) }
           : undefined,
       },
       include: articleInclude,
@@ -183,6 +186,10 @@ export class ArticlesService {
       await this.prisma.articleTag.deleteMany({ where: { articleId: id } });
     }
 
+    if (dto.galleryImages !== undefined) {
+      await this.prisma.galleryImage.deleteMany({ where: { articleId: id } });
+    }
+
     // Resync category memberships whenever the primary or the set changes.
     const primaryId = dto.categoryId ?? existing.categoryId;
     const categoryIds =
@@ -197,6 +204,7 @@ export class ArticlesService {
       where: { id },
       data: {
         title: dto.title,
+        type: dto.type,
         slug,
         excerpt: dto.excerpt,
         content: dto.content,
@@ -215,6 +223,9 @@ export class ArticlesService {
           : undefined,
         tags: dto.tagIds
           ? { create: dto.tagIds.map((tagId) => ({ tagId })) }
+          : undefined,
+        galleryImages: dto.galleryImages
+          ? { create: dto.galleryImages.map((img) => ({ url: img.url, caption: img.caption, order: img.order })) }
           : undefined,
       },
       include: articleInclude,

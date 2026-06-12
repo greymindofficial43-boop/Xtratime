@@ -99,8 +99,16 @@ export type MenuItem = {
   children?: MenuItem[];
 };
 
+export type GalleryImage = {
+  id: string;
+  url: string;
+  caption?: string | null;
+  order: number;
+};
+
 export type Article = {
   id: string;
+  type: 'ARTICLE' | 'GALLERY';
   title: string;
   slug: string;
   excerpt?: string | null;
@@ -114,6 +122,7 @@ export type Article = {
   category: { id: string; name: string; slug: string; color?: string | null };
   categories?: { id: string; name: string; slug: string; color?: string | null }[];
   tags: Tag[];
+  galleryImages?: GalleryImage[];
   publishedAt?: string | null;
   createdAt?: string;
   metaTitle?: string | null;
