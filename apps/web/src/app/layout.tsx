@@ -6,7 +6,6 @@ import { BreakingTicker } from '@/components/BreakingTicker';
 import { Footer } from '@/components/Footer';
 import { TrendingFooter } from '@/components/TrendingFooter';
 import { Header } from '@/components/Header';
-import { SubHeader } from '@/components/SubHeader';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { RandomAdInjector } from '@/components/RandomAdInjector';
 import { PopupAd } from '@/components/PopupAd';
@@ -89,8 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
         <ThemeProvider>
           <Header />
-          <SubHeader />
-          <BreakingTicker />
+<BreakingTicker />
           <main>{children}</main>
           <RandomAdInjector />
           <TrendingFooter />
