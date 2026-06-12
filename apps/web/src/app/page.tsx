@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { AdSlot } from '@/components/AdSlot';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategorySection } from '@/components/CategorySection';
 import { PromoBanner } from '@/components/PromoBanner';
 import { api, type Article } from '@/lib/api';
 import { t } from '@/lib/strings';
+import { fetchYouTubeVideos } from '@/lib/youtube-feed';
 
 // Fallback sections, used only until categories are flagged "Show on homepage" in the admin.
 const FALLBACK_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gaming'];
@@ -38,12 +40,13 @@ function dedupeById(items: Article[]): Article[] {
 }
 
 export default async function HomePage() {
-  const [categories, latest, featured, trending, homeSections] = await Promise.all([
+  const [categories, latest, featured, trending, homeSections, youtubeVideos] = await Promise.all([
     api.getCategories().catch(() => []),
     api.getArticles({ limit: 20 }).catch(() => ({ items: [] })),
     api.getArticles({ featured: true, limit: 10 }).catch(() => ({ items: [] })),
     api.getArticles({ trending: true, limit: 5 }).catch(() => ({ items: [] })),
     api.getHomeSections().catch(() => []),
+    fetchYouTubeVideos().catch(() => []),
   ]);
 
   // Admin-controlled homepage config (show/hide, order, custom titles). Falls
@@ -235,6 +238,66 @@ export default async function HomePage() {
         ),
       });
     });
+
+  if (youtubeVideos.length > 0) {
+    const homeVideos = youtubeVideos.slice(0, 6);
+    blocks.push({
+      key: 'youtube-videos',
+      node: (
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-red-600">
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-white ml-0.5">
+                  <polygon points="5,3 19,12 5,21" />
+                </svg>
+              </div>
+              <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
+                {t.latestVideos}
+              </h2>
+            </div>
+            <Link
+              href="/videos"
+              className="text-xs font-semibold text-[var(--sk-accent)] hover:underline"
+            >
+              {t.viewAll} →
+            </Link>
+          </div>
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+            {homeVideos.map((v) => (
+              <a
+                key={v.videoId}
+                href={v.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col overflow-hidden rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] hover:border-[var(--sk-accent)] transition"
+              >
+                <div className="relative aspect-video bg-black">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={v.thumbnail}
+                    alt={v.title}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600/90">
+                      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white ml-0.5">
+                        <polygon points="5,3 19,12 5,21" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-2">
+                  <p className="text-xs font-semibold line-clamp-2 leading-snug">{v.title}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      ),
+    });
+  }
 
   blocks.sort((a, b) => orderOf(a.key) - orderOf(b.key));
 

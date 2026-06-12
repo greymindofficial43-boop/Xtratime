@@ -12,6 +12,8 @@ type Strings = {
   trendingNow: string;
   trendingRightNow: string;
   mostPopular: string;
+  videos: string;
+  latestVideos: string;
   moreNews: (category: string) => string;
   // SEO / social-preview metadata for category pages.
   categoryMetaTitle: (category: string) => string;
@@ -28,6 +30,8 @@ const STRINGS: Record<string, Strings> = {
     trendingNow: 'Trending Now',
     trendingRightNow: 'Trending Right Now',
     mostPopular: 'Most Popular',
+    videos: 'Videos',
+    latestVideos: 'Latest Videos',
     moreNews: (category) => `More ${category} News`,
     categoryMetaTitle: (category) => `${category} News`,
     categoryMetaDescription: (category) =>
@@ -42,6 +46,8 @@ const STRINGS: Record<string, Strings> = {
     trendingNow: 'এখন ট্রেন্ডিং',
     trendingRightNow: 'এখন ট্রেন্ডিং',
     mostPopular: 'সবচেয়ে জনপ্রিয়',
+    videos: 'ভিডিও',
+    latestVideos: 'সর্বশেষ ভিডিও',
     moreNews: () => 'আরো পড়ুন',
     categoryMetaTitle: (category) => `${category} খবর`,
     categoryMetaDescription: (category) =>
