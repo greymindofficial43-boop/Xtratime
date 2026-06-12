@@ -2,10 +2,8 @@ import type { ReactNode } from 'react';
 import { AdSlot } from '@/components/AdSlot';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategorySection } from '@/components/CategorySection';
-import { EspnNewsCard } from '@/components/EspnNewsCard';
 import { PromoBanner } from '@/components/PromoBanner';
 import { api, type Article } from '@/lib/api';
-import { fetchHomepageNews } from '@/lib/espn';
 
 // Fallback sections, used only until categories are flagged "Show on homepage" in the admin.
 const FALLBACK_SECTION_SLUGS = ['wwe', 'cricket', 'nba', 'nfl', 'football', 'gaming'];
@@ -17,7 +15,6 @@ const DEFAULT_SECTION_ORDER = [
   'more-stories',
   'promo',
   'category-sections',
-  'espn-news',
   'trending',
 ];
 const DEFAULT_TITLES: Record<string, string> = {
@@ -25,7 +22,6 @@ const DEFAULT_TITLES: Record<string, string> = {
   'more-stories': 'More Stories',
   promo: 'Promo Banner',
   'category-sections': 'Category Sections',
-  'espn-news': 'Latest from ESPN',
   trending: 'Trending Now',
 };
 
@@ -41,12 +37,11 @@ function dedupeById(items: Article[]): Article[] {
 }
 
 export default async function HomePage() {
-  const [categories, latest, featured, trending, espnNews, homeSections] = await Promise.all([
+  const [categories, latest, featured, trending, homeSections] = await Promise.all([
     api.getCategories().catch(() => []),
     api.getArticles({ limit: 20 }).catch(() => ({ items: [] })),
     api.getArticles({ featured: true, limit: 10 }).catch(() => ({ items: [] })),
     api.getArticles({ trending: true, limit: 5 }).catch(() => ({ items: [] })),
-    fetchHomepageNews(4),
     api.getHomeSections().catch(() => []),
   ]);
 
@@ -239,39 +234,6 @@ export default async function HomePage() {
         ),
       });
     });
-
-  if (enabled('espn-news') && espnNews.length > 0) {
-    blocks.push({
-      key: 'espn-news',
-      node: (
-        <section className="border-t border-[var(--sk-border)] pt-8">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="sk-section-heading text-xl font-black uppercase tracking-tight text-[var(--sk-text)]">
-              {title('espn-news')}
-            </h2>
-            <span className="rounded-full border border-[var(--sk-border)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--sk-muted)]">
-              ESPN
-            </span>
-          </div>
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-            <EspnNewsCard news={espnNews[0]} size="hero" />
-            <div className="grid gap-4 sm:grid-cols-2">
-              {espnNews.slice(1, 5).map((news) => (
-                <EspnNewsCard key={news.id} news={news} />
-              ))}
-            </div>
-          </div>
-          {espnNews.length > 5 && (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {espnNews.slice(5, 9).map((news) => (
-                <EspnNewsCard key={news.id} news={news} />
-              ))}
-            </div>
-          )}
-        </section>
-      ),
-    });
-  }
 
   blocks.sort((a, b) => orderOf(a.key) - orderOf(b.key));
 

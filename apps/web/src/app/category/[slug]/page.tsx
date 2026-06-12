@@ -143,52 +143,6 @@ export default async function CategoryPage({ params }: Props) {
               <AdSlot zone="sidebar" />
             </div>
 
-            {/* Player Stats widget (cricket only) */}
-            {slug === 'cricket' && (
-              <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] overflow-hidden">
-                <div className="px-5 py-3 border-b border-[var(--sk-border)] flex items-center justify-between"
-                  style={{ background: 'linear-gradient(135deg, rgba(220,38,38,0.15), rgba(126,34,206,0.1))' }}
-                >
-                  <h3 className="text-sm font-black uppercase tracking-wide text-[var(--sk-text)]">
-                    Player Stats
-                  </h3>
-                  <Link href="/players" className="text-xs font-bold text-[var(--sk-accent)] hover:opacity-80">
-                    View All →
-                  </Link>
-                </div>
-                <div className="divide-y divide-[var(--sk-border)]">
-                  {[
-                    { id: 'c61d247d-7f77-452c-b495-2813a9cd0ac4', name: 'Virat Kohli', country: 'India', flag: '🇮🇳' },
-                    { id: '6da70c66-7cf5-4c8c-aba8-54b2a87f51d3', name: 'Rohit Sharma', country: 'India', flag: '🇮🇳' },
-                    { id: '22e8f6f8-be4e-4c55-bc66-50b73aba4d7e', name: 'MS Dhoni', country: 'India', flag: '🇮🇳' },
-                    { id: '612c0606-76dc-4f61-9416-41a7d0bee9f0', name: 'Babar Azam', country: 'Pakistan', flag: '🇵🇰' },
-                    { id: '9f75a33f-a4c2-4d19-a88b-f43b56cc0cce', name: 'Steve Smith', country: 'Australia', flag: '🇦🇺' },
-                  ].map((p) => (
-                    <Link
-                      key={p.id}
-                      href={`/players/${p.id}`}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--sk-border)]/30 transition group"
-                    >
-                      <span className="text-lg">{p.flag}</span>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-[var(--sk-text)] group-hover:text-[var(--sk-accent)] transition truncate">{p.name}</p>
-                        <p className="text-[10px] text-[var(--sk-muted)]">{p.country}</p>
-                      </div>
-                      <svg className="text-[var(--sk-muted)] opacity-0 group-hover:opacity-100 transition shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
-                    </Link>
-                  ))}
-                </div>
-                <div className="px-4 py-3 border-t border-[var(--sk-border)]">
-                  <Link
-                    href="/players"
-                    className="block rounded-lg bg-[var(--sk-accent)] px-4 py-2.5 text-center text-xs font-bold text-white hover:opacity-90 transition"
-                  >
-                    Search All Players
-                  </Link>
-                </div>
-              </div>
-            )}
-
           </div>
         </aside>
       </div>
