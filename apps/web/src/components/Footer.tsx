@@ -1,33 +1,24 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { branding, isExternal } from '@/lib/branding';
+import { api } from '@/lib/api';
 import { SocialLinks } from './SocialLinks';
 
 const FOOTER_LINKS = [
   { label: 'About Us', href: '#' },
-  { label: 'Careers', href: '#' },
   { label: 'Privacy Policy', href: '#' },
   { label: 'Terms of Use', href: '#' },
   { label: 'Contact', href: '#' },
   { label: 'Advertise', href: '#' },
 ];
 
-const SPORTS_LINKS = [
-  { label: '🏏 Cricket', slug: 'cricket' },
-  { label: '🏀 NBA', slug: 'nba' },
-  { label: '🏈 NFL', slug: 'nfl' },
-  { label: '⚽ Football', slug: 'football' },
-  { label: '🎮 Gaming', slug: 'gaming' },
-  { label: '🎾 Tennis', slug: 'tennis' },
-  { label: '🤼 WWE', slug: 'wwe' },
-  { label: '🏒 NHL', slug: 'nhl' },
-  { label: '⚾ MLB', slug: 'mlb' },
-  { label: '🏎️ F1', slug: 'f1' },
-];
+export async function Footer() {
+  const allCategories = await api.getCategories().catch(() => []);
+  // Top-level categories only, in nav order
+  const categories = allCategories
+    .filter((c) => !c.parentId)
+    .sort((a, b) => (a.navOrder ?? 99) - (b.navOrder ?? 99));
 
-export function Footer() {
   return (
     <footer className="mt-14 border-t border-[var(--sn-header-border)] bg-[var(--sn-header-bg)]">
       <div className="mx-auto max-w-7xl px-4 py-12">
@@ -49,7 +40,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-[var(--sn-header-nav)]">
-              Your go-to destination for breaking sports news, live scores, and in-depth analysis across cricket, football, basketball, and more.
+              {branding.siteName} — ক্রিকেট, ফুটবল এবং আরও খেলার সর্বশেষ খবর, লাইভ স্কোর ও বিশ্লেষণ।
             </p>
             <SocialLinks className="mt-4" />
           </div>
@@ -71,17 +62,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Sports */}
+          {/* Sports — pulled from DB, Bengali names */}
           <div>
-            <p className="mb-4 text-xs font-black uppercase tracking-widest text-[var(--sn-nav-strong)]">Sports</p>
+            <p className="mb-4 text-xs font-black uppercase tracking-widest text-[var(--sn-nav-strong)]">বিভাগ</p>
             <div className="flex flex-wrap gap-2">
-              {SPORTS_LINKS.map((sport) => (
+              {categories.map((cat) => (
                 <Link
-                  key={sport.slug}
-                  href={`/category/${sport.slug}`}
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
                   className="rounded-lg border border-[var(--sn-header-border)] px-2.5 py-1 text-xs text-[var(--sn-header-nav)] transition hover:border-[var(--sn-accent)] hover:text-[var(--sn-nav-strong)]"
                 >
-                  {sport.label}
+                  {cat.icon ? `${cat.icon} ` : ''}{cat.name}
                 </Link>
               ))}
             </div>
@@ -90,22 +81,23 @@ export function Footer() {
           {/* Newsletter */}
           <div>
             <p className="mb-4 text-xs font-black uppercase tracking-widest text-[var(--sn-nav-strong)]">
-              Stay Updated
+              আপডেট পান
             </p>
             <p className="mb-3 text-sm text-[var(--sn-header-nav)]">
-              Get the latest sports news delivered to your inbox.
+              সর্বশেষ খেলার খবর সরাসরি আপনার ইনবক্সে পান।
             </p>
-            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex gap-2" method="post" action="#">
               <input
                 type="email"
-                placeholder="Your email"
+                name="email"
+                placeholder="আপনার ইমেইল"
                 className="flex-1 rounded-lg border border-[var(--sn-header-border)] bg-[var(--sn-surface-2)] px-3 py-2 text-sm text-[var(--sn-text)] placeholder:text-[var(--sn-muted)] focus:border-[var(--sn-accent)] focus:outline-none"
               />
               <button
                 type="submit"
                 className="shrink-0 rounded-lg bg-[var(--sn-accent)] px-4 py-2 text-xs font-bold text-white transition hover:bg-[var(--sn-accent-hover)]"
               >
-                Join
+                যোগ দিন
               </button>
             </form>
           </div>
@@ -116,12 +108,11 @@ export function Footer() {
       <div className="border-t border-[var(--sn-header-border)]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 sm:flex-row">
           <p className="text-xs text-[var(--sn-header-nav)]">
-            © {new Date().getFullYear()} Xtra Time — For the hardcore sports fan
+            © {new Date().getFullYear()} {branding.siteName} — সকল অধিকার সংরক্ষিত
           </p>
           <div className="flex gap-4 text-xs text-[var(--sn-header-nav)]">
-            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">Privacy</Link>
-            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">Terms</Link>
-            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">Sitemap</Link>
+            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">গোপনীয়তা</Link>
+            <Link href="#" className="hover:text-[var(--sn-nav-strong)] transition">শর্তাবলী</Link>
           </div>
         </div>
       </div>
