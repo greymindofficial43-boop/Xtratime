@@ -240,77 +240,56 @@ export default async function HomePage() {
     });
 
   if (youtubeVideos.length > 0) {
-    const homeVideos = youtubeVideos.slice(0, 8);
+    const homeVideos = youtubeVideos.slice(0, 6);
     blocks.push({
       key: 'youtube-videos',
       node: (
-        <section className="overflow-hidden rounded-2xl border border-[var(--sk-border)] bg-[var(--sk-surface)] shadow-sm">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-[var(--sk-border)] bg-[var(--sk-surface)] px-5 py-3.5">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 shadow-sm">
-                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white ml-0.5">
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-red-600">
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-white ml-0.5">
                   <polygon points="5,3 19,12 5,21" />
                 </svg>
               </div>
-              <h2 className="sk-section-heading text-sm font-black uppercase tracking-widest text-[var(--sk-text)]">
+              <h2 className="sk-section-heading text-base font-black uppercase tracking-wide text-[var(--sk-text)]">
                 {t.latestVideos}
               </h2>
             </div>
             <Link
               href="/videos"
-              className="flex items-center gap-1 rounded-full border border-[var(--sk-border)] px-3 py-1 text-xs font-semibold text-[var(--sk-muted)] transition hover:border-red-500 hover:text-red-500"
+              className="text-xs font-semibold text-[var(--sk-accent)] hover:underline"
             >
-              {t.viewAll}
-              <svg viewBox="0 0 24 24" className="h-3 w-3 fill-current"><polygon points="5,3 19,12 5,21" /></svg>
+              {t.viewAll} →
             </Link>
           </div>
-
-          {/* 2-row grid: 4 cols on desktop, 2 cols on mobile */}
-          <div className="grid grid-cols-2 gap-px bg-[var(--sk-border)] sm:grid-cols-4">
-            {homeVideos.map((v, i) => (
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+            {homeVideos.map((v) => (
               <a
                 key={v.videoId}
                 href={v.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col bg-[var(--sk-surface)] transition hover:bg-[var(--sk-surface-hover,var(--sk-surface))]"
+                className="group flex flex-col overflow-hidden rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] hover:border-[var(--sk-accent)] transition"
               >
-                {/* Thumbnail */}
-                <div className="relative aspect-video overflow-hidden bg-black">
+                <div className="relative aspect-video bg-black">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={v.thumbnail}
                     alt={v.title}
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                    loading={i < 4 ? 'eager' : 'lazy'}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
                   />
-                  {/* Dark gradient for readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                  {/* Play button */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-600/90 shadow-lg opacity-0 transition group-hover:opacity-100 group-hover:scale-110">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-600/90">
                       <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white ml-0.5">
                         <polygon points="5,3 19,12 5,21" />
                       </svg>
                     </div>
                   </div>
-                  {/* Duration-style badge slot */}
-                  <div className="absolute bottom-1.5 right-1.5">
-                    <span className="rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                      YouTube
-                    </span>
-                  </div>
                 </div>
-                {/* Title */}
-                <div className="flex flex-1 flex-col gap-1 p-2.5">
-                  <p className="text-xs font-semibold leading-snug line-clamp-2 text-[var(--sk-text)]">
-                    {v.title}
-                  </p>
-                  <p className="mt-auto flex items-center gap-1 text-[10px] text-[var(--sk-muted)]">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
-                    {v.channelName}
-                  </p>
+                <div className="p-2">
+                  <p className="text-xs font-semibold line-clamp-2 leading-snug">{v.title}</p>
                 </div>
               </a>
             ))}

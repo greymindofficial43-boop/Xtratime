@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import type { YouTubeVideo } from '@/lib/youtube-feed';
 import { YOUTUBE_CHANNELS } from '@/lib/youtube-feed';
-import { t } from '@/lib/strings';
 
 type Props = {
   videos: YouTubeVideo[];
@@ -14,47 +13,42 @@ export function VideosGrid({ videos, initialChannel }: Props) {
   const [activeChannel, setActiveChannel] = useState<string>(initialChannel ?? 'all');
   const [playing, setPlaying] = useState<string | null>(null);
 
-  // Only show channel tabs if this site has more than one channel
-  const multiChannel = YOUTUBE_CHANNELS.length > 1;
-
   const filtered =
     activeChannel === 'all' ? videos : videos.filter((v) => v.channelHandle === activeChannel);
 
   return (
     <>
-      {/* Channel tabs — only rendered for multi-channel sites */}
-      {multiChannel && (
-        <div className="mb-6 flex flex-wrap gap-2">
+      {/* Channel tabs */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        <button
+          onClick={() => setActiveChannel('all')}
+          className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+            activeChannel === 'all'
+              ? 'bg-[var(--sk-accent)] text-white'
+              : 'border border-[var(--sk-border)] text-[var(--sk-muted)] hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]'
+          }`}
+        >
+          সব ভিডিও
+        </button>
+        {YOUTUBE_CHANNELS.map((ch) => (
           <button
-            onClick={() => setActiveChannel('all')}
+            key={ch.handle}
+            onClick={() => setActiveChannel(ch.handle)}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-              activeChannel === 'all'
+              activeChannel === ch.handle
                 ? 'bg-[var(--sk-accent)] text-white'
                 : 'border border-[var(--sk-border)] text-[var(--sk-muted)] hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]'
             }`}
           >
-            {t.allVideos}
+            {ch.displayName}
           </button>
-          {YOUTUBE_CHANNELS.map((ch) => (
-            <button
-              key={ch.handle}
-              onClick={() => setActiveChannel(ch.handle)}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-                activeChannel === ch.handle
-                  ? 'bg-[var(--sk-accent)] text-white'
-                  : 'border border-[var(--sk-border)] text-[var(--sk-muted)] hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]'
-              }`}
-            >
-              {ch.displayName}
-            </button>
-          ))}
-        </div>
-      )}
+        ))}
+      </div>
 
       {/* Grid */}
       {filtered.length === 0 ? (
         <div className="rounded-xl border border-[var(--sk-border)] bg-[var(--sk-surface)] p-10 text-center">
-          <p className="text-[var(--sk-muted)]">{t.noVideos}</p>
+          <p className="text-[var(--sk-muted)]">ভিডিও পাওয়া যায়নি।</p>
         </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

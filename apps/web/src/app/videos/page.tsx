@@ -1,12 +1,12 @@
 import { AdSlot } from '@/components/AdSlot';
 import { VideosGrid } from '@/components/VideosGrid';
 import { fetchYouTubeVideos } from '@/lib/youtube-feed';
-import { t } from '@/lib/strings';
 
 export const revalidate = 3600;
 
 export const metadata = {
-  title: 'Videos',
+  title: 'ভিডিও | XtraTime Bangla',
+  description: 'XtraTime Bangla এবং XtraTime চ্যানেলের সর্বশেষ ভিডিও।',
 };
 
 export default async function VideosPage() {
@@ -20,7 +20,7 @@ export default async function VideosPage() {
             <polygon points="5,3 19,12 5,21" />
           </svg>
         </div>
-        <h1 className="text-2xl font-extrabold">{t.videos}</h1>
+        <h1 className="text-2xl font-extrabold">ভিডিও</h1>
       </div>
 
       <AdSlot zone="article-top" className="mb-6" />
