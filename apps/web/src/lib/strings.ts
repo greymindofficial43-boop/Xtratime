@@ -16,6 +16,7 @@ type Strings = {
   latestVideos: string;
   allVideos: string;
   noVideos: string;
+  gallery: string;
   moreNews: (category: string) => string;
   // SEO / social-preview metadata for category pages.
   categoryMetaTitle: (category: string) => string;
@@ -36,6 +37,7 @@ const STRINGS: Record<string, Strings> = {
     latestVideos: 'Latest Videos',
     allVideos: 'All Videos',
     noVideos: 'No videos found.',
+    gallery: 'Gallery',
     moreNews: (category) => `More ${category} News`,
     categoryMetaTitle: (category) => `${category} News`,
     categoryMetaDescription: (category) =>
@@ -54,6 +56,7 @@ const STRINGS: Record<string, Strings> = {
     latestVideos: 'সর্বশেষ ভিডিও',
     allVideos: 'সব ভিডিও',
     noVideos: 'ভিডিও পাওয়া যায়নি।',
+    gallery: 'গ্যালারি',
     moreNews: () => 'আরো পড়ুন',
     categoryMetaTitle: (category) => `${category} খবর`,
     categoryMetaDescription: (category) =>

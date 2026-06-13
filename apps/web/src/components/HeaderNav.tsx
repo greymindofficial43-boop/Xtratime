@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 export type NavItem = {
   label: string;
@@ -172,84 +172,16 @@ function NavDropdown({ item, active }: { item: NavItem; active: boolean }) {
 
 export function HeaderNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const dropRef = useRef<HTMLDivElement>(null);
-
-  const primary = items.slice(0, 5);
-  const overflow = items.slice(5);
-
-  useEffect(() => {
-    function onOutside(e: MouseEvent) {
-      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    if (open) document.addEventListener('mousedown', onOutside);
-    return () => document.removeEventListener('mousedown', onOutside);
-  }, [open]);
 
   return (
     <nav className="hidden min-w-0 flex-1 items-center gap-2 lg:flex pl-4">
-      {primary.map((item) => {
+      {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         const hasChildren = (item.children?.length ?? 0) > 0;
         return hasChildren
           ? <NavDropdown key={item.label} item={item} active={active} />
           : <NavLink key={item.label} item={item} active={active} />;
       })}
-
-      {overflow.length > 0 && (
-        <div className="relative flex h-full items-center" ref={dropRef}>
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 whitespace-nowrap px-4 py-[14px] text-sm font-semibold text-[var(--sn-header-nav)] transition hover:text-[var(--sn-nav-strong)]"
-            aria-expanded={open}
-          >
-            More
-            <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden>
-              <path
-                d={open ? 'M1 4.5 5 1 9 4.5' : 'M1 1.5 5 5 9 1.5'}
-                stroke="currentColor"
-                strokeWidth="1.5"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-
-          {open && (
-            <div className="absolute left-0 top-full z-50 pt-1">
-              <div className="w-52 overflow-hidden rounded-xl border border-[var(--sn-menu-border)] bg-[var(--sn-menu-bg-2)] shadow-2xl backdrop-blur-xl">
-                <div className="p-2">
-                  {overflow.map((item) => {
-                    const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                    return (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={`block rounded-lg px-4 py-2.5 text-sm font-semibold transition ${active
-                            ? 'text-[var(--sn-accent)]'
-                            : 'text-[var(--sn-header-nav)] hover:bg-[var(--sn-menu-hover)] hover:text-[var(--sn-nav-strong)]'
-                          }`}
-                      >
-                        {item.label}
-                        {item.badge && (
-                          <span className="ml-2 rounded bg-red-600 px-1 py-px text-[9px] font-bold text-white">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </nav>
   );
 }

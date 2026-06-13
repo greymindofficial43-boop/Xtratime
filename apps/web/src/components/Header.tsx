@@ -114,10 +114,13 @@ export async function Header() {
     menus = [];
   }
   const rawNavItems = stripRemovedRoutes(menus.length > 0 ? mapMenuItems(menus) : fallbackNav(categories));
-  // Always include a Videos link unless the admin already added one via DB menus
-  const navItems: NavItem[] = rawNavItems.some((n) => n.href === '/videos')
+  // Always include Videos and Gallery links unless the admin already added them via DB menus
+  let navItems: NavItem[] = rawNavItems.some((n) => n.href === '/videos')
     ? rawNavItems
     : [...rawNavItems, { label: t.videos, href: '/videos' }];
+  navItems = navItems.some((n) => n.href === '/gallery')
+    ? navItems
+    : [...navItems, { label: t.gallery, href: '/gallery' }];
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--sn-header-bg)] border-b border-[var(--sn-header-border)]">
