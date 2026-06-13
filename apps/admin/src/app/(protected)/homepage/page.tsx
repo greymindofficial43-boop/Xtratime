@@ -16,6 +16,7 @@ const DESCRIPTIONS: Record<string, string> = {
   promo: 'Promotional banner between sections.',
   'category-sections': 'Automatic category blocks managed under Categories.',
   'espn-news': 'Latest headlines pulled from ESPN.',
+  'youtube-videos': 'Latest YouTube videos from the channel — drag to reposition.',
   trending: 'Most-read stories list in the sidebar.',
 };
 

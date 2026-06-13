@@ -14,6 +14,7 @@ export const DEFAULT_HOME_SECTIONS: { key: string; title: string }[] = [
   { key: 'promo', title: 'Promo Banner' },
   { key: 'category-sections', title: 'Category Sections' },
   { key: 'espn-news', title: 'Latest from ESPN' },
+  { key: 'youtube-videos', title: 'Latest Videos' },
   { key: 'trending', title: 'Trending Now' },
 ];
 

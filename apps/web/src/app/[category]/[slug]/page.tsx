@@ -7,6 +7,7 @@ import { ShareButtons } from '@/components/ShareButtons';
 import { ArticleCard } from '@/components/ArticleCard';
 import { AdSlot } from '@/components/AdSlot';
 import { GallerySlideshow } from '@/components/GallerySlideshow';
+import { YouTubeStrip } from '@/components/YouTubeStrip';
 import { getYouTubeEmbedUrl } from '@/lib/youtube';
 
 type Props = {
@@ -66,6 +67,7 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <div className="mx-auto max-w-[1200px] px-3 sm:px-5">
       <div className="grid grid-cols-12 gap-x-5 lg:gap-x-8">
+
         {/* Main content */}
         <div className="col-span-12 lg:col-span-8">
           <article className="py-4 md:py-6">
@@ -175,6 +177,11 @@ export default async function ArticlePage({ params }: Props) {
             </div>
           </div>
         </aside>
+      </div>
+
+      {/* YouTube videos strip — full width below article */}
+      <div className="mt-10 pb-8">
+        <YouTubeStrip maxVideos={8} />
       </div>
     </div>
   );

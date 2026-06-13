@@ -4,6 +4,7 @@ import { AdSlot } from '@/components/AdSlot';
 import { api } from '@/lib/api';
 import { t } from '@/lib/strings';
 import { Fragment } from 'react';
+import { YouTubeStrip } from '@/components/YouTubeStrip';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -121,6 +122,11 @@ export default async function CategoryPage({ params }: Props) {
           >
             ← Back to home
           </Link>
+
+          {/* YouTube videos strip */}
+          <div className="mt-10">
+            <YouTubeStrip maxVideos={8} />
+          </div>
         </div>
 
         {/* Sidebar */}

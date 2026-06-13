@@ -18,6 +18,7 @@ const DEFAULT_SECTION_ORDER = [
   'more-stories',
   'promo',
   'category-sections',
+  'youtube-videos',
   'trending',
 ];
 const DEFAULT_TITLES: Record<string, string> = {
@@ -25,6 +26,7 @@ const DEFAULT_TITLES: Record<string, string> = {
   'more-stories': 'More Stories',
   promo: 'Promo Banner',
   'category-sections': 'Category Sections',
+  'youtube-videos': t.latestVideos,
   trending: t.trendingNow,
 };
 
@@ -239,7 +241,7 @@ export default async function HomePage() {
       });
     });
 
-  if (youtubeVideos.length > 0) {
+  if (youtubeVideos.length > 0 && enabled('youtube-videos')) {
     const homeVideos = youtubeVideos.slice(0, 8);
     blocks.push({
       key: 'youtube-videos',
