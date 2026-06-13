@@ -62,7 +62,6 @@ export class ArticlesService {
 
     if (query.featured) and.push({ isFeatured: true });
     if (query.trending) and.push({ isTrending: true });
-    if (query.type) and.push({ type: query.type });
 
     if (query.search) {
       // Tokenize: every word must match somewhere (title/excerpt/content/
