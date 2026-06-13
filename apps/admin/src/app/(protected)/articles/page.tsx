@@ -155,7 +155,7 @@ export default function ArticlesPage() {
   return (
     <div className="max-w-6xl">
       {/* Header */}
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--admin-text)' }}>Articles</h1>
           <p className="mt-1 text-sm" style={{ color: 'var(--admin-muted)' }}>
@@ -164,7 +164,7 @@ export default function ArticlesPage() {
         </div>
         <Link
           href="/articles/new"
-          className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+          className="shrink-0 rounded-lg px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
           style={{ background: 'var(--admin-accent)' }}
         >
           + New Article
@@ -286,172 +286,217 @@ export default function ArticlesPage() {
         )}
       </div>
 
-      <div
-        className="overflow-x-auto rounded-xl border"
-        style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', boxShadow: 'var(--admin-shadow)' }}
-      >
-        {loading ? (
-          <div className="p-12 text-center text-sm" style={{ color: 'var(--admin-muted)' }}>
-            Loading articles…
-          </div>
-        ) : articles.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>
-              {view === 'trash' ? 'Trash is empty.' : 'No articles yet.'}
-            </p>
-            {view === 'active' && (
-              <Link
-                href="/articles/new"
-                className="mt-4 inline-block rounded-lg px-4 py-2 text-sm font-semibold text-white"
-                style={{ background: 'var(--admin-accent)' }}
-              >
-                Create your first article
-              </Link>
-            )}
-          </div>
-        ) : (
-          <table className="w-full text-left text-sm">
-            <thead className="border-b" style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }}>
-              <tr>
-                <th className="px-5 py-3">
-                  <input
-                    type="checkbox"
-                    checked={articles.length > 0 && selectedIds.length === articles.length}
-                    onChange={toggleSelectAll}
-                    aria-label="Select all articles"
-                  />
-                </th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Title</th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Category</th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Status</th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Date</th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Featured</th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Trending</th>
-                <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {articles.map((article) => {
-                const s = statusStyles[article.status] ?? statusStyles.DRAFT;
-                return (
-                  <tr key={article.id} className="border-b last:border-0 transition-colors" style={{ borderColor: 'var(--admin-border)' }}>
-                    <td className="px-5 py-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(article.id)}
-                        onChange={() => toggleSelected(article.id)}
-                        aria-label={`Select ${article.title}`}
-                      />
-                    </td>
-                    <td className="px-5 py-3" style={{ maxWidth: 280 }}>
-                      <p
-                        className="line-clamp-2 text-sm font-medium leading-snug"
-                        style={{ color: 'var(--admin-text)' }}
-                      >
-                        {article.title}
-                      </p>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span
-                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                        style={{ background: `${article.category.color ?? '#e10600'}22`, color: article.category.color ?? '#e10600' }}
-                      >
-                        {article.category.name}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span
-                        className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                        style={{ background: s.bg, color: s.text }}
-                      >
-                        {s.label}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 whitespace-nowrap text-xs" style={{ color: 'var(--admin-muted)' }}>
+      {loading ? (
+        <div
+          className="rounded-xl border p-12 text-center text-sm"
+          style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', color: 'var(--admin-muted)' }}
+        >
+          Loading articles…
+        </div>
+      ) : articles.length === 0 ? (
+        <div
+          className="rounded-xl border p-12 text-center"
+          style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}
+        >
+          <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>
+            {view === 'trash' ? 'Trash is empty.' : 'No articles yet.'}
+          </p>
+          {view === 'active' && (
+            <Link
+              href="/articles/new"
+              className="mt-4 inline-block rounded-lg px-4 py-2 text-sm font-semibold text-white"
+              style={{ background: 'var(--admin-accent)' }}
+            >
+              Create your first article
+            </Link>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Mobile card list — visible below sm */}
+          <div className="space-y-3 sm:hidden">
+            {articles.map((article) => {
+              const s = statusStyles[article.status] ?? statusStyles.DRAFT;
+              return (
+                <div
+                  key={article.id}
+                  className="rounded-xl border px-4 py-3"
+                  style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}
+                >
+                  <div className="mb-2 flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(article.id)}
+                      onChange={() => toggleSelected(article.id)}
+                      aria-label={`Select ${article.title}`}
+                      className="mt-0.5 shrink-0"
+                    />
+                    <p className="flex-1 text-sm font-semibold leading-snug" style={{ color: 'var(--admin-text)' }}>
+                      {article.title}
+                    </p>
+                  </div>
+                  <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+                    <span
+                      className="rounded-full px-2.5 py-0.5 font-semibold"
+                      style={{ background: `${article.category.color ?? '#e10600'}22`, color: article.category.color ?? '#e10600' }}
+                    >
+                      {article.category.name}
+                    </span>
+                    <span className="rounded-full px-2.5 py-0.5 font-semibold" style={{ background: s.bg, color: s.text }}>
+                      {s.label}
+                    </span>
+                    <span style={{ color: 'var(--admin-muted)' }}>
                       {(article.publishedAt ?? article.createdAt)
                         ? new Date((article.publishedAt ?? article.createdAt) as string).toLocaleString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit',
+                            month: 'short', day: 'numeric', year: 'numeric',
                           })
                         : '—'}
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <button
-                        onClick={() => toggle(article.id, 'isFeatured', article.isFeatured)}
-                        disabled={toggling === `${article.id}-isFeatured`}
-                        title={article.isFeatured ? 'Remove from Featured' : 'Mark as Featured'}
-                        className="text-xl leading-none transition disabled:opacity-40"
-                      >
-                        {article.isFeatured ? '★' : '☆'}
-                      </button>
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      <button
-                        onClick={() => toggle(article.id, 'isTrending', article.isTrending)}
-                        disabled={toggling === `${article.id}-isTrending`}
-                        title={article.isTrending ? 'Remove Trending' : 'Mark Trending'}
-                        className="text-base leading-none transition disabled:opacity-40"
-                        style={{ filter: article.isTrending ? 'none' : 'grayscale(1)', opacity: article.isTrending ? 1 : 0.4 }}
-                      >
-                        🔥
-                      </button>
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex gap-3">
-                        {view === 'trash' ? (
-                          <>
-                            <button
-                              onClick={() => handleRestore(article.id)}
-                              className="text-sm font-medium transition hover:opacity-70"
-                              style={{ color: 'var(--admin-accent-2)' }}
-                            >
-                              Restore
-                            </button>
-                            <button
-                              onClick={() => handlePermanentDelete(article.id, article.title)}
-                              className="text-sm font-medium text-red-500 transition hover:text-red-700"
-                            >
-                              Delete forever
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <a
-                              href={`${site.webUrl}/${article.category.slug}/${article.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm font-medium transition hover:opacity-70"
-                              style={{ color: 'var(--admin-accent-2)' }}
-                            >
-                              View
-                            </a>
-                            <Link
-                              href={`/articles/${article.id}/edit`}
-                              className="text-sm font-medium transition hover:opacity-70"
-                              style={{ color: 'var(--admin-accent-2)' }}
-                            >
-                              Edit
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(article.id, article.title)}
-                              className="text-sm font-medium text-red-500 transition hover:text-red-700"
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+                    </span>
+                    <button
+                      onClick={() => toggle(article.id, 'isFeatured', article.isFeatured)}
+                      disabled={toggling === `${article.id}-isFeatured`}
+                      title={article.isFeatured ? 'Remove from Featured' : 'Mark as Featured'}
+                      className="text-base leading-none transition disabled:opacity-40"
+                    >
+                      {article.isFeatured ? '★' : '☆'}
+                    </button>
+                    <button
+                      onClick={() => toggle(article.id, 'isTrending', article.isTrending)}
+                      disabled={toggling === `${article.id}-isTrending`}
+                      title={article.isTrending ? 'Remove Trending' : 'Mark Trending'}
+                      className="text-base leading-none transition disabled:opacity-40"
+                      style={{ filter: article.isTrending ? 'none' : 'grayscale(1)', opacity: article.isTrending ? 1 : 0.4 }}
+                    >
+                      🔥
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {view === 'trash' ? (
+                      <>
+                        <button onClick={() => handleRestore(article.id)} className="text-sm font-medium" style={{ color: 'var(--admin-accent-2)' }}>Restore</button>
+                        <button onClick={() => handlePermanentDelete(article.id, article.title)} className="text-sm font-medium text-red-500">Delete forever</button>
+                      </>
+                    ) : (
+                      <>
+                        <a href={`${site.webUrl}/${article.category.slug}/${article.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium" style={{ color: 'var(--admin-accent-2)' }}>View</a>
+                        <Link href={`/articles/${article.id}/edit`} className="text-sm font-medium" style={{ color: 'var(--admin-accent-2)' }}>Edit</Link>
+                        <button onClick={() => handleDelete(article.id, article.title)} className="text-sm font-medium text-red-500">Delete</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table — visible sm and above */}
+          <div
+            className="hidden overflow-x-auto rounded-xl border sm:block"
+            style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', boxShadow: 'var(--admin-shadow)' }}
+          >
+            <table className="w-full text-left text-sm">
+              <thead className="border-b" style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }}>
+                <tr>
+                  <th className="px-5 py-3">
+                    <input
+                      type="checkbox"
+                      checked={articles.length > 0 && selectedIds.length === articles.length}
+                      onChange={toggleSelectAll}
+                      aria-label="Select all articles"
+                    />
+                  </th>
+                  <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Title</th>
+                  <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Category</th>
+                  <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Status</th>
+                  <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Date</th>
+                  <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Featured</th>
+                  <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide text-center" style={{ color: 'var(--admin-muted)' }}>Trending</th>
+                  <th className="px-5 py-3 text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {articles.map((article) => {
+                  const s = statusStyles[article.status] ?? statusStyles.DRAFT;
+                  return (
+                    <tr key={article.id} className="border-b last:border-0 transition-colors" style={{ borderColor: 'var(--admin-border)' }}>
+                      <td className="px-5 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(article.id)}
+                          onChange={() => toggleSelected(article.id)}
+                          aria-label={`Select ${article.title}`}
+                        />
+                      </td>
+                      <td className="px-5 py-3" style={{ maxWidth: 280 }}>
+                        <p className="line-clamp-2 text-sm font-medium leading-snug" style={{ color: 'var(--admin-text)' }}>
+                          {article.title}
+                        </p>
+                      </td>
+                      <td className="px-5 py-3">
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                          style={{ background: `${article.category.color ?? '#e10600'}22`, color: article.category.color ?? '#e10600' }}
+                        >
+                          {article.category.name}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ background: s.bg, color: s.text }}>
+                          {s.label}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 whitespace-nowrap text-xs" style={{ color: 'var(--admin-muted)' }}>
+                        {(article.publishedAt ?? article.createdAt)
+                          ? new Date((article.publishedAt ?? article.createdAt) as string).toLocaleString('en-US', {
+                              month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
+                            })
+                          : '—'}
+                      </td>
+                      <td className="px-5 py-3 text-center">
+                        <button
+                          onClick={() => toggle(article.id, 'isFeatured', article.isFeatured)}
+                          disabled={toggling === `${article.id}-isFeatured`}
+                          title={article.isFeatured ? 'Remove from Featured' : 'Mark as Featured'}
+                          className="text-xl leading-none transition disabled:opacity-40"
+                        >
+                          {article.isFeatured ? '★' : '☆'}
+                        </button>
+                      </td>
+                      <td className="px-5 py-3 text-center">
+                        <button
+                          onClick={() => toggle(article.id, 'isTrending', article.isTrending)}
+                          disabled={toggling === `${article.id}-isTrending`}
+                          title={article.isTrending ? 'Remove Trending' : 'Mark Trending'}
+                          className="text-base leading-none transition disabled:opacity-40"
+                          style={{ filter: article.isTrending ? 'none' : 'grayscale(1)', opacity: article.isTrending ? 1 : 0.4 }}
+                        >
+                          🔥
+                        </button>
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex gap-3">
+                          {view === 'trash' ? (
+                            <>
+                              <button onClick={() => handleRestore(article.id)} className="text-sm font-medium transition hover:opacity-70" style={{ color: 'var(--admin-accent-2)' }}>Restore</button>
+                              <button onClick={() => handlePermanentDelete(article.id, article.title)} className="text-sm font-medium text-red-500 transition hover:text-red-700">Delete forever</button>
+                            </>
+                          ) : (
+                            <>
+                              <a href={`${site.webUrl}/${article.category.slug}/${article.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium transition hover:opacity-70" style={{ color: 'var(--admin-accent-2)' }}>View</a>
+                              <Link href={`/articles/${article.id}/edit`} className="text-sm font-medium transition hover:opacity-70" style={{ color: 'var(--admin-accent-2)' }}>Edit</Link>
+                              <button onClick={() => handleDelete(article.id, article.title)} className="text-sm font-medium text-red-500 transition hover:text-red-700">Delete</button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -184,7 +184,7 @@ export default function CategoriesPage() {
         className="overflow-hidden rounded-xl border"
         style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', boxShadow: 'var(--admin-shadow)' }}
       >
-        <div className="flex items-center justify-between border-b px-5 py-4" style={{ borderColor: 'var(--admin-border)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-2 border-b px-5 py-4" style={{ borderColor: 'var(--admin-border)' }}>
           <h2 className="text-sm font-bold" style={{ color: 'var(--admin-text)' }}>
             All Categories ({categories.length})
           </h2>
@@ -196,6 +196,7 @@ export default function CategoriesPage() {
         {categories.length === 0 ? (
           <p className="p-8 text-sm" style={{ color: 'var(--admin-muted)' }}>No categories yet.</p>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b" style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)' }}>
               <tr>
@@ -302,6 +303,7 @@ export default function CategoriesPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

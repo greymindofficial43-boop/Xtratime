@@ -196,7 +196,7 @@ export default function PromosPage() {
       </form>
 
       {/* List */}
-      <div className="overflow-hidden rounded-xl border"
+      <div className="overflow-x-auto rounded-xl border"
         style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)', boxShadow: 'var(--admin-shadow)' }}>
         {loading ? (
           <p className="p-8 text-sm" style={{ color: 'var(--admin-muted)' }}>Loading…</p>
