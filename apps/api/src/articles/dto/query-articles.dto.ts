@@ -1,4 +1,4 @@
-import { ArticleStatus } from '@prisma/client';
+import { ArticleStatus, ArticleType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
@@ -56,4 +56,8 @@ export class QueryArticlesDto {
   @Type(() => Boolean)
   @IsBoolean()
   trash?: boolean;
+
+  @IsOptional()
+  @IsEnum(ArticleType)
+  type?: ArticleType;
 }
