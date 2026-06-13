@@ -12,18 +12,24 @@ export type YouTubeVideo = {
   channelHandle: string;
 };
 
-const CHANNELS: { handle: string; displayName: string; envVar: string }[] = [
+const ALL_CHANNELS: { handle: string; displayName: string; envVar: string; locale: string }[] = [
   {
     handle: 'XtraTimeBangla',
     displayName: 'XtraTime Bangla',
     envVar: 'YT_CHANNEL_ID_XTRATIMEBANGLA',
+    locale: 'bn',
   },
   {
     handle: 'XtraTime',
     displayName: 'XtraTime',
     envVar: 'YT_CHANNEL_ID_XTRATIME',
+    locale: 'en',
   },
 ];
+
+// Each site edition only shows its own channel
+const siteLocale = process.env.NEXT_PUBLIC_SITE_LOCALE || 'en';
+const CHANNELS = ALL_CHANNELS.filter((c) => c.locale === siteLocale);
 
 async function resolveChannelId(handle: string, envVar: string): Promise<string | null> {
   // Prefer a hardcoded channel ID from env (most reliable)
