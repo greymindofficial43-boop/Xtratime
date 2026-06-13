@@ -17,6 +17,12 @@ type Strings = {
   allVideos: string;
   noVideos: string;
   gallery: string;
+  galleryPageTitle: string;
+  galleryEmpty: string;
+  galleryPrevPage: string;
+  galleryNextPage: string;
+  galleryMetaTitle: string;
+  galleryMetaDescription: string;
   moreNews: (category: string) => string;
   // Footer strings
   footerTagline: string;
@@ -48,6 +54,12 @@ const STRINGS: Record<string, Strings> = {
     allVideos: 'All Videos',
     noVideos: 'No videos found.',
     gallery: 'Gallery',
+    galleryPageTitle: 'Photo Gallery',
+    galleryEmpty: 'No galleries yet.',
+    galleryPrevPage: '← Previous Page',
+    galleryNextPage: 'Next Page →',
+    galleryMetaTitle: 'Photo Gallery | XtraTime',
+    galleryMetaDescription: 'Browse the latest photo galleries from XtraTime.',
     moreNews: (category) => `More ${category} News`,
     footerTagline: 'Latest cricket, football and more — news, scores and analysis.',
     footerCategories: 'Categories',
@@ -76,6 +88,12 @@ const STRINGS: Record<string, Strings> = {
     allVideos: 'সব ভিডিও',
     noVideos: 'ভিডিও পাওয়া যায়নি।',
     gallery: 'গ্যালারি',
+    galleryPageTitle: 'ফটো গ্যালারি',
+    galleryEmpty: 'এখনো কোনো গ্যালারি নেই।',
+    galleryPrevPage: '← আগের পাতা',
+    galleryNextPage: 'পরের পাতা →',
+    galleryMetaTitle: 'ফটো গ্যালারি | XtraTime Bangla',
+    galleryMetaDescription: 'XtraTime Bangla-এর সর্বশেষ ফটো গ্যালারি।',
     moreNews: () => 'আরো পড়ুন',
     footerTagline: 'ক্রিকেট, ফুটবল এবং আরও খেলার সর্বশেষ খবর, লাইভ স্কোর ও বিশ্লেষণ।',
     footerCategories: 'বিভাগ',

@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { AdSlot } from '@/components/AdSlot';
+import { t } from '@/lib/strings';
 
 export const revalidate = 60;
 
 export const metadata = {
-  title: 'ফটো গ্যালারি | XtraTime Bangla',
-  description: 'XtraTime Bangla-এর সর্বশেষ ফটো গ্যালারি।',
+  title: t.galleryMetaTitle,
+  description: t.galleryMetaDescription,
 };
 
 export default async function GalleryPage({
@@ -58,7 +59,7 @@ export default async function GalleryPage({
             </div>
           )}
 
-          {/* Gradient overlay — heavier at bottom */}
+          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
           {/* Category pill — top left */}
@@ -93,8 +94,8 @@ export default async function GalleryPage({
 
         {/* Caption strip below image */}
         {gallery.galleryImages?.[0]?.caption && (
-          <div className="bg-neutral-900 px-3.5 py-2 border-t border-white/10">
-            <p className="text-xs text-neutral-400 line-clamp-1">
+          <div className="border-t border-white/10 bg-neutral-900 px-3.5 py-2">
+            <p className="line-clamp-1 text-xs text-neutral-400">
               {gallery.galleryImages[0].caption}
             </p>
           </div>
@@ -104,26 +105,23 @@ export default async function GalleryPage({
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] px-3 sm:px-5 py-8">
+    <div className="mx-auto max-w-[1200px] px-3 py-8 sm:px-5">
       {/* Page header */}
       <div className="mb-6 flex items-center gap-3">
         <span className="text-2xl">📷</span>
-        <h1 className="text-2xl font-extrabold">ফটো গ্যালারি</h1>
+        <h1 className="text-2xl font-extrabold">{t.galleryPageTitle}</h1>
       </div>
 
       <AdSlot zone="article-top" className="mb-6" />
 
       {galleries.length === 0 ? (
         <div className="rounded-2xl bg-neutral-900 p-16 text-center">
-          <p className="text-4xl mb-3">🖼️</p>
-          <p className="text-neutral-400">এখনো কোনো গ্যালারি নেই।</p>
+          <p className="mb-3 text-4xl">🖼️</p>
+          <p className="text-neutral-400">{t.galleryEmpty}</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {/* Hero — first gallery, full width, tall */}
           {hero && <GalleryCard gallery={hero} large />}
-
-          {/* Grid — 2 columns */}
           {rest.length > 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {rest.map((gallery) => (
@@ -142,7 +140,7 @@ export default async function GalleryPage({
               href={`/gallery?page=${page - 1}`}
               className="rounded-full border border-[var(--sk-border)] px-5 py-2 text-sm font-semibold transition hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]"
             >
-              ← আগের পাতা
+              {t.galleryPrevPage}
             </Link>
           )}
           <span className="text-sm text-[var(--sk-muted)]">{page} / {totalPages}</span>
@@ -151,7 +149,7 @@ export default async function GalleryPage({
               href={`/gallery?page=${page + 1}`}
               className="rounded-full border border-[var(--sk-border)] px-5 py-2 text-sm font-semibold transition hover:border-[var(--sk-accent)] hover:text-[var(--sk-accent)]"
             >
-              পরের পাতা →
+              {t.galleryNextPage}
             </Link>
           )}
         </div>
