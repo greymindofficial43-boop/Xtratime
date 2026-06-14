@@ -23,6 +23,24 @@ type Strings = {
   galleryNextPage: string;
   galleryMetaTitle: string;
   galleryMetaDescription: string;
+  // Article page
+  by: string;
+  published: string;
+  relatedStories: string;
+  moreFrom: string;
+  // Category page
+  breadcrumbHome: string;
+  noArticlesInCategory: string;
+  backToHome: string;
+  // Search page
+  searchTitle: string;
+  searchPrompt: string;
+  searchResultsFor: (q: string) => string;
+  searchArticlesFound: (n: number) => string;
+  searchNoResults: string;
+  // Mobile nav
+  followUs: string;
+  theme: string;
   moreNews: (category: string) => string;
   // Footer strings
   footerTagline: string;
@@ -60,6 +78,20 @@ const STRINGS: Record<string, Strings> = {
     galleryNextPage: 'Next Page →',
     galleryMetaTitle: 'Photo Gallery | XtraTime',
     galleryMetaDescription: 'Browse the latest photo galleries from XtraTime.',
+    by: 'By',
+    published: 'Published',
+    relatedStories: 'Related stories',
+    moreFrom: 'More from',
+    breadcrumbHome: 'Home',
+    noArticlesInCategory: 'No articles in this category yet.',
+    backToHome: '← Back to home',
+    searchTitle: 'Search',
+    searchPrompt: 'Enter a search term from the header.',
+    searchResultsFor: (q) => `Results for "${q}"`,
+    searchArticlesFound: (n) => `${n} articles found`,
+    searchNoResults: 'No articles match your search.',
+    followUs: 'Follow us',
+    theme: 'Theme',
     moreNews: (category) => `More ${category} News`,
     footerTagline: 'Latest cricket, football and more — news, scores and analysis.',
     footerCategories: 'Categories',
@@ -94,6 +126,20 @@ const STRINGS: Record<string, Strings> = {
     galleryNextPage: 'পরের পাতা →',
     galleryMetaTitle: 'ফটো গ্যালারি | XtraTime Bangla',
     galleryMetaDescription: 'XtraTime Bangla-এর সর্বশেষ ফটো গ্যালারি।',
+    by: 'লিখেছেন',
+    published: 'প্রকাশিত',
+    relatedStories: 'সম্পর্কিত খবর',
+    moreFrom: 'আরও পড়ুন',
+    breadcrumbHome: 'হোম',
+    noArticlesInCategory: 'এই বিভাগে এখনো কোনো খবর নেই।',
+    backToHome: '← হোমে ফিরুন',
+    searchTitle: 'অনুসন্ধান',
+    searchPrompt: 'হেডার থেকে অনুসন্ধান করুন।',
+    searchResultsFor: (q) => `"${q}" এর ফলাফল`,
+    searchArticlesFound: (n) => `${n}টি খবর পাওয়া গেছে`,
+    searchNoResults: 'কোনো খবর পাওয়া যায়নি।',
+    followUs: 'আমাদের ফলো করুন',
+    theme: 'থিম',
     moreNews: () => 'আরো পড়ুন',
     footerTagline: 'ক্রিকেট, ফুটবল এবং আরও খেলার সর্বশেষ খবর, লাইভ স্কোর ও বিশ্লেষণ।',
     footerCategories: 'বিভাগ',

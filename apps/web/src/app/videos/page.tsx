@@ -6,7 +6,7 @@ import { t } from '@/lib/strings';
 export const revalidate = 3600;
 
 export const metadata = {
-  title: 'Videos',
+  title: t.videos,
 };
 
 export default async function VideosPage() {

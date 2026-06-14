@@ -8,14 +8,11 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.siteUrl.replace(/\/$/, '');
 
-  const staticRoutes: MetadataRoute.Sitemap = ['', '/players'].map(
-    (path) => ({
-      url: `${base}${path || '/'}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: path === '' ? 1 : 0.6,
-    }),
-  );
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: base || '/', changeFrequency: 'hourly', priority: 1 },
+    { url: `${base}/gallery`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${base}/videos`, changeFrequency: 'daily', priority: 0.7 },
+  ].map((r) => ({ ...r, lastModified: new Date() }));
 
   let categories: Awaited<ReturnType<typeof api.getCategories>> = [];
   let articles: Article[] = [];
@@ -42,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${base}/${a.category.slug}/${a.slug}`,
     lastModified: new Date(a.publishedAt ?? a.createdAt),
     changeFrequency: 'weekly',
-    priority: 0.8,
+    priority: a.isFeatured ? 0.9 : 0.8,
   }));
 
   return [...staticRoutes, ...categoryRoutes, ...articleRoutes];

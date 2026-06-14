@@ -6,6 +6,7 @@ import { CategorySection } from '@/components/CategorySection';
 import { PromoBanner } from '@/components/PromoBanner';
 import { api, type Article } from '@/lib/api';
 import { t } from '@/lib/strings';
+import { branding } from '@/lib/branding';
 import { fetchYouTubeVideos } from '@/lib/youtube-feed';
 
 // Fallback sections, used only until categories are flagged "Show on homepage" in the admin.
@@ -334,7 +335,7 @@ export default async function HomePage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
-        <h1 className="sr-only">Xtra Time — Sports, Entertainment, Gaming News</h1>
+        <h1 className="sr-only">{branding.siteName} — {branding.siteDescription}</h1>
 
         {blocks.length > 0 ? (
           <div className="space-y-10">

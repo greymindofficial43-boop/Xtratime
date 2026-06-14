@@ -5,6 +5,9 @@ import { api } from '@/lib/api';
 import { t } from '@/lib/strings';
 import { Fragment } from 'react';
 import { YouTubeStrip } from '@/components/YouTubeStrip';
+import { t } from '@/lib/strings';
+
+export const revalidate = 120;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -63,10 +66,10 @@ export default async function CategoryPage({ params }: Props) {
       {/* Breadcrumbs */}
       <div className="mb-4 text-xs font-semibold text-[var(--sk-muted)]">
         <Link href="/" className="hover:text-[var(--sk-text)]">
-          Home
+          {t.breadcrumbHome}
         </Link>
         {' > '}
-        <span className="text-[var(--sk-text)]">{category.name} News</span>
+        <span className="text-[var(--sk-text)]">{t.categoryMetaTitle(category.name)}</span>
       </div>
 
       {/* Category header */}
@@ -112,7 +115,7 @@ export default async function CategoryPage({ params }: Props) {
 
           {articles.items.length === 0 && (
             <p className="py-12 text-center text-[var(--sk-muted)]">
-              No articles in this category yet.
+              {t.noArticlesInCategory}
             </p>
           )}
 
@@ -120,7 +123,7 @@ export default async function CategoryPage({ params }: Props) {
             href="/"
             className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-[var(--sk-heading)] hover:text-[var(--sk-accent)]"
           >
-            ← Back to home
+            {t.backToHome}
           </Link>
 
           {/* YouTube videos strip */}

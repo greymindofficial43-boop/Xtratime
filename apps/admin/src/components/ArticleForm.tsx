@@ -16,9 +16,10 @@ function toLocalInput(d: Date): string {
 
 type Props = {
   article?: Article;
+  defaultType?: 'ARTICLE' | 'GALLERY';
 };
 
-export function ArticleForm({ article }: Props) {
+export function ArticleForm({ article, defaultType = 'ARTICLE' }: Props) {
   const router = useRouter();
   const isEdit = !!article;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,7 +65,7 @@ export function ArticleForm({ article }: Props) {
     metaDescription: string;
     metaKeywords: string;
   }>({
-    type: (article?.type as 'ARTICLE' | 'GALLERY') ?? 'ARTICLE',
+    type: (article?.type as 'ARTICLE' | 'GALLERY') ?? defaultType,
     title: article?.title ?? '',
     slug: article?.slug ?? '',
     excerpt: article?.excerpt ?? '',

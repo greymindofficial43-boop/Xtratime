@@ -60,7 +60,7 @@ export function CategorySection({ category, articles, popular }: Props) {
               <ArticleCard key={article.id} article={article} size="numbered" rank={i + 1} />
             ))
           ) : (
-            <p className="text-sm text-[var(--sk-muted)]">No stories yet.</p>
+            <p className="text-sm text-[var(--sk-muted)]">{t.noStories}</p>
           )}
         </aside>
       </div>

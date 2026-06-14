@@ -1,13 +1,12 @@
 'use client';
 
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { NavItem } from './HeaderNav';
 import { branding, isExternal } from '@/lib/branding';
+import { t } from '@/lib/strings';
 import { ThemeToggle } from './ThemeToggle';
 import { SocialLinks } from './SocialLinks';
 
@@ -136,7 +135,7 @@ export function MobileNav({ navItems }: Props) {
 
               {/* Social links (only render when configured) */}
               <div className="mt-3 border-t border-[var(--sn-menu-border)] pt-3">
-                <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--sn-menu-muted)]">Follow us</p>
+                <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--sn-menu-muted)]">{t.followUs}</p>
                 <div className="px-3">
                   <SocialLinks />
                 </div>
@@ -144,7 +143,7 @@ export function MobileNav({ navItems }: Props) {
             </div>
 
             <div className="flex shrink-0 items-center justify-between border-t border-[var(--sn-menu-border)] px-4 py-3">
-              <span className="text-xs text-[var(--sn-menu-muted)]">Theme</span>
+              <span className="text-xs text-[var(--sn-menu-muted)]">{t.theme}</span>
               <ThemeToggle />
             </div>
           </aside>

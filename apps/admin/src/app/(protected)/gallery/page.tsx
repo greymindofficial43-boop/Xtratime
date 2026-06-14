@@ -50,7 +50,7 @@ export default function GalleryAdminPage() {
           </p>
         </div>
         <Link
-          href="/articles/new"
+          href="/articles/new?type=GALLERY"
           className="shrink-0 rounded-lg px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
           style={{ background: 'var(--admin-accent)' }}
         >

@@ -9,6 +9,9 @@ import { AdSlot } from '@/components/AdSlot';
 import { GallerySlideshow } from '@/components/GallerySlideshow';
 import { YouTubeStrip } from '@/components/YouTubeStrip';
 import { getYouTubeEmbedUrl } from '@/lib/youtube';
+import { t } from '@/lib/strings';
+
+export const revalidate = 300;
 
 type Props = {
   params: Promise<{ slug: string; category: string }>;
@@ -96,10 +99,10 @@ export default async function ArticlePage({ params }: Props) {
               </h1>
               <p className="mt-2 text-base text-[var(--sk-muted)] md:text-lg">{article.excerpt}</p>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-                <span>By {article.author.name}</span>
+                <span>{t.by} {article.author.name}</span>
                 <span className="text-[var(--sk-muted)]">•</span>
                 <span className="text-[var(--sk-muted)]">
-                  Published {formatDateTime(article.publishedAt ?? article.createdAt)}
+                  {t.published} {formatDateTime(article.publishedAt ?? article.createdAt)}
                 </span>
               </div>
               <div className="mt-4">
@@ -155,7 +158,7 @@ export default async function ArticlePage({ params }: Props) {
 
             <footer className="mt-8 border-t border-[var(--sk-border)] pt-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold">Related stories</h3>
+                <h3 className="text-xl font-bold">{t.relatedStories}</h3>
                 <ShareButtons
                   url={`/${article.category.slug}/${article.slug}`}
                   title={article.title}
@@ -169,7 +172,7 @@ export default async function ArticlePage({ params }: Props) {
         <aside className="col-span-12 lg:col-span-4">
           <div className="sticky top-[65px] py-4 md:py-6">
             <AdSlot zone="sidebar" className="mb-5" />
-            <h3 className="text-xl font-bold">More from {article.category.name}</h3>
+            <h3 className="text-xl font-bold">{t.moreFrom} {article.category.name}</h3>
             <div className="mt-3 flex flex-col">
               {relatedArticles.map((related) => (
                 <ArticleCard key={related.id} article={related} size="list" />
