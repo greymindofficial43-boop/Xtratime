@@ -10,6 +10,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "media:backfill": "ts-node prisma/backfill-media.ts",
     "set-admin": "ts-node prisma/set-admin.ts",
     "clear-demo": "ts-node prisma/clear-demo.ts",
     "postinstall": "prisma generate"
