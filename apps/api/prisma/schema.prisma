@@ -251,6 +251,21 @@ model PopupAd {
   @@index([sortOrder])
 }
 
+model MediaFile {
+  id        String   @id @default(cuid())
+  url       String
+  publicId  String?  // Cloudinary public_id — used for deletion
+  filename  String
+  mimeType  String
+  size      Int?     // bytes
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([mimeType])
+}
+
 // Toggleable / reorderable / renamable homepage blocks, edited from the admin.
 model HomeSection {
   id        String   @id @default(cuid())

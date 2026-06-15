@@ -99,6 +99,25 @@ export type MenuItem = {
   children?: MenuItem[];
 };
 
+export type MediaFile = {
+  id: string;
+  url: string;
+  publicId: string | null;
+  filename: string;
+  mimeType: string;
+  size: number | null;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+};
+
+export type MediaPage = {
+  items: MediaFile[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
 export type GalleryImage = {
   id: string;
   url: string;
@@ -372,4 +391,15 @@ export const adminApi = {
     apiFetch<Advertisement>(`/ads/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteAd: (id: string) =>
     apiFetch(`/ads/${id}`, { method: 'DELETE' }),
+
+  getMedia: (params?: { search?: string; mimeType?: string; page?: number; limit?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.search)   qs.set('search',   params.search);
+    if (params?.mimeType) qs.set('mimeType', params.mimeType);
+    if (params?.page)     qs.set('page',     String(params.page));
+    if (params?.limit)    qs.set('limit',    String(params.limit));
+    const query = qs.toString();
+    return apiFetch<MediaPage>(`/media${query ? `?${query}` : ''}`);
+  },
+  deleteMedia: (id: string) => apiFetch(`/media/${id}`, { method: 'DELETE' }),
 };

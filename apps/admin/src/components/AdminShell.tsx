@@ -15,6 +15,7 @@ const NAV_SECTIONS = [
       { href: '/dashboard', label: 'Dashboard', icon: '▦' },
       { href: '/articles', label: 'Articles', icon: '✎' },
       { href: '/gallery', label: 'Gallery', icon: '🖼' },
+      { href: '/media', label: 'Media Library', icon: '⬚' },
       { href: '/categories', label: 'Categories', icon: '⊞' },
       { href: '/tags', label: 'Tags', icon: '◈' },
     ],

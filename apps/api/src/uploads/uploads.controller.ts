@@ -10,7 +10,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import { PrismaService } from '../prisma/prisma.service';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,6 +22,8 @@ cloudinary.config({
 @Controller('uploads')
 @UseGuards(JwtAuthGuard)
 export class UploadsController {
+  constructor(private prisma: PrismaService) {}
+
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {
@@ -37,8 +40,6 @@ export class UploadsController {
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file provided');
 
-    // Fallback: in development return base64 data URL for convenience.
-    // In production require Cloudinary configuration to avoid embedding large base64 blobs in content.
     if (!process.env.CLOUDINARY_CLOUD_NAME) {
       if (process.env.NODE_ENV === 'production') {
         throw new InternalServerErrorException('Image upload is not configured on the server. Set CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET in production.');
@@ -48,16 +49,29 @@ export class UploadsController {
     }
 
     try {
-      const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
+      const result = await new Promise<UploadApiResponse>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: 'xtratime', resource_type: 'auto' },
-          (error: Error | undefined, res: { secure_url: string } | undefined) => {
+          (error, res) => {
             if (error || !res) return reject(error ?? new Error('Upload failed'));
             resolve(res);
           },
         );
         stream.end(file.buffer);
       });
+
+      await this.prisma.mediaFile.create({
+        data: {
+          url:      result.secure_url,
+          publicId: result.public_id,
+          filename: file.originalname,
+          mimeType: file.mimetype,
+          size:     result.bytes ?? file.size ?? null,
+          width:    result.width  ?? null,
+          height:   result.height ?? null,
+        },
+      });
+
       return { url: result.secure_url };
     } catch {
       throw new InternalServerErrorException('Image upload failed');

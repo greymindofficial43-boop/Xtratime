@@ -15,6 +15,7 @@ import { HomeSectionsModule } from './home-sections/home-sections.module';
 import { PromosModule } from './promos/promos.module';
 import { PopupAdsModule } from './popup-ads/popup-ads.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { MediaModule } from './media/media.module';
 import { TestBodyController } from './test-body.controller';
 
 @Module({
@@ -39,6 +40,7 @@ import { TestBodyController } from './test-body.controller';
     PromosModule,
     PopupAdsModule,
     UploadsModule,
+    MediaModule,
   ],
   controllers: [TestBodyController],
 })
