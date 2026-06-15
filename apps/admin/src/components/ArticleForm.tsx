@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { RichTextEditor } from './RichTextEditor';
 import { ArticlePreview } from './ArticlePreview';
+import { MediaPickerModal } from './MediaPickerModal';
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api').replace(/\/api$/, '');
 
@@ -23,6 +24,8 @@ export function ArticleForm({ article, defaultType = 'ARTICLE' }: Props) {
   const router = useRouter();
   const isEdit = !!article;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [showGalleryPicker, setShowGalleryPicker] = useState(false);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -359,7 +362,7 @@ export function ArticleForm({ article, defaultType = 'ARTICLE' }: Props) {
             </div>
           )}
 
-          {/* Upload from local */}
+          {/* Upload / pick buttons */}
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -379,6 +382,13 @@ export function ArticleForm({ article, defaultType = 'ARTICLE' }: Props) {
                 </>
               )}
             </button>
+            <button
+              type="button"
+              onClick={() => setShowMediaPicker(true)}
+              className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+            >
+              ⬚ Choose from Library
+            </button>
             <input
               ref={fileInputRef}
               type="file"
@@ -396,6 +406,11 @@ export function ArticleForm({ article, defaultType = 'ARTICLE' }: Props) {
             />
           </div>
           <p className="mt-1.5 text-xs text-slate-400">Accepted: JPG, PNG, GIF, WebP · Max 10 MB</p>
+          <MediaPickerModal
+            open={showMediaPicker}
+            onClose={() => setShowMediaPicker(false)}
+            onSelect={(urls) => { update('featuredImage', urls[0]); setImagePreview(urls[0]); }}
+          />
         </div>
 
         {/* ── YouTube Video URL ── */}
@@ -474,15 +489,24 @@ export function ArticleForm({ article, defaultType = 'ARTICLE' }: Props) {
               ))}
             </div>
 
-            {/* Add images button */}
-            <button
-              type="button"
-              onClick={() => galleryInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-400 hover:bg-slate-100 transition"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Add Images
-            </button>
+            {/* Add images buttons */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => galleryInputRef.current?.click()}
+                className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-400 hover:bg-slate-100 transition"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Images
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowGalleryPicker(true)}
+                className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-400 hover:bg-slate-100 transition"
+              >
+                ⬚ Choose from Library
+              </button>
+            </div>
             <input
               ref={galleryInputRef}
               type="file"
@@ -490,6 +514,21 @@ export function ArticleForm({ article, defaultType = 'ARTICLE' }: Props) {
               multiple
               className="hidden"
               onChange={handleGalleryUpload}
+            />
+            <MediaPickerModal
+              open={showGalleryPicker}
+              multiple
+              onClose={() => setShowGalleryPicker(false)}
+              onSelect={(urls) => {
+                const startOrder = galleryImages.length;
+                const newEntries = urls.map((url, i) => ({
+                  tempId: `lib-${Date.now()}-${i}`,
+                  url,
+                  caption: '',
+                  order: startOrder + i,
+                }));
+                setGalleryImages(prev => [...prev, ...newEntries]);
+              }}
             />
           </div>
         )}

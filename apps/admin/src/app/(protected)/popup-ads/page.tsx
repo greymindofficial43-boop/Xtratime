@@ -2,6 +2,7 @@
 
 import { adminApi, type PopupAd } from '@/lib/api';
 import { FormEvent, useEffect, useState } from 'react';
+import { MediaPickerModal } from '@/components/MediaPickerModal';
 
 const emptyForm = {
   title: '',
@@ -34,6 +35,7 @@ export default function PopupAdsPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -173,11 +175,21 @@ export default function PopupAdsPage() {
                 {uploading ? '…' : 'Upload'}
                 <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
               </label>
+              <button type="button" onClick={() => setShowMediaPicker(true)}
+                className="shrink-0 rounded-lg border px-3 text-xs font-semibold"
+                style={{ borderColor: 'var(--admin-border)', color: 'var(--admin-text)' }}>
+                ⬚ Library
+              </button>
             </div>
             {form.imageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={form.imageUrl} alt="" className="mt-2 max-h-48 w-auto rounded-lg object-contain" />
             )}
+            <MediaPickerModal
+              open={showMediaPicker}
+              onClose={() => setShowMediaPicker(false)}
+              onSelect={(urls) => setForm((f) => ({ ...f, imageUrl: urls[0] }))}
+            />
           </div>
 
           <div className="sm:col-span-2">

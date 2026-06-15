@@ -2,6 +2,7 @@
 
 import { adminApi, type Advertisement, type AdType } from '@/lib/api';
 import { FormEvent, useEffect, useState } from 'react';
+import { MediaPickerModal } from '@/components/MediaPickerModal';
 
 const emptyForm = {
   title: '',
@@ -46,6 +47,7 @@ export default function AdsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   async function load() {
     const data = await adminApi.getAds();
@@ -262,7 +264,19 @@ export default function AdsPage() {
                   <span className="text-xs font-semibold text-slate-600">{uploading ? '...' : 'Upload'}</span>
                   <input type="file" className="hidden" accept="image/*,video/*" onChange={handleFileUpload} disabled={uploading} />
                 </label>
+                <button
+                  type="button"
+                  onClick={() => setShowMediaPicker(true)}
+                  className="shrink-0 rounded-lg border border-slate-300 bg-slate-50 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                >
+                  ⬚ Library
+                </button>
               </div>
+              <MediaPickerModal
+                open={showMediaPicker}
+                onClose={() => setShowMediaPicker(false)}
+                onSelect={(urls) => setForm((prev) => ({ ...prev, imageUrl: urls[0] }))}
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500">Target URL</label>

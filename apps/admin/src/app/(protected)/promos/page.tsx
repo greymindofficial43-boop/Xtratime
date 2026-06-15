@@ -2,6 +2,7 @@
 
 import { adminApi, type Promo } from '@/lib/api';
 import { FormEvent, useEffect, useState } from 'react';
+import { MediaPickerModal } from '@/components/MediaPickerModal';
 
 const emptyForm = {
   title: '',
@@ -21,6 +22,7 @@ export default function PromosPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -156,7 +158,17 @@ export default function PromosPage() {
                 {uploading ? '…' : 'Upload'}
                 <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={uploading} />
               </label>
+              <button type="button" onClick={() => setShowMediaPicker(true)}
+                className="shrink-0 rounded-lg border px-3 text-xs font-semibold"
+                style={{ borderColor: 'var(--admin-border)', color: 'var(--admin-text)' }}>
+                ⬚ Library
+              </button>
             </div>
+            <MediaPickerModal
+              open={showMediaPicker}
+              onClose={() => setShowMediaPicker(false)}
+              onSelect={(urls) => setForm((f) => ({ ...f, imageUrl: urls[0] }))}
+            />
             {form.imageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={form.imageUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
