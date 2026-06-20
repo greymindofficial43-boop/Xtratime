@@ -1,4 +1,6 @@
-// Exact date + time, e.g. "Jun 8, 2026, 3:40 PM"
+const IST = 'Asia/Kolkata';
+
+// Exact date + time, e.g. "Jun 8, 2026, 3:40 PM IST"
 export function formatDateTime(dateStr?: string | null): string {
   if (!dateStr) return '';
   const date = new Date(dateStr);
@@ -10,6 +12,7 @@ export function formatDateTime(dateStr?: string | null): string {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
+    timeZone: IST,
   });
 }
 
@@ -25,5 +28,5 @@ export function formatRelativeTime(dateStr?: string | null): string {
   if (hrs < 24) return `${hrs} hr`;
   const days = Math.floor(hrs / 24);
   if (days < 7) return `${days} d`;
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: IST });
 }

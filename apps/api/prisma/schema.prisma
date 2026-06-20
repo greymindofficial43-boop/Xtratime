@@ -255,6 +255,8 @@ model MediaFile {
   id        String   @id @default(cuid())
   url       String
   publicId  String?  // Cloudinary public_id — used for deletion
+  localUrl  String?  // VPS local copy served via /uploads/*
+  localPath String?  // absolute path on disk — used for deletion
   filename  String
   mimeType  String
   size      Int?     // bytes

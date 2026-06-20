@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { v2 as cloudinary } from 'cloudinary';
+import { promises as fs } from 'fs';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -54,6 +55,14 @@ export class MediaService {
         });
       } catch {
         // Log but don't block deletion — the DB record should still be removed
+      }
+    }
+
+    if (file.localPath) {
+      try {
+        await fs.unlink(file.localPath);
+      } catch {
+        // File may already be gone — don't block DB deletion
       }
     }
 
