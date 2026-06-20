@@ -9,9 +9,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.siteUrl.replace(/\/$/, '');
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: base || '/', changeFrequency: 'hourly', priority: 1 },
-    { url: `${base}/gallery`, changeFrequency: 'daily', priority: 0.8 },
-    { url: `${base}/videos`, changeFrequency: 'daily', priority: 0.7 },
+    { url: base || '/', changeFrequency: 'hourly' as const, priority: 1 },
+    { url: `${base}/gallery`, changeFrequency: 'daily' as const, priority: 0.8 },
+    { url: `${base}/videos`, changeFrequency: 'daily' as const, priority: 0.7 },
   ].map((r) => ({ ...r, lastModified: new Date() }));
 
   let categories: Awaited<ReturnType<typeof api.getCategories>> = [];

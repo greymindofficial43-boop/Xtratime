@@ -5,7 +5,6 @@ import { api } from '@/lib/api';
 import { t } from '@/lib/strings';
 import { Fragment } from 'react';
 import { YouTubeStrip } from '@/components/YouTubeStrip';
-import { t } from '@/lib/strings';
 
 export const revalidate = 120;
 
