@@ -69,12 +69,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               src="https://www.googletagmanager.com/gtag/js?id=G-7C3F99WPP5"
               strategy="afterInteractive"
             />
-            <Script id="google-analytics" strategy="afterInteractive">
+            <Script id="google-analytics-en" strategy="afterInteractive">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
                 gtag('config', 'G-7C3F99WPP5');
+              `}
+            </Script>
+          </>
+        )}
+        {branding.siteLocale === 'bn' && (
+          <>
+            <Script
+              async
+              src="https://www.googletagmanager.com/gtag/js?id=G-8GY4DP66SJ"
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics-bn" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-8GY4DP66SJ');
               `}
             </Script>
           </>
