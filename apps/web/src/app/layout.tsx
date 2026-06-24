@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: branding.siteName,
   },
   verification: {
-    google: branding.siteLocale === 'bn' ? '2_vDCogofsJTslAYVmchVMeMCwsaV0PbczVfAA5xSCw' : undefined,
+    google: branding.siteLocale === 'bn' ? '2_vDCogofsJTslAYVmchVMeMCwsaV0PbczVfAA5xSCw' : 'rYnZXErO_JbunYWG4etr1Smoo7zcyUsHi3O-vPWjo1I',
   },
 };
 
