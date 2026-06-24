@@ -62,6 +62,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${inter.variable} ${poppins.variable} ${inter.className} min-h-screen antialiased`}
       >
+        {branding.siteLocale === 'en' && (
+          <>
+            <Script
+              async
+              src="https://www.googletagmanager.com/gtag/js?id=G-7C3F99WPP5"
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-7C3F99WPP5');
+              `}
+            </Script>
+          </>
+        )}
         {ADSENSE_CLIENT && (
           <Script
             async
