@@ -14,6 +14,7 @@ import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { PrismaService } from '../prisma/prisma.service';
 import { join, extname } from 'path';
 import { promises as fs } from 'fs';
+import sharp from 'sharp';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -55,11 +56,52 @@ export class UploadsController {
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file provided');
 
+    let finalBuffer = file.buffer;
+
+    if (file.mimetype.startsWith('image/') && !file.mimetype.includes('svg')) {
+      try {
+        let image = sharp(file.buffer);
+        const metadata = await image.metadata();
+
+        image = image.extend({
+          top: 2, bottom: 2, left: 2, right: 2,
+          background: { r: 0, g: 0, b: 0, alpha: 1 }
+        });
+
+        const logoName = process.env.WATERMARK_LOGO;
+        if (logoName) {
+          const logoPath = join(process.cwd(), '../../', logoName);
+          try {
+            const watermarkWidth = Math.max(50, Math.round((metadata.width || 800) * 0.15));
+            const padding = Math.max(5, Math.round(watermarkWidth * 0.05));
+            const logoBuffer = await sharp(logoPath)
+              .resize({ width: watermarkWidth })
+              .extend({
+                bottom: padding,
+                right: padding,
+                background: { r: 0, g: 0, b: 0, alpha: 0 }
+              })
+              .toBuffer();
+
+            image = image.composite([{
+              input: logoBuffer,
+              gravity: 'southeast'
+            }]);
+          } catch (logoErr) {
+            console.warn(`Failed to apply watermark logo: ${logoErr.message}`);
+          }
+        }
+        finalBuffer = await image.toBuffer();
+      } catch (err) {
+        console.error('Image processing failed, using original buffer', err);
+      }
+    }
+
     if (!process.env.CLOUDINARY_CLOUD_NAME) {
       if (process.env.NODE_ENV === 'production') {
         throw new InternalServerErrorException('Image upload is not configured on the server. Set CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET in production.');
       }
-      const base64 = file.buffer.toString('base64');
+      const base64 = finalBuffer.toString('base64');
       return { url: `data:${file.mimetype};base64,${base64}` };
     }
 
@@ -73,14 +115,14 @@ export class UploadsController {
             resolve(res);
           },
         );
-        stream.end(file.buffer);
+        stream.end(finalBuffer);
       });
 
       // Also save a local copy on the VPS filesystem
       let localPath: string | null = null;
       let localUrl: string | null = null;
       try {
-        const local = await saveToLocal(file.buffer, file.originalname);
+        const local = await saveToLocal(finalBuffer, file.originalname);
         localPath = local.localPath;
         localUrl  = local.localUrl;
       } catch {
