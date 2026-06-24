@@ -63,10 +63,10 @@ export class UploadsController {
       try {
         const metadata = await sharp(file.buffer).metadata();
 
-        // 1. Add 2px black border and flush to buffer to ensure pipeline order
+        // 1. Add 4px black border and flush to buffer to ensure pipeline order
         const borderedBuffer = await sharp(file.buffer)
           .extend({
-            top: 2, bottom: 2, left: 2, right: 2,
+            top: 4, bottom: 4, left: 4, right: 4,
             background: { r: 0, g: 0, b: 0, alpha: 1 }
           })
           .toBuffer();
