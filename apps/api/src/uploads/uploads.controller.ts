@@ -58,15 +58,20 @@ export class UploadsController {
 
     let finalBuffer = file.buffer;
 
-    if (file.mimetype.startsWith('image/') && !file.mimetype.includes('svg')) {
+    // Apply watermark and border if it's a static image (skip SVGs and animated GIFs)
+    if (file.mimetype.startsWith('image/') && !file.mimetype.includes('svg') && !file.mimetype.includes('gif')) {
       try {
-        let image = sharp(file.buffer);
-        const metadata = await image.metadata();
+        const metadata = await sharp(file.buffer).metadata();
 
-        image = image.extend({
-          top: 2, bottom: 2, left: 2, right: 2,
-          background: { r: 0, g: 0, b: 0, alpha: 1 }
-        });
+        // 1. Add 2px black border and flush to buffer to ensure pipeline order
+        const borderedBuffer = await sharp(file.buffer)
+          .extend({
+            top: 2, bottom: 2, left: 2, right: 2,
+            background: { r: 0, g: 0, b: 0, alpha: 1 }
+          })
+          .toBuffer();
+
+        let image = sharp(borderedBuffer);
 
         const logoName = process.env.WATERMARK_LOGO;
         if (logoName) {
