@@ -63,11 +63,18 @@ export class UploadsController {
       try {
         const metadata = await sharp(file.buffer).metadata();
 
-        // 1. Add 4px black border and flush to buffer to ensure pipeline order
-        const borderedBuffer = await sharp(file.buffer)
+        // 1. Add premium double border: 4px inner brand orange, 12px outer dark black
+        let borderedBuffer = await sharp(file.buffer)
           .extend({
             top: 4, bottom: 4, left: 4, right: 4,
-            background: { r: 0, g: 0, b: 0, alpha: 1 }
+            background: '#ff4d00'
+          })
+          .toBuffer();
+
+        borderedBuffer = await sharp(borderedBuffer)
+          .extend({
+            top: 12, bottom: 12, left: 12, right: 12,
+            background: '#111111'
           })
           .toBuffer();
 
@@ -78,7 +85,8 @@ export class UploadsController {
           const logoPath = join(process.cwd(), '../../', logoName);
           try {
             const watermarkWidth = Math.max(50, Math.round((metadata.width || 800) * 0.15));
-            const padding = Math.max(5, Math.round(watermarkWidth * 0.05));
+            // Total frame thickness is 16px (4 + 12). Add 10px inner padding for the logo.
+            const padding = 16 + 10;
             const logoBuffer = await sharp(logoPath)
               .resize({ width: watermarkWidth })
               .extend({
