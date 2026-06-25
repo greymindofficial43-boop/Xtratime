@@ -63,29 +63,28 @@ export class UploadsController {
       try {
         const metadata = await sharp(file.buffer).metadata();
 
-        // 1. Add premium triple-layer sports frame
-        // Layer A: 2px sharp white inner border hugging the photo
-        let borderedBuffer = await sharp(file.buffer)
+        // 1. Enhance image clarity (sharpen and boost colors)
+        let enhancedBuffer = await sharp(file.buffer)
+          .sharpen({ sigma: 1.5 })
+          .modulate({ brightness: 1.05, saturation: 1.1 })
+          .toBuffer();
+
+        // 2. Add premium translucent "tint filter" frame
+        // Layer A: 2px sharp white inner border
+        let borderedBuffer = await sharp(enhancedBuffer)
           .extend({
             top: 2, bottom: 2, left: 2, right: 2,
             background: '#ffffff'
           })
           .toBuffer();
 
-        // Layer B: 16px vibrant brand orange middle frame
+        // Layer B: 20px translucent brand orange tint border
         borderedBuffer = await sharp(borderedBuffer)
           .extend({
-            top: 16, bottom: 16, left: 16, right: 16,
-            background: '#ff4d00'
+            top: 20, bottom: 20, left: 20, right: 20,
+            background: { r: 255, g: 77, b: 0, alpha: 0.35 }
           })
-          .toBuffer();
-
-        // Layer C: 8px dark black outer frame
-        borderedBuffer = await sharp(borderedBuffer)
-          .extend({
-            top: 8, bottom: 8, left: 8, right: 8,
-            background: '#111111'
-          })
+          .webp({ quality: 90 }) // Force WebP to support the translucent border
           .toBuffer();
 
         let image = sharp(borderedBuffer);
@@ -95,8 +94,8 @@ export class UploadsController {
           const logoPath = join(process.cwd(), '../../', logoName);
           try {
             const watermarkWidth = Math.max(50, Math.round((metadata.width || 800) * 0.15));
-            // Total frame thickness is 26px (2 + 16 + 8). Add 10px inner padding so the logo sits perfectly inside the frame over the photo.
-            const padding = 26 + 10;
+            // Total frame thickness is 22px. Add 10px inner padding so the logo sits perfectly inside.
+            const padding = 22 + 10;
             const logoBuffer = await sharp(logoPath)
               .resize({ width: watermarkWidth })
               .extend({
