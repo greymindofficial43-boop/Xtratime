@@ -51,6 +51,9 @@ export const metadata: Metadata = {
   verification: {
     google: branding.siteLocale === 'bn' ? '2_vDCogofsJTslAYVmchVMeMCwsaV0PbczVfAA5xSCw' : 'rYnZXErO_JbunYWG4etr1Smoo7zcyUsHi3O-vPWjo1I',
   },
+  other: {
+    'google-adsense-account': branding.siteLocale === 'bn' ? 'ca-pub-9212477578765032' : 'ca-pub-4299633259109805',
+  },
 };
 
 export const viewport: Viewport = {
