@@ -80,6 +80,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 gtag('config', 'G-7C3F99WPP5');
               `}
             </Script>
+            <Script
+              async
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4299633259109805"
+              crossOrigin="anonymous"
+              strategy="afterInteractive"
+            />
           </>
         )}
         {branding.siteLocale === 'bn' && (
