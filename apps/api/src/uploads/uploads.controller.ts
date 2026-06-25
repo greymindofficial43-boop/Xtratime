@@ -24,6 +24,55 @@ cloudinary.config({
 
 const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads');
 
+function generateCyberpunkSVG(w: number, h: number): string {
+  const S = Math.max(w, 1280) / 1920;
+  const b = 24 * S; 
+  const pad = 12 * S + b / 2; 
+  const L = pad;
+  const R = w - pad;
+  const T = pad;
+  const B = h - pad;
+  const cs = 80 * S; 
+
+  const bottomBar = `
+    <defs>
+      <linearGradient id="bottomGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#69D23F" />
+        <stop offset="100%" stop-color="#F12B2B" />
+      </linearGradient>
+    </defs>
+    <path d="M ${L + cs * 2} ${B} L ${R - cs * 2.5} ${B}" fill="none" stroke="url(#bottomGrad)" stroke-width="${b * 0.4}" />
+  `;
+
+  const createStripes = (x: number, y: number, color: string, dx: number, dy: number, count: number = 3) => {
+    let stripes = '';
+    const gap = 14 * S;
+    const thick = 6 * S;
+    for (let i = 0; i < count; i++) {
+      const sx = x + i * gap;
+      stripes += `<path d="M ${sx} ${y} L ${sx + dx} ${y + dy}" fill="none" stroke="${color}" stroke-width="${thick}" stroke-linecap="round" />`;
+    }
+    return stripes;
+  };
+
+  return `
+    <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      ${bottomBar}
+      <path d="M ${L} ${T + cs * 1.7} L ${L} ${B - cs * 1.7}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
+      <path d="M ${R} ${T + cs * 1.7} L ${R} ${B - cs * 2.2}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
+      <path d="M ${L + cs * 1.7} ${T} L ${w / 2} ${T}" stroke="#69D23F" stroke-width="${b * 0.4}" />
+      <path d="M ${w / 2} ${T} L ${R - cs * 1.7} ${T}" stroke="#F12B2B" stroke-width="${b * 0.4}" />
+      <path d="M ${L + cs * 1.5} ${T} L ${L + cs} ${T} L ${L} ${T + cs} L ${L} ${T + cs * 1.5}" fill="none" stroke="#69D23F" stroke-width="${b}" stroke-linecap="square" stroke-linejoin="miter" />
+      <path d="M ${R - cs * 1.5} ${T} L ${R - cs} ${T} L ${R} ${T + cs} L ${R} ${T + cs * 1.5}" fill="none" stroke="#F12B2B" stroke-width="${b}" stroke-linecap="square" stroke-linejoin="miter" />
+      <path d="M ${L} ${B - cs * 1.5} L ${L} ${B - cs} L ${L + cs} ${B} L ${L + cs * 1.5} ${B}" fill="none" stroke="#69D23F" stroke-width="${b}" stroke-linecap="square" stroke-linejoin="miter" />
+      <path d="M ${R} ${B - cs * 2} L ${R} ${B - cs} L ${R - cs} ${B} L ${R - cs * 2} ${B}" fill="none" stroke="#F12B2B" stroke-width="${b * 1.3}" stroke-linecap="square" stroke-linejoin="miter" />
+      ${createStripes(L + cs * 1.8, T + 20 * S, '#69D23F', 15 * S, -30 * S)}
+      ${createStripes(L + cs * 1.8, B - 10 * S, '#69D23F', 15 * S, -30 * S)}
+      ${createStripes(R - cs * 3.5, B - 10 * S, '#F12B2B', 15 * S, -30 * S)}
+    </svg>
+  `;
+}
+
 async function saveToLocal(buffer: Buffer, originalname: string): Promise<{ localPath: string; localUrl: string }> {
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
   const ext = extname(originalname);
@@ -69,51 +118,46 @@ export class UploadsController {
           .modulate({ brightness: 1.05, saturation: 1.1 })
           .toBuffer();
 
-        // 2. Add premium translucent "tint filter" frame
-        // Layer A: 2px sharp white inner border
-        let borderedBuffer = await sharp(enhancedBuffer)
-          .extend({
-            top: 2, bottom: 2, left: 2, right: 2,
-            background: '#ffffff'
-          })
-          .toBuffer();
-
-        // Layer B: 20px translucent brand orange tint border
-        borderedBuffer = await sharp(borderedBuffer)
-          .extend({
-            top: 20, bottom: 20, left: 20, right: 20,
-            background: { r: 255, g: 77, b: 0, alpha: 0.35 }
-          })
-          .webp({ quality: 90 }) // Force WebP to support the translucent border
-          .toBuffer();
-
-        let image = sharp(borderedBuffer);
+        const w = metadata.width || 1920;
+        const h = metadata.height || 1080;
+        const svgStr = generateCyberpunkSVG(w, h);
+        const composites: any[] = [{ input: Buffer.from(svgStr), top: 0, left: 0 }];
 
         const logoName = process.env.WATERMARK_LOGO;
         if (logoName) {
           const logoPath = join(process.cwd(), '../../', logoName);
           try {
-            const watermarkWidth = Math.max(50, Math.round((metadata.width || 800) * 0.15));
-            // Total frame thickness is 22px. Add 10px inner padding so the logo sits perfectly inside.
-            const padding = 22 + 10;
-            const logoBuffer = await sharp(logoPath)
-              .resize({ width: watermarkWidth })
-              .extend({
-                bottom: padding,
-                right: padding,
-                background: { r: 0, g: 0, b: 0, alpha: 0 }
-              })
+            // Large Centered Watermark
+            const largeWidth = Math.round(w * 0.40);
+            const largeLogoBuf = await sharp(logoPath).resize({ width: largeWidth }).toBuffer();
+            const largeMetadata = await sharp(largeLogoBuf).metadata();
+            const lH = largeMetadata.height || Math.round(largeWidth);
+            const maskSVG = `<svg width="${largeWidth}" height="${lH}"><rect width="100%" height="100%" fill="rgba(255,255,255,0.10)"/></svg>`;
+            const transparentLogo = await sharp(largeLogoBuf)
+              .ensureAlpha()
+              .composite([{ input: Buffer.from(maskSVG), blend: 'dest-in' }])
               .toBuffer();
 
-            image = image.composite([{
-              input: logoBuffer,
-              gravity: 'southeast'
-            }]);
+            const largeTop = Math.max(0, Math.round(h / 2 - lH / 2 - h * 0.05));
+            const largeLeft = Math.max(0, Math.round(w / 2 - largeWidth / 2));
+            composites.push({ input: transparentLogo, top: largeTop, left: largeLeft });
+
+            // Small Top-Right Watermark
+            const smallWidth = Math.max(50, Math.round(w * 0.04));
+            const smallLogoBuf = await sharp(logoPath).resize({ width: smallWidth }).toBuffer();
+            const margin = 32;
+            const smallTop = margin;
+            const smallLeft = w - smallWidth - margin;
+            composites.push({ input: smallLogoBuf, top: smallTop, left: smallLeft });
           } catch (logoErr) {
-            console.warn(`Failed to apply watermark logo: ${logoErr.message}`);
+            console.warn(`Failed to apply watermark logos: ${logoErr.message}`);
           }
         }
-        finalBuffer = await image.toBuffer();
+
+        finalBuffer = await sharp(enhancedBuffer)
+          .composite(composites)
+          .webp({ quality: 90 }) // Use WebP for optimized size
+          .toBuffer();
       } catch (err) {
         console.error('Image processing failed, using original buffer', err);
       }
