@@ -63,17 +63,27 @@ export class UploadsController {
       try {
         const metadata = await sharp(file.buffer).metadata();
 
-        // 1. Add premium double border: 4px inner brand orange, 12px outer dark black
+        // 1. Add premium triple-layer sports frame
+        // Layer A: 2px sharp white inner border hugging the photo
         let borderedBuffer = await sharp(file.buffer)
           .extend({
-            top: 4, bottom: 4, left: 4, right: 4,
+            top: 2, bottom: 2, left: 2, right: 2,
+            background: '#ffffff'
+          })
+          .toBuffer();
+
+        // Layer B: 16px vibrant brand orange middle frame
+        borderedBuffer = await sharp(borderedBuffer)
+          .extend({
+            top: 16, bottom: 16, left: 16, right: 16,
             background: '#ff4d00'
           })
           .toBuffer();
 
+        // Layer C: 8px dark black outer frame
         borderedBuffer = await sharp(borderedBuffer)
           .extend({
-            top: 12, bottom: 12, left: 12, right: 12,
+            top: 8, bottom: 8, left: 8, right: 8,
             background: '#111111'
           })
           .toBuffer();
@@ -85,8 +95,8 @@ export class UploadsController {
           const logoPath = join(process.cwd(), '../../', logoName);
           try {
             const watermarkWidth = Math.max(50, Math.round((metadata.width || 800) * 0.15));
-            // Total frame thickness is 16px (4 + 12). Add 10px inner padding for the logo.
-            const padding = 16 + 10;
+            // Total frame thickness is 26px (2 + 16 + 8). Add 10px inner padding so the logo sits perfectly inside the frame over the photo.
+            const padding = 26 + 10;
             const logoBuffer = await sharp(logoPath)
               .resize({ width: watermarkWidth })
               .extend({
