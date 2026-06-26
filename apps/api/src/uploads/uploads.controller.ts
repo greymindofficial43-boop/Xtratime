@@ -57,6 +57,7 @@ function generateCyberpunkSVG(w: number, h: number): string {
 
   return `
     <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 0 0 L ${w} 0 L ${w} ${h} L 0 ${h} Z M ${L+cs} ${T} L ${R-cs} ${T} L ${R} ${T+cs} L ${R} ${B-cs} L ${R-cs} ${B} L ${L+cs} ${B} L ${L} ${B-cs} L ${L} ${T+cs} Z" fill="#000000" fill-rule="evenodd" />
       ${bottomBar}
       <path d="M ${L} ${T + cs * 1.7} L ${L} ${B - cs * 1.7}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
       <path d="M ${R} ${T + cs * 1.7} L ${R} ${B - cs * 2.2}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
