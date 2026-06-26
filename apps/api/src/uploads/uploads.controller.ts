@@ -25,7 +25,8 @@ cloudinary.config({
 const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads');
 
 function generateCyberpunkSVG(w: number, h: number): string {
-  const S = Math.max(w, 1280) / 1920;
+  // Use minimum dimension so borders look proportional on extreme portrait/landscape rectangles
+  const S = Math.min(w, h) / 1080;
   const b = 24 * S; 
   const pad = 12 * S + b / 2; 
   const L = pad;
@@ -57,7 +58,7 @@ function generateCyberpunkSVG(w: number, h: number): string {
 
   return `
     <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-      <path d="M 0 0 L ${w} 0 L ${w} ${h} L 0 ${h} Z M ${L+cs} ${T} L ${R-cs} ${T} L ${R} ${T+cs} L ${R} ${B-cs} L ${R-cs} ${B} L ${L+cs} ${B} L ${L} ${B-cs} L ${L} ${T+cs} Z" fill="#000000" fill-rule="evenodd" />
+      <path d="M -10 -10 L ${w+10} -10 L ${w+10} ${h+10} L -10 ${h+10} Z M ${L+cs} ${T} L ${R-cs} ${T} L ${R} ${T+cs} L ${R} ${B-cs} L ${R-cs} ${B} L ${L+cs} ${B} L ${L} ${B-cs} L ${L} ${T+cs} Z" fill="#000000" fill-rule="evenodd" />
       ${bottomBar}
       <path d="M ${L} ${T + cs * 1.7} L ${L} ${B - cs * 1.7}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
       <path d="M ${R} ${T + cs * 1.7} L ${R} ${B - cs * 2.2}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
@@ -111,16 +112,17 @@ export class UploadsController {
     // Apply watermark and border if it's a static image (skip SVGs and animated GIFs)
     if (file.mimetype.startsWith('image/') && !file.mimetype.includes('svg') && !file.mimetype.includes('gif')) {
       try {
-        const metadata = await sharp(file.buffer).metadata();
-
-        // 1. Enhance image clarity (sharpen and boost colors)
+        // 1. Fix EXIF orientation and enhance image clarity
         let enhancedBuffer = await sharp(file.buffer)
+          .rotate() // Auto-orients based on EXIF tags
           .sharpen({ sigma: 1.5 })
           .modulate({ brightness: 1.05, saturation: 1.1 })
           .toBuffer();
 
+        const metadata = await sharp(enhancedBuffer).metadata();
         const w = metadata.width || 1920;
         const h = metadata.height || 1080;
+        
         const svgStr = generateCyberpunkSVG(w, h);
         const composites: any[] = [{ input: Buffer.from(svgStr), top: 0, left: 0 }];
 
