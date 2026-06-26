@@ -25,52 +25,84 @@ cloudinary.config({
 const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads');
 
 function generateCyberpunkSVG(w: number, h: number): string {
-  // Use minimum dimension so borders look proportional on extreme portrait/landscape rectangles
   const S = Math.min(w, h) / 1080;
-  const b = 24 * S; 
-  const pad = 12 * S + b / 2; 
-  const L = pad;
-  const R = w - pad;
-  const T = pad;
-  const B = h - pad;
-  const cs = 80 * S; 
+  const u = 12 * S; // Base unit for UI scaling (Increased slightly for thicker feel)
 
-  const bottomBar = `
-    <defs>
-      <linearGradient id="bottomGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#69D23F" />
-        <stop offset="100%" stop-color="#F12B2B" />
-      </linearGradient>
-    </defs>
-    <path d="M ${L + cs * 2} ${B} L ${R - cs * 2.5} ${B}" fill="none" stroke="url(#bottomGrad)" stroke-width="${b * 0.4}" />
+  // 1. The Absolute Boundary Cages (Solves the "image going outside" problem)
+  // A slightly thicker black rim exactly at the edge of the canvas.
+  const outerRim = `<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="#050505" stroke-width="${u*3.5}" />`;
+  // Secondary dark grey structural track just inside the rim (adding subtle dark color layers)
+  const innerTrack = `<rect x="${u*2.8}" y="${u*2.8}" width="${w - u*5.6}" height="${h - u*5.6}" fill="none" stroke="#1F1F1F" stroke-width="${u*1.2}" />`;
+
+  // 2. Corner Bracket System (Intricate 90-degree UI corners)
+  const cLen = u * 25; // Length of corner brackets
+
+  const buildCorner = (color: string) => `
+    <!-- Dark structural housing behind the neon to add tasteful black contrast -->
+    <path d="M ${u*1.5} ${cLen*1.05} L ${u*1.5} ${u*1.5} L ${cLen*1.05} ${u*1.5}" fill="none" stroke="rgba(10,10,10,0.85)" stroke-width="${u*3}" stroke-linecap="square" stroke-linejoin="miter" />
+    <!-- Thick main bracket sitting perfectly on the dark housing -->
+    <path d="M ${u*1.8} ${cLen} L ${u*1.8} ${u*1.8} L ${cLen} ${u*1.8}" fill="none" stroke="${color}" stroke-width="${u*1.5}" stroke-linecap="square" stroke-linejoin="miter" />
+    <!-- Fine detail inner HUD bracket -->
+    <path d="M ${u*4.8} ${cLen*0.6} L ${u*4.8} ${u*4.8} L ${cLen*0.6} ${u*4.8}" fill="none" stroke="${color}" stroke-width="${u*0.4}" stroke-linecap="square" stroke-linejoin="miter" />
+    <!-- Crosshair node -->
+    <path d="M ${u*6.8} ${u*5.8} L ${u*6.8} ${u*7.5} M ${u*5.8} ${u*6.8} L ${u*7.5} ${u*6.8}" stroke="rgba(255,255,255,0.7)" stroke-width="${u*0.25}" />
+    <!-- Tech data blocks on edges -->
+    <rect x="${u*9}" y="${u*0.4}" width="${u*2}" height="${u*1}" fill="${color}" />
+    <rect x="${u*11.5}" y="${u*0.4}" width="${u*0.8}" height="${u*1}" fill="rgba(255,255,255,0.9)" />
+    <rect x="${u*0.4}" y="${u*11}" width="${u*1}" height="${u*2.5}" fill="${color}" />
   `;
 
-  const createStripes = (x: number, y: number, color: string, dx: number, dy: number, count: number = 3) => {
-    let stripes = '';
-    const gap = 14 * S;
-    const thick = 6 * S;
-    for (let i = 0; i < count; i++) {
-      const sx = x + i * gap;
-      stripes += `<path d="M ${sx} ${y} L ${sx + dx} ${y + dy}" fill="none" stroke="${color}" stroke-width="${thick}" stroke-linecap="round" />`;
-    }
-    return stripes;
-  };
+  // Place corners precisely at the 4 bounds using mirroring
+  const tl = `<g transform="translate(0, 0)">${buildCorner('#69D23F')}</g>`;
+  const tr = `<g transform="translate(${w}, 0) scale(-1, 1)">${buildCorner('#F12B2B')}</g>`;
+  const bl = `<g transform="translate(0, ${h}) scale(1, -1)">${buildCorner('#69D23F')}</g>`;
+  const br = `<g transform="translate(${w}, ${h}) scale(-1, -1)">${buildCorner('#F12B2B')}</g>`;
+
+  // 3. Telemetry / HUD Details along the edges
+  const telemetryTop = `
+    <g transform="translate(${w/2 - u*12}, ${u*3})">
+      <rect x="0" y="0" width="${u*24}" height="${u*0.25}" fill="rgba(255,255,255,0.2)" />
+      <rect x="0" y="${u*0.6}" width="${u*4}" height="${u*0.25}" fill="#F12B2B" />
+      <rect x="${u*4.5}" y="${u*0.6}" width="${u*1.5}" height="${u*0.25}" fill="rgba(255,255,255,0.8)" />
+      <rect x="${u*6.5}" y="${u*0.6}" width="${u*0.8}" height="${u*0.25}" fill="rgba(255,255,255,0.8)" />
+      <rect x="${u*18}" y="${u*0.6}" width="${u*6}" height="${u*0.25}" fill="#69D23F" />
+    </g>
+  `;
+
+  // 4. Central Bottom Segmented Data Bar
+  const bottomBar = `
+    <g transform="translate(${w/2 - u*15}, ${h - u*3.5})">
+      <defs>
+        <linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#69D23F" />
+          <stop offset="50%" stop-color="#FFDD00" />
+          <stop offset="100%" stop-color="#F12B2B" />
+        </linearGradient>
+      </defs>
+      <!-- Thick gradient bar -->
+      <path d="M 0 0 L ${u*30} 0" fill="none" stroke="url(#cyberGrad)" stroke-width="${u*2}" />
+      <!-- Black cuts for UI segmentation -->
+      <path d="M ${u*6} -${u*1.2} L ${u*6} ${u*1.2} M ${u*15} -${u*1.2} L ${u*15} ${u*1.2} M ${u*24} -${u*1.2} L ${u*24} ${u*1.2}" fill="none" stroke="#050505" stroke-width="${u*1}" />
+    </g>
+  `;
 
   return `
     <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-      <path d="M -10 -10 L ${w+10} -10 L ${w+10} ${h+10} L -10 ${h+10} Z M ${L+cs} ${T} L ${R-cs} ${T} L ${R} ${T+cs} L ${R} ${B-cs} L ${R-cs} ${B} L ${L+cs} ${B} L ${L} ${B-cs} L ${L} ${T+cs} Z" fill="#000000" fill-rule="evenodd" />
+      <!-- Base Structural Cages -->
+      ${outerRim}
+      ${innerTrack}
+      
+      <!-- Telemetry Data Lines -->
+      ${telemetryTop}
+      
+      <!-- 4-Corner Intricate Brackets -->
+      ${tl}
+      ${tr}
+      ${bl}
+      ${br}
+      
+      <!-- Central Bottom Energy Bar -->
       ${bottomBar}
-      <path d="M ${L} ${T + cs * 1.7} L ${L} ${B - cs * 1.7}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
-      <path d="M ${R} ${T + cs * 1.7} L ${R} ${B - cs * 2.2}" stroke="rgba(255,255,255,0.3)" stroke-width="${b * 0.15}" />
-      <path d="M ${L + cs * 1.7} ${T} L ${w / 2} ${T}" stroke="#69D23F" stroke-width="${b * 0.4}" />
-      <path d="M ${w / 2} ${T} L ${R - cs * 1.7} ${T}" stroke="#F12B2B" stroke-width="${b * 0.4}" />
-      <path d="M ${L + cs * 1.5} ${T} L ${L + cs} ${T} L ${L} ${T + cs} L ${L} ${T + cs * 1.5}" fill="none" stroke="#69D23F" stroke-width="${b}" stroke-linecap="square" stroke-linejoin="miter" />
-      <path d="M ${R - cs * 1.5} ${T} L ${R - cs} ${T} L ${R} ${T + cs} L ${R} ${T + cs * 1.5}" fill="none" stroke="#F12B2B" stroke-width="${b}" stroke-linecap="square" stroke-linejoin="miter" />
-      <path d="M ${L} ${B - cs * 1.5} L ${L} ${B - cs} L ${L + cs} ${B} L ${L + cs * 1.5} ${B}" fill="none" stroke="#69D23F" stroke-width="${b}" stroke-linecap="square" stroke-linejoin="miter" />
-      <path d="M ${R} ${B - cs * 2} L ${R} ${B - cs} L ${R - cs} ${B} L ${R - cs * 2} ${B}" fill="none" stroke="#F12B2B" stroke-width="${b * 1.3}" stroke-linecap="square" stroke-linejoin="miter" />
-      ${createStripes(L + cs * 1.8, T + 20 * S, '#69D23F', 15 * S, -30 * S)}
-      ${createStripes(L + cs * 1.8, B - 10 * S, '#69D23F', 15 * S, -30 * S)}
-      ${createStripes(R - cs * 3.5, B - 10 * S, '#F12B2B', 15 * S, -30 * S)}
     </svg>
   `;
 }
@@ -126,6 +158,9 @@ export class UploadsController {
         const svgStr = generateCyberpunkSVG(w, h);
         const composites: any[] = [{ input: Buffer.from(svgStr), top: 0, left: 0 }];
 
+        const S_local = Math.min(w, h) / 1080;
+        const b_local = 24 * S_local;
+
         const logoName = process.env.WATERMARK_LOGO;
         if (logoName) {
           const logoPath = join(process.cwd(), '../../', logoName);
@@ -145,10 +180,10 @@ export class UploadsController {
             const largeLeft = Math.max(0, Math.round(w / 2 - largeWidth / 2));
             composites.push({ input: transparentLogo, top: largeTop, left: largeLeft });
 
-            // Small Top-Right Watermark
-            const smallWidth = Math.max(50, Math.round(w * 0.04));
+            // Small Top-Right Watermark (Increased to 16% width as requested)
+            const smallWidth = Math.max(80, Math.round(w * 0.16));
             const smallLogoBuf = await sharp(logoPath).resize({ width: smallWidth }).toBuffer();
-            const margin = 32;
+            const margin = Math.round(32 * S_local);
             const smallTop = margin;
             const smallLeft = w - smallWidth - margin;
             composites.push({ input: smallLogoBuf, top: smallTop, left: smallLeft });
