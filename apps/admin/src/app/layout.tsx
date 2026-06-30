@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Xtra Time Admin',
   description: 'Xtra Time content management panel',
+  icons: {
+    icon: process.env.NEXT_PUBLIC_SITE_LOCALE === 'bn' ? '/logo-bangla.png' : '/logo-eng.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -54,6 +54,9 @@ export const metadata: Metadata = {
   other: {
     'google-adsense-account': branding.siteLocale === 'bn' ? 'ca-pub-9212477578765032' : 'ca-pub-4299633259109805',
   },
+  icons: {
+    icon: branding.siteLocale === 'bn' ? '/logo-bangla.png' : '/logo-eng.png',
+  },
 };
 
 export const viewport: Viewport = {
