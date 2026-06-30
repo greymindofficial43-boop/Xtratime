@@ -21,6 +21,7 @@ export default function ArticlesPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [view, setView] = useState<'active' | 'trash'>('active');
@@ -34,6 +35,7 @@ export default function ArticlesPage() {
       if (selectedCategory) params.category = selectedCategory;
       if (selectedDate) params.date = selectedDate;
       if (selectedMonth) params.month = selectedMonth;
+      if (searchQuery) params.search = searchQuery;
 
       const [res, categoryData, trash] = await Promise.all([
         fetcher(params),
@@ -49,6 +51,14 @@ export default function ArticlesPage() {
       setLoading(false);
     }
   }
+
+  // Debounce search query so we don't spam the API on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      load();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => { load(); }, [selectedCategory, selectedDate, selectedMonth, view, page]);
 
@@ -313,10 +323,21 @@ export default function ArticlesPage() {
           />
         </div>
 
-        {(selectedCategory || selectedDate || selectedMonth) && (
+        <div className="flex flex-1 items-center gap-2 min-w-[200px]">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+            placeholder="Search articles..."
+            className="w-full rounded-lg border px-3 py-2 text-sm"
+            style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+          />
+        </div>
+
+        {(selectedCategory || selectedDate || selectedMonth || searchQuery) && (
           <button
             type="button"
-            onClick={() => { setSelectedCategory(''); setSelectedDate(''); setSelectedMonth(''); setPage(1); }}
+            onClick={() => { setSelectedCategory(''); setSelectedDate(''); setSelectedMonth(''); setSearchQuery(''); setPage(1); }}
             className="text-sm font-semibold"
             style={{ color: 'var(--admin-accent)' }}
           >
