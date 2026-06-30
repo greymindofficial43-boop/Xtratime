@@ -19,6 +19,10 @@ export default function ArticlesPage() {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [view, setView] = useState<'active' | 'trash'>('active');
   const [trashCount, setTrashCount] = useState(0);
 
@@ -26,12 +30,18 @@ export default function ArticlesPage() {
     setLoading(true);
     try {
       const fetcher = view === 'trash' ? adminApi.getTrash : adminApi.getArticles;
+      const params: Record<string, string> = { limit: '20', page: page.toString() };
+      if (selectedCategory) params.category = selectedCategory;
+      if (selectedDate) params.date = selectedDate;
+      if (selectedMonth) params.month = selectedMonth;
+
       const [res, categoryData, trash] = await Promise.all([
-        fetcher({ limit: '50', ...(selectedCategory ? { category: selectedCategory } : {}) }),
+        fetcher(params),
         adminApi.getCategories(),
         adminApi.getTrash({ limit: '1' }),
       ]);
       setArticles(res.items);
+      setTotalPages(res.totalPages || 1);
       setCategories(categoryData);
       setTrashCount(trash.total);
       setSelectedIds([]);
@@ -40,7 +50,7 @@ export default function ArticlesPage() {
     }
   }
 
-  useEffect(() => { load(); }, [selectedCategory, view]);
+  useEffect(() => { load(); }, [selectedCategory, selectedDate, selectedMonth, view, page]);
 
   async function handleDelete(id: string, title: string) {
     if (!confirm(`Move "${title}" to Trash? You can restore it later.`)) return;
@@ -258,30 +268,59 @@ export default function ArticlesPage() {
         className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3"
         style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}
       >
-        <label className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>
-          Filter By Category
-        </label>
-        <select
-          value={selectedCategory}
-          onChange={(event) => setSelectedCategory(event.target.value)}
-          className="rounded-lg border px-3 py-2 text-sm"
-          style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
-        >
-          <option value="">All Categories</option>
-          {categories.filter((category) => !category.parentId).map((category) => (
-            <option key={category.id} value={category.slug}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        {selectedCategory && (
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>
+            Category
+          </label>
+          <select
+            value={selectedCategory}
+            onChange={(event) => { setSelectedCategory(event.target.value); setPage(1); }}
+            className="rounded-lg border px-3 py-2 text-sm"
+            style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+          >
+            <option value="">All Categories</option>
+            {categories.filter((category) => !category.parentId).map((category) => (
+              <option key={category.id} value={category.slug}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>
+            Date
+          </label>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => { setSelectedDate(e.target.value); setSelectedMonth(''); setPage(1); }}
+            className="rounded-lg border px-3 py-2 text-sm"
+            style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--admin-muted)' }}>
+            Month
+          </label>
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => { setSelectedMonth(e.target.value); setSelectedDate(''); setPage(1); }}
+            className="rounded-lg border px-3 py-2 text-sm"
+            style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+          />
+        </div>
+
+        {(selectedCategory || selectedDate || selectedMonth) && (
           <button
             type="button"
-            onClick={() => setSelectedCategory('')}
+            onClick={() => { setSelectedCategory(''); setSelectedDate(''); setSelectedMonth(''); setPage(1); }}
             className="text-sm font-semibold"
             style={{ color: 'var(--admin-accent)' }}
           >
-            Clear
+            Clear Filters
           </button>
         )}
       </div>
@@ -494,6 +533,32 @@ export default function ArticlesPage() {
                 })}
               </tbody>
             </table>
+          </div>
+          <div
+            className="mt-6 flex items-center justify-between rounded-xl border px-4 py-3"
+            style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}
+          >
+            <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>
+              Page <span className="font-bold" style={{ color: 'var(--admin-text)' }}>{page}</span> of <span className="font-bold" style={{ color: 'var(--admin-text)' }}>{totalPages || 1}</span>
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page <= 1 || loading}
+                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition hover:opacity-70 disabled:opacity-40"
+                style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || loading}
+                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition hover:opacity-70 disabled:opacity-40"
+                style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </>
       )}

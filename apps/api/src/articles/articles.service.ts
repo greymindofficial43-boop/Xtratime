@@ -64,6 +64,19 @@ export class ArticlesService {
     if (query.trending) and.push({ isTrending: true });
     if (query.type) and.push({ type: query.type });
 
+    if (query.date) {
+      const start = new Date(`${query.date}T00:00:00.000Z`);
+      const end = new Date(`${query.date}T23:59:59.999Z`);
+      and.push({ publishedAt: { gte: start, lte: end } });
+    } else if (query.month) {
+      const [year, month] = query.month.split('-');
+      if (year && month) {
+        const start = new Date(Date.UTC(Number(year), Number(month) - 1, 1));
+        const end = new Date(Date.UTC(Number(year), Number(month), 1));
+        and.push({ publishedAt: { gte: start, lt: end } });
+      }
+    }
+
     if (query.search) {
       // Tokenize: every word must match somewhere (title/excerpt/content/
       // category name/tag name). Fixes multi-word queries that previously

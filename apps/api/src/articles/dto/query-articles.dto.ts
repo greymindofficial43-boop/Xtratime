@@ -60,4 +60,12 @@ export class QueryArticlesDto {
   @IsOptional()
   @IsEnum(ArticleType)
   type?: ArticleType;
+
+  @IsOptional()
+  @IsString()
+  date?: string;
+
+  @IsOptional()
+  @IsString()
+  month?: string;
 }
