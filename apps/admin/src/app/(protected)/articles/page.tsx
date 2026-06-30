@@ -535,21 +535,59 @@ export default function ArticlesPage() {
             </table>
           </div>
           <div
-            className="mt-6 flex items-center justify-between rounded-xl border px-4 py-3"
+            className="mt-6 flex flex-col items-center justify-between gap-4 rounded-xl border px-4 py-3 sm:flex-row"
             style={{ background: 'var(--admin-surface)', borderColor: 'var(--admin-border)' }}
           >
             <p className="text-sm" style={{ color: 'var(--admin-muted)' }}>
               Page <span className="font-bold" style={{ color: 'var(--admin-text)' }}>{page}</span> of <span className="font-bold" style={{ color: 'var(--admin-text)' }}>{totalPages || 1}</span>
             </p>
-            <div className="flex gap-2">
+
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page <= 1 || loading}
                 className="rounded-lg border px-3 py-1.5 text-sm font-medium transition hover:opacity-70 disabled:opacity-40"
                 style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
               >
-                Previous
+                Prev
               </button>
+
+              {(() => {
+                const pages = [];
+                const start = Math.max(1, page - 2);
+                const end = Math.min(totalPages || 1, page + 2);
+
+                if (start > 1) {
+                  pages.push(1);
+                  if (start > 2) pages.push('...');
+                }
+
+                for (let i = start; i <= end; i++) {
+                  pages.push(i);
+                }
+
+                if (end < (totalPages || 1)) {
+                  if (end < (totalPages || 1) - 1) pages.push('...');
+                  pages.push(totalPages || 1);
+                }
+
+                return pages.map((p, i) => (
+                  <button
+                    key={i}
+                    onClick={() => typeof p === 'number' && setPage(p)}
+                    disabled={p === '...'}
+                    className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition ${p === page ? 'opacity-100' : 'opacity-60 hover:opacity-100'} ${p === '...' ? 'cursor-default border-transparent' : ''}`}
+                    style={{
+                      borderColor: p === page ? 'var(--admin-accent)' : p === '...' ? 'transparent' : 'var(--admin-border)',
+                      background: p === page ? 'var(--admin-accent)' : 'var(--admin-bg)',
+                      color: p === page ? '#fff' : 'var(--admin-text)'
+                    }}
+                  >
+                    {p}
+                  </button>
+                ));
+              })()}
+
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages || loading}
@@ -558,6 +596,24 @@ export default function ArticlesPage() {
               >
                 Next
               </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max={totalPages || 1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const p = parseInt(e.currentTarget.value);
+                    if (p > 0 && p <= totalPages) setPage(p);
+                    e.currentTarget.value = '';
+                  }
+                }}
+                placeholder="Go to"
+                className="w-16 rounded-lg border px-2 py-1.5 text-sm text-center"
+                style={{ borderColor: 'var(--admin-border)', background: 'var(--admin-bg)', color: 'var(--admin-text)' }}
+              />
             </div>
           </div>
         </>
